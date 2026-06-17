@@ -7,7 +7,10 @@ let supabaseClient = null;
 
 function getSupabaseClient() {
   if (supabaseClient) return supabaseClient;
-  if (!window.supabase?.createClient) return null;
+  if (!window.supabase?.createClient) {
+    console.warn('Supabase SDK가 아직 로드되지 않았어요.', window.supabase);
+    return null;
+  }
   supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
       persistSession: true,
@@ -20,7 +23,9 @@ function getSupabaseClient() {
 
 let currentSession = null;
 let currentUser = null;
+let isGuestMode = false;
 let isCloudBusy = false;
+window.__scheduleAppAuthBound = false;
 
 
 const state = {
@@ -198,9 +203,14 @@ function getDefaultOcrState() {
 }
 
 async function init() {
-  loadState();
+  try {
+    loadState();
+  } catch (error) {
+    console.warn('저장 데이터 초기화 중 오류', error);
+  }
   initMonthSelect();
   bindAuthEvents();
+  setAuthMessage('로그인 화면 준비 완료. 이메일을 입력한 뒤 로그인 링크를 보내 주세요.', '');
   try {
     bindEvents();
   } catch (error) {
@@ -282,19 +292,40 @@ function parseMonthKey(key) {
 
 
 function bindAuthEvents() {
-  on('magicLinkButton', 'click', sendMagicLink);
+  const loginButton = el('magicLinkButton');
+  if (loginButton && !loginButton.dataset.bound) {
+    loginButton.dataset.bound = 'true';
+    loginButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      sendMagicLink();
+    });
+    window.__scheduleAppAuthBound = true;
+  }
   el('authEmailInput')?.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();
       sendMagicLink();
     }
   });
-  el('logoutButton')?.addEventListener('click', async () => {
-    const client = getSupabaseClient();
-    if (!client) return;
-    await client.auth.signOut();
+  el('guestModeButton')?.addEventListener('click', () => {
+    isGuestMode = true;
     currentSession = null;
     currentUser = null;
+    showAppShell();
+    showCloudStatus('로그인 없이 임시 사용 중이에요. 이 모드에서는 클라우드 저장/불러오기는 사용할 수 없어요.', 'warn');
+    ensurePeople();
+    normalizePeopleDays();
+    syncInputs();
+    renderScheduleTable();
+    renderUploadedImage();
+    renderAll();
+  });
+  el('logoutButton')?.addEventListener('click', async () => {
+    const client = getSupabaseClient();
+    if (client && currentUser) await client.auth.signOut();
+    currentSession = null;
+    currentUser = null;
+    isGuestMode = false;
     showAuthGate('로그아웃했어요. 다시 사용하려면 이메일로 로그인해 주세요.');
   });
 }
@@ -335,6 +366,7 @@ async function initAuth() {
 }
 
 async function sendMagicLink() {
+  setAuthMessage('버튼 클릭 확인됨. 로그인 링크 전송을 준비하고 있어요.', '');
   const button = el('magicLinkButton');
   const originalText = button?.textContent || '로그인 링크 보내기';
   try {
@@ -401,8 +433,12 @@ function showAuthGate(message = '') {
 function showAppShell() {
   el('authGate')?.classList.add('is-hidden');
   el('appShell')?.classList.remove('is-hidden');
-  if (el('userEmailText')) el('userEmailText').textContent = currentUser?.email || '로그인됨';
-  showCloudStatus('Supabase에 연결됐어요. 저장 버튼을 누르면 현재 월 데이터가 클라우드에 저장됩니다.', 'ok');
+  if (el('userEmailText')) el('userEmailText').textContent = currentUser?.email || (isGuestMode ? '임시 사용 중' : '로그인됨');
+  if (isGuestMode) {
+    showCloudStatus('로그인 없이 임시 사용 중이에요. 클라우드 저장은 로그인 후 사용할 수 있어요.', 'warn');
+  } else {
+    showCloudStatus('Supabase에 연결됐어요. 저장 버튼을 누르면 현재 월 데이터가 클라우드에 저장됩니다.', 'ok');
+  }
 }
 
 function showCloudStatus(message, type = '') {
@@ -2161,4 +2197,18 @@ function loadState() {
   }
 }
 
-init();
+function bootScheduleApp() {
+  if (window.__scheduleAppBooted) return;
+  window.__scheduleAppBooted = true;
+  init().catch((error) => {
+    console.error('앱 초기화 실패', error);
+    setAuthMessage(`앱 초기화 중 오류가 발생했어요: ${error?.message || error}`, 'error');
+    showAuthGate();
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootScheduleApp);
+} else {
+  bootScheduleApp();
+}

@@ -8,7 +8,62 @@
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    window.SCHEDULE_SUPABASE_URL = "https://fergbabqmwnbkkxjvgkj.supabase.co";
+    window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
+  </script>
   <script defer src="./app.js"></script>
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        if (window.__scheduleAppAuthBound) return;
+        const button = document.getElementById('magicLinkButton');
+        const input = document.getElementById('authEmailInput');
+        const message = document.getElementById('authMessage');
+        const setMessage = (text, type = '') => {
+          if (!message) return;
+          message.textContent = text;
+          message.className = `auth-message ${type}`;
+        };
+        if (!button || !input) return;
+        setMessage('로그인 스크립트를 다시 연결했어요. 이메일을 입력하고 버튼을 눌러 주세요.');
+        button.addEventListener('click', async () => {
+          setMessage('버튼 클릭 확인됨. 로그인 링크를 보내는 중이에요.');
+          try {
+            if (!window.supabase?.createClient) {
+              setMessage('Supabase 라이브러리를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.', 'error');
+              return;
+            }
+            const email = input.value.trim();
+            if (!email) {
+              setMessage('이메일을 입력해 주세요.', 'error');
+              return;
+            }
+            const client = window.supabase.createClient(window.SCHEDULE_SUPABASE_URL, window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY, {
+              auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+            });
+            button.disabled = true;
+            button.textContent = '로그인 링크 보내는 중...';
+            const redirectTo = `${window.location.origin}${window.location.pathname}`;
+            const { error } = await client.auth.signInWithOtp({
+              email,
+              options: { emailRedirectTo: redirectTo, shouldCreateUser: true }
+            });
+            if (error) {
+              setMessage(`로그인 링크 전송 실패: ${error.message}`, 'error');
+              return;
+            }
+            setMessage('로그인 링크를 보냈어요. 메일함과 스팸함을 확인해 주세요.', 'ok');
+          } catch (error) {
+            setMessage(`로그인 처리 중 오류가 발생했어요: ${error?.message || error}`, 'error');
+          } finally {
+            button.disabled = false;
+            button.textContent = '로그인 링크 보내기';
+          }
+        });
+      }, 800);
+    });
+  </script>
 </head>
 <body>
   <section id="authGate" class="auth-gate">
@@ -20,9 +75,10 @@
         이메일
         <input id="authEmailInput" type="email" placeholder="name@example.com" autocomplete="email" />
       </label>
-      <button id="magicLinkButton" class="primary-btn auth-main-btn">로그인 링크 보내기</button>
+      <button id="magicLinkButton" class="primary-btn auth-main-btn" type="button">로그인 링크 보내기</button>
+      <button id="guestModeButton" class="ghost-btn auth-sub-btn" type="button">로그인 없이 임시로 사용하기</button>
       <div id="authMessage" class="auth-message">로그인 링크는 입력한 이메일로 전송됩니다.</div>
-      <small class="auth-help">메일함에서 로그인 링크를 누르면 이 앱으로 돌아와요. 링크가 오지 않거나 돌아오지 않으면 Supabase의 URL 설정에 현재 Vercel 주소가 등록되어 있는지 확인해 주세요.</small>
+      <small class="auth-help">메일함에서 로그인 링크를 누르면 이 앱으로 돌아와요. 링크가 오지 않으면 스팸함을 확인해 주세요.</small>
     </div>
   </section>
 
