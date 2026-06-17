@@ -6,6 +6,9 @@ const state = {
   people: [],
   codes: getDefaultCodes(),
   activePage: 'home',
+  imageData: '',
+  imageName: '',
+  ocr: getDefaultOcrState(),
 };
 
 const el = (id) => document.getElementById(id);
@@ -13,16 +16,55 @@ const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
 
 function getDefaultCodes() {
   return {
-    BM: { label: '근무', start: '08:00', end: '17:00', type: 'work' },
-    AM: { label: '근무', start: '07:30', end: '16:30', type: 'work' },
+    BI: { label: '근무', start: '03:30', end: '12:00', type: 'work' },
+    BK: { label: '근무', start: '04:00', end: '13:00', type: 'work' },
+    BL: { label: '근무', start: '04:30', end: '13:30', type: 'work' },
+    BM: { label: '근무', start: '05:00', end: '14:00', type: 'work' },
+    AA: { label: '근무', start: '05:30', end: '14:30', type: 'work' },
+    AB: { label: '근무', start: '06:00', end: '15:00', type: 'work' },
+    AC: { label: '근무', start: '06:30', end: '15:30', type: 'work' },
     AD: { label: '근무', start: '07:00', end: '16:00', type: 'work' },
+    AE: { label: '근무', start: '07:30', end: '16:30', type: 'work' },
+    AF: { label: '근무', start: '08:00', end: '17:00', type: 'work' },
+    AG: { label: '근무', start: '08:30', end: '17:30', type: 'work' },
+    AH: { label: '근무', start: '09:00', end: '18:00', type: 'work' },
+    AI: { label: '근무', start: '09:30', end: '18:30', type: 'work' },
+    AJ: { label: '근무', start: '10:00', end: '19:00', type: 'work' },
     AK: { label: '근무', start: '10:30', end: '19:30', type: 'work' },
+    AM: { label: '근무', start: '11:00', end: '20:00', type: 'work' },
+    AN: { label: '근무', start: '11:30', end: '20:30', type: 'work' },
+    AO: { label: '근무', start: '12:00', end: '21:00', type: 'work' },
+    AP: { label: '근무', start: '12:30', end: '21:30', type: 'work' },
+    AQ: { label: '근무', start: '13:00', end: '22:00', type: 'work' },
+    AR: { label: '근무', start: '13:30', end: '22:30', type: 'work' },
+    AT: { label: '근무', start: '14:00', end: '23:00', type: 'work' },
+    AU: { label: '근무', start: '14:30', end: '21:00', type: 'work' },
+    AV: { label: '근무', start: '14:30', end: '23:30', type: 'work' },
+    AW: { label: '근무', start: '15:00', end: '00:00', type: 'work' },
+    AY: { label: '근무', start: '15:30', end: '00:30', type: 'work' },
+    AZ: { label: '근무', start: '16:00', end: '01:00', type: 'work' },
+    BA: { label: '근무', start: '17:00', end: '02:00', type: 'work' },
+    BB: { label: '근무', start: '18:00', end: '03:00', type: 'work' },
+    BC: { label: '근무', start: '21:00', end: '06:00', type: 'work' },
+    BD: { label: '근무', start: '22:00', end: '07:00', type: 'work' },
+    BE: { label: '근무', start: '22:30', end: '07:30', type: 'work' },
+    BF: { label: '근무', start: '23:00', end: '08:00', type: 'work' },
+    BG: { label: '근무', start: '23:30', end: '08:30', type: 'work' },
+    BH: { label: '근무', start: '00:00', end: '09:00', type: 'work' },
     AL: { label: '연차', start: '', end: '', type: 'leave' },
     DO: { label: '휴무', start: '', end: '', type: 'off' },
-    PH: { label: '휴무', start: '', end: '', type: 'off' },
+    PH: { label: '연휴', start: '', end: '', type: 'off' },
     SD: { label: '남은휴무', start: '', end: '', type: 'off' },
     RT: { label: '예비군', start: '', end: '', type: 'off' },
     CC: { label: '경조휴가', start: '', end: '', type: 'off' },
+  };
+}
+
+function getDefaultOcrState() {
+  return {
+    names: ['곽병우', '이준호', '유희수', '김도영', '이다운', '이상민', '정세완'].join('\n'),
+    rect: { x: 18.3, y: 12.1, w: 49.6, h: 25.5 },
+    results: [],
   };
 }
 
@@ -32,6 +74,10 @@ function init() {
   bindEvents();
   ensurePeople();
   syncInputs();
+  renderUploadedImage();
+  syncOcrInputs();
+  renderOcrResultTable();
+  setTimeout(drawOcrPreview, 0);
   renderScheduleTable();
   renderAll();
 }
@@ -44,6 +90,7 @@ function bindEvents() {
   el('uploadButton').addEventListener('click', () => el('imageInput').click());
   el('imageInput').addEventListener('change', handleImageUpload);
   el('loadSampleButton').addEventListener('click', loadSample);
+  el('loadSampleFromUploadButton')?.addEventListener('click', () => { loadSample(); switchPage('home', true); });
   el('clearButton').addEventListener('click', clearAll);
   el('saveButton').addEventListener('click', () => saveState(true));
   el('addPersonButton').addEventListener('click', addPerson);
@@ -54,6 +101,8 @@ function bindEvents() {
   document.querySelectorAll('.page-shortcut').forEach((button) => {
     button.addEventListener('click', () => switchPage(button.dataset.goPage, true));
   });
+
+  bindOcrEvents();
 }
 
 function initMonthSelect() {
@@ -65,6 +114,7 @@ function syncInputs() {
   el('monthInput').value = state.month;
   el('myNameInput').value = state.myName;
   el('selectedDateInput').value = state.selectedDate;
+  syncOcrInputs();
 }
 
 function ensurePeople() {
@@ -173,6 +223,10 @@ function loadSample() {
   ];
   state.people = names.map((name, i) => ({ name, schedules: patterns[i] }));
   syncInputs();
+  renderUploadedImage();
+  syncOcrInputs();
+  renderOcrResultTable();
+  setTimeout(drawOcrPreview, 0);
   renderScheduleTable();
   renderAll();
   saveState(true);
@@ -181,11 +235,309 @@ function loadSample() {
 function handleImageUpload(e) {
   const file = e.target.files?.[0];
   if (!file) return;
-  const url = URL.createObjectURL(file);
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    state.imageData = reader.result;
+    state.imageName = file.name;
+    renderUploadedImage();
+    saveState(false);
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderUploadedImage() {
   const image = el('imagePreview');
-  image.src = url;
-  image.style.display = 'block';
-  el('emptyPreview').style.display = 'none';
+  const emptyPreview = el('emptyPreview');
+  const status = el('imageStatus');
+  const actions = el('uploadNextActions');
+
+  if (!image || !emptyPreview) return;
+
+  if (state.imageData) {
+    image.src = state.imageData;
+    image.style.display = 'block';
+    emptyPreview.style.display = 'none';
+    if (status) {
+      status.innerHTML = `<strong>업로드 완료</strong><span>${escapeHtml(state.imageName || '스케줄표 이미지')}</span><small>다음 단계: 자동 추출 페이지에서 표 영역을 확인한 뒤 추출을 시작해 주세요.</small>`;
+      status.classList.add('uploaded');
+    }
+    if (actions) actions.classList.add('show');
+  } else {
+    image.removeAttribute('src');
+    image.style.display = 'none';
+    emptyPreview.style.display = 'grid';
+    if (status) {
+      status.textContent = '아직 업로드된 이미지가 없어요.';
+      status.classList.remove('uploaded');
+    }
+    if (actions) actions.classList.remove('show');
+  }
+}
+
+
+function bindOcrEvents() {
+  const ids = ['ocrNamesInput', 'ocrXInput', 'ocrYInput', 'ocrWInput', 'ocrHInput'];
+  ids.forEach((id) => {
+    const node = el(id);
+    if (!node) return;
+    node.addEventListener('input', () => {
+      updateOcrStateFromInputs();
+      drawOcrPreview();
+      saveState(false);
+    });
+  });
+  el('loadDefaultNamesButton')?.addEventListener('click', () => {
+    state.ocr.names = getDefaultOcrState().names;
+    syncOcrInputs();
+    saveState(false);
+  });
+  el('useTopTablePresetButton')?.addEventListener('click', () => {
+    state.ocr.rect = { x: 18.3, y: 12.1, w: 49.6, h: 25.5 };
+    syncOcrInputs();
+    drawOcrPreview();
+    saveState(false);
+  });
+  el('drawOcrPreviewButton')?.addEventListener('click', drawOcrPreview);
+  el('runOcrButton')?.addEventListener('click', runOcrExtraction);
+  el('applyOcrToEditorButton')?.addEventListener('click', applyOcrResultsToEditor);
+}
+
+function syncOcrInputs() {
+  state.ocr = { ...getDefaultOcrState(), ...(state.ocr || {}) };
+  if (el('ocrNamesInput')) el('ocrNamesInput').value = state.ocr.names || '';
+  const rect = state.ocr.rect || getDefaultOcrState().rect;
+  if (el('ocrXInput')) el('ocrXInput').value = rect.x;
+  if (el('ocrYInput')) el('ocrYInput').value = rect.y;
+  if (el('ocrWInput')) el('ocrWInput').value = rect.w;
+  if (el('ocrHInput')) el('ocrHInput').value = rect.h;
+}
+
+function updateOcrStateFromInputs() {
+  state.ocr = { ...getDefaultOcrState(), ...(state.ocr || {}) };
+  if (el('ocrNamesInput')) state.ocr.names = el('ocrNamesInput').value;
+  state.ocr.rect = {
+    x: clampNumber(Number(el('ocrXInput')?.value || 0), 0, 99),
+    y: clampNumber(Number(el('ocrYInput')?.value || 0), 0, 99),
+    w: clampNumber(Number(el('ocrWInput')?.value || 1), 1, 100),
+    h: clampNumber(Number(el('ocrHInput')?.value || 1), 1, 100),
+  };
+}
+
+async function drawOcrPreview() {
+  const canvas = el('ocrPreviewCanvas');
+  const empty = el('ocrEmptyPreview');
+  if (!canvas || !empty) return;
+  if (!state.imageData) {
+    canvas.style.display = 'none';
+    empty.style.display = 'grid';
+    return;
+  }
+  const img = await loadImage(state.imageData);
+  const maxWidth = 920;
+  const ratio = Math.min(1, maxWidth / img.naturalWidth);
+  canvas.width = Math.round(img.naturalWidth * ratio);
+  canvas.height = Math.round(img.naturalHeight * ratio);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  const rect = state.ocr?.rect || getDefaultOcrState().rect;
+  const x = canvas.width * rect.x / 100;
+  const y = canvas.height * rect.y / 100;
+  const w = canvas.width * rect.w / 100;
+  const h = canvas.height * rect.h / 100;
+  ctx.save();
+  ctx.fillStyle = 'rgba(255, 214, 10, 0.18)';
+  ctx.strokeStyle = 'rgba(255, 183, 0, 0.95)';
+  ctx.lineWidth = 3;
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeRect(x, y, w, h);
+  const names = getOcrNames();
+  if (names.length) {
+    ctx.strokeStyle = 'rgba(255, 183, 0, 0.55)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < names.length; i++) {
+      const lineY = y + (h / names.length) * i;
+      ctx.beginPath();
+      ctx.moveTo(x, lineY);
+      ctx.lineTo(x + w, lineY);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+  canvas.style.display = 'block';
+  empty.style.display = 'none';
+}
+
+function getOcrNames() {
+  const raw = state.ocr?.names || '';
+  return raw.split('\n').map((name) => name.trim()).filter(Boolean);
+}
+
+async function runOcrExtraction() {
+  updateOcrStateFromInputs();
+  const progress = el('ocrProgress');
+  if (!state.imageData) {
+    alert('먼저 설정·이미지 페이지에서 스케줄표 이미지를 업로드해 주세요.');
+    switchPage('setup', true);
+    return;
+  }
+  if (!window.Tesseract) {
+    alert('OCR 라이브러리를 불러오지 못했어요. 인터넷 연결 상태를 확인한 뒤 새로고침해 주세요.');
+    return;
+  }
+  const names = getOcrNames();
+  if (!names.length) {
+    alert('추출할 사람 이름을 위에서 아래 순서대로 입력해 주세요.');
+    return;
+  }
+
+  const days = daysInMonth(state.year, state.month);
+  const img = await loadImage(state.imageData);
+  const results = [];
+  if (progress) progress.textContent = `OCR 준비 중... 총 ${names.length}개 행을 읽습니다.`;
+
+  for (let row = 0; row < names.length; row++) {
+    if (progress) progress.textContent = `OCR 진행 중 ${row + 1}/${names.length}: ${names[row]}`;
+    const cropDataUrl = cropOcrRow(img, row, names.length);
+    let text = '';
+    let confidence = 0;
+    try {
+      const result = await Tesseract.recognize(cropDataUrl, 'eng', {
+        logger: (m) => {
+          if (m.status === 'recognizing text' && progress) {
+            const pct = Math.round((m.progress || 0) * 100);
+            progress.textContent = `OCR 진행 중 ${row + 1}/${names.length}: ${names[row]} · ${pct}%`;
+          }
+        },
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ',
+      });
+      text = result?.data?.text || '';
+      confidence = Math.round(result?.data?.confidence || 0);
+    } catch (error) {
+      console.warn('OCR row failed', error);
+      text = '';
+      confidence = 0;
+    }
+    const codes = extractCodesFromOcrText(text, days);
+    results.push({ name: names[row], schedules: codes, rawText: text, confidence });
+    state.ocr.results = results;
+    renderOcrResultTable();
+  }
+
+  state.ocr.results = results;
+  renderOcrResultTable();
+  saveState(false);
+  if (progress) progress.textContent = `추출 완료 · 아래 결과를 확인한 뒤 “추출 결과 검수표에 반영”을 눌러 주세요.`;
+}
+
+function cropOcrRow(img, rowIndex, rowCount) {
+  const rect = state.ocr.rect || getDefaultOcrState().rect;
+  const sx = img.naturalWidth * rect.x / 100;
+  const sy = img.naturalHeight * rect.y / 100 + (img.naturalHeight * rect.h / 100 / rowCount) * rowIndex;
+  const sw = img.naturalWidth * rect.w / 100;
+  const sh = img.naturalHeight * rect.h / 100 / rowCount;
+  const scale = 4;
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(sw * scale));
+  canvas.height = Math.max(1, Math.round(sh * scale));
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+    const value = gray < 165 ? 0 : 255;
+    data[i] = data[i + 1] = data[i + 2] = value;
+  }
+  ctx.putImageData(imageData, 0, 0);
+  return canvas.toDataURL('image/png');
+}
+
+function extractCodesFromOcrText(text, days) {
+  const known = new Set(Object.keys(state.codes || getDefaultCodes()));
+  const replacements = {
+    'D0': 'DO', '0O': 'DO', 'O0': 'DO',
+    '8M': 'BM', '6M': 'BM', 'B1': 'BI',
+    'A1': 'AI', 'Al': 'AI', 'A|': 'AI',
+    'P H': 'PH', 'D O': 'DO', 'B M': 'BM', 'A M': 'AM', 'A L': 'AL',
+  };
+  let normalized = String(text || '').toUpperCase();
+  Object.entries(replacements).forEach(([from, to]) => {
+    normalized = normalized.split(from.toUpperCase()).join(to);
+  });
+  normalized = normalized.replace(/0/g, 'O').replace(/8/g, 'B').replace(/1/g, 'I');
+
+  const wordMatches = normalized.match(/[A-Z]{2}/g) || [];
+  let codes = wordMatches.filter((token) => known.has(token));
+
+  if (codes.length < Math.floor(days * 0.5)) {
+    const letters = normalized.replace(/[^A-Z]/g, '');
+    const chunked = [];
+    for (let i = 0; i < letters.length - 1; i += 2) {
+      const pair = letters.slice(i, i + 2);
+      if (known.has(pair)) chunked.push(pair);
+    }
+    if (chunked.length > codes.length) codes = chunked;
+  }
+
+  if (codes.length < days) {
+    codes = codes.concat(Array.from({ length: days - codes.length }, () => ''));
+  }
+  return codes.slice(0, days);
+}
+
+function renderOcrResultTable() {
+  const table = el('ocrResultTable');
+  if (!table) return;
+  const results = state.ocr?.results || [];
+  const days = daysInMonth(state.year, state.month);
+  if (!results.length) {
+    table.innerHTML = '<tbody><tr><td>아직 추출 결과가 없습니다.</td></tr></tbody>';
+    return;
+  }
+  let html = '<thead><tr><th>이름</th>';
+  for (let d = 1; d <= days; d++) html += `<th>${d}</th>`;
+  html += '<th>신뢰도</th></tr></thead><tbody>';
+  results.forEach((row) => {
+    html += `<tr><td><strong>${escapeHtml(row.name)}</strong></td>`;
+    for (let d = 0; d < days; d++) html += `<td>${escapeHtml(row.schedules?.[d] || '')}</td>`;
+    html += `<td><span class="ocr-confidence">${row.confidence || 0}</span></td></tr>`;
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+function applyOcrResultsToEditor() {
+  const results = state.ocr?.results || [];
+  if (!results.length) {
+    alert('먼저 자동 추출을 실행해 주세요.');
+    return;
+  }
+  state.people = results.map((row) => ({ name: row.name, schedules: row.schedules || [] }));
+  normalizePeopleDays();
+  if (!state.myName && state.people[0]?.name) state.myName = state.people[0].name;
+  syncInputs();
+  renderScheduleTable();
+  renderAll();
+  saveState(true);
+  switchPage('editor', true);
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function clampNumber(value, min, max) {
+  if (!Number.isFinite(value)) return min;
+  return Math.min(max, Math.max(min, value));
 }
 
 function renderAll() {
@@ -266,6 +618,7 @@ function switchPage(page, shouldSave = true) {
   document.querySelectorAll('.sheet-tab').forEach((button) => {
     button.classList.toggle('active', button.dataset.page === page);
   });
+  if (page === 'extract') setTimeout(drawOcrPreview, 0);
   if (shouldSave) saveState(false);
   if (shouldSave) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -507,8 +860,24 @@ function isSameMonth(date) { return date.getFullYear() === state.year && date.ge
 function escapeHtml(value) { return String(value ?? '').replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m])); }
 
 function saveState(showAlert = false) {
-  localStorage.setItem('shift-organizer-v1', JSON.stringify({ ...state }));
-  if (showAlert) alert('저장했어요. 같은 브라우저에서 다시 열면 유지됩니다.');
+  try {
+    localStorage.setItem('shift-organizer-v1', JSON.stringify({ ...state }));
+    if (showAlert) alert('저장했어요. 같은 브라우저에서 다시 열면 유지됩니다.');
+  } catch (error) {
+    console.warn('저장 실패', error);
+    if (state.imageData) {
+      const imageData = state.imageData;
+      state.imageData = '';
+      try {
+        localStorage.setItem('shift-organizer-v1', JSON.stringify({ ...state }));
+        state.imageData = imageData;
+        alert('이미지 용량이 커서 스케줄 데이터만 저장했어요. 이미지는 새로고침 후 다시 업로드해 주세요.');
+      } catch (secondError) {
+        state.imageData = imageData;
+        alert('브라우저 저장 공간이 부족해서 저장하지 못했어요.');
+      }
+    }
+  }
 }
 
 function loadState() {
@@ -518,6 +887,7 @@ function loadState() {
     const parsed = JSON.parse(saved);
     Object.assign(state, parsed);
     state.codes = parsed.codes || getDefaultCodes();
+    state.ocr = { ...getDefaultOcrState(), ...(parsed.ocr || {}) };
     state.activePage = parsed.activePage || parsed.activeTab || 'home';
   } catch (e) {
     console.warn('저장 데이터 로드 실패', e);
