@@ -17,8 +17,8 @@ function getSupabaseClient() {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true, // MUST BE TRUE
-      flowType: 'pkce', // MUST BE PKCE
+      detectSessionInUrl: false, // 자동 감지 끄기 (수동 제어)
+      flowType: 'implicit', // implicit 흐름 강제 지정
     },
   });
   window.__scheduleSupabaseClient = supabaseClient;
@@ -293,94 +293,57 @@ function bindAuthEvents() {
 async function initAuth() {
   const client = getSupabaseClient();
   if (!client) {
-    setAuthMessage('Supabase 라이브러리를 불러오지 못했어요. 네트워크를 확인한 뒤 새로고침해 주세요.', 'error');
+    setAuthMessage('Supabase를 불러오지 못했어요.', 'error');
     return false;
   }
 
-  // 1. 에러 파라미터가 있는지 검사 (사용자가 구글 창 닫았을 때 등)
+  // 1. URL 파싱 (Implicit flow는 # 뒤에 토큰이 전달됩니다)
   const url = new URL(window.location.href);
-  const hashParams = new URLSearchParams(window.location.hash.slice(1));
-  const errorDescription = url.searchParams.get('error_description') || hashParams.get('error_description');
-  if (errorDescription) {
-    setAuthMessage(`로그인 에러: ${decodeURIComponent(errorDescription.replace(/\+/g, ' '))}`, 'error');
+  const hashText = window.location.hash.replace('#', '');
+  const hashParams = new URLSearchParams(hashText);
+  
+  const errorParam = url.searchParams.get('error_description') || hashParams.get('error_description');
+  if (errorParam) {
+    setAuthMessage(`로그인 에러: ${decodeURIComponent(errorParam.replace(/\+/g, ' '))}`, 'error');
     cleanupAuthUrl();
     return false;
   }
 
-  if (url.searchParams.get('code') || hashParams.get('access_token')) {
-    setAuthMessage('Google 로그인 정보를 확인하고 있어요. 잠시만 기다려 주세요.', '');
+  const accessToken = hashParams.get('access_token');
+  const refreshToken = hashParams.get('refresh_token');
+
+  // 2. 리디렉션되어 돌아온 경우 수동으로 강제 로그인 처리
+  if (accessToken && refreshToken) {
+    setAuthMessage('인증 정보를 확인 중입니다...', '');
+    const { error } = await client.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken
+    });
+    if (error) {
+      console.error('세션 설정 실패:', error);
+      setAuthMessage(`인증 에러: ${error.message}`, 'error');
+    }
+    cleanupAuthUrl(); // 성공하든 실패하든 주소창 코드는 깔끔하게 정리
+  } else if (url.searchParams.get('code')) {
+    // 이전 PKCE 방식의 로그인 잔재로 ?code=가 들어온 경우 무시
+    cleanupAuthUrl();
   }
 
-  // 2. SDK의 자동 처리 이벤트 리스너 등록
+  // 3. 상태 변화 모니터링 (주로 로그아웃 처리용)
   client.auth.onAuthStateChange((event, session) => {
     currentSession = session || null;
     currentUser = session?.user || null;
-
-    if (event === 'SIGNED_IN' && currentUser) {
-      cleanupAuthUrl();
-      showAppShell();
-      showCloudStatus('로그인 완료. 데이터를 불러오는 중이에요.', 'ok');
-      loadCloudInitialData(true).then(() => {
-        syncInputs();
-        renderScheduleTable();
-        renderUploadedImage();
-        renderAll();
-      });
-    } else if (event === 'SIGNED_OUT') {
-      showAuthGate('로그아웃했어요. 다시 사용하려면 Google 계정으로 로그인해 주세요.');
+    if (event === 'SIGNED_OUT') {
+      showAuthGate('로그아웃했어요. 다시 로그인해 주세요.');
     }
   });
 
-  // 3. 기존 로그인된 세션이 있는지 확인 (새로고침 시)
+  // 4. 최종적으로 세션이 유효한지 확인 후 상태 반환
   const { data, error } = await client.auth.getSession();
-  if (error) console.warn('세션 확인 실패', error);
-  
   currentSession = data?.session || null;
   currentUser = currentSession?.user || null;
 
   return Boolean(currentUser);
-}
-
-function cleanupAuthUrl() {
-  if (window.history && window.history.replaceState) {
-    const cleanUrl = window.location.origin + window.location.pathname;
-    window.history.replaceState({}, document.title, cleanUrl);
-  }
-}
-
-function setAuthMessage(message, type = '') {
-  const node = el('authMessage');
-  if (!node) return;
-  node.textContent = message;
-  node.className = `auth-message ${type}`;
-}
-
-function showAuthGate(message = '') {
-  el('authGate')?.classList.remove('is-hidden');
-  el('appShell')?.classList.add('is-hidden');
-  if (message) setAuthMessage(message);
-}
-
-function showAppShell() {
-  el('authGate')?.classList.add('is-hidden');
-  el('appShell')?.classList.remove('is-hidden');
-  if (el('userEmailText')) el('userEmailText').textContent = currentUser?.email || '로그인됨';
-  showCloudStatus('Supabase에 연결됐어요. 저장 버튼을 누르면 현재 월 데이터가 클라우드에 저장됩니다.', 'ok');
-}
-
-function showCloudStatus(message, type = '') {
-  const node = el('cloudStatus');
-  if (!node) return;
-  node.textContent = message;
-  node.className = `cloud-status ${type}`;
-}
-
-function requireUser() {
-  if (!currentUser) {
-    showCloudStatus('로그인이 필요해요.', 'warn');
-    return null;
-  }
-  return currentUser;
 }
 
 // ==========================================
