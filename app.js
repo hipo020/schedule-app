@@ -1,8 +1,8 @@
 // Supabase 연결 정보
 // Publishable key는 브라우저에서 사용하는 공개용 키입니다.
 // Secret key는 절대 이 파일에 넣지 마세요.
-const SUPABASE_URL = "https://fergbabqmwnbkkxjvgkj.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
+const SUPABASE_URL = window.SCHEDULE_SUPABASE_URL || "https://fergbabqmwnbkkxjvgkj.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
 let supabaseClient = null;
 
 function getSupabaseClient() {
@@ -23,6 +23,7 @@ function getSupabaseClient() {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      flowType: 'implicit',
     },
   });
   window.__scheduleSupabaseClient = supabaseClient;
@@ -303,7 +304,11 @@ function bindAuthEvents() {
   const googleButton = el('googleLoginButton');
   if (googleButton && !googleButton.dataset.authBound) {
     googleButton.dataset.authBound = 'true';
-    googleButton.addEventListener('click', signInWithGoogle);
+    // index.html의 직접 연결 함수가 우선 동작합니다. 혹시 직접 연결이 없는 경우에만 app.js가 처리합니다.
+    googleButton.addEventListener('click', (event) => {
+      if (window.scheduleDirectGoogleLogin) return;
+      signInWithGoogle(event);
+    });
   }
 
   const logoutButton = el('logoutButton');
@@ -421,7 +426,8 @@ function cleanupAuthUrl() {
   window.history.replaceState({}, document.title, cleanUrl);
 }
 
-async function signInWithGoogle() {
+async function signInWithGoogle(event) {
+  if (event) event.preventDefault();
   setAuthMessage('Google 로그인으로 이동하고 있어요.', '');
   const button = el('googleLoginButton');
   const originalText = button?.textContent || 'Google로 로그인';

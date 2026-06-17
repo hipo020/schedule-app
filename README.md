@@ -50,3 +50,10 @@ Google Cloud > Google Auth Platform > Clients
 4. 기본 주소로 접속
 5. Google 로그인 버튼 클릭
 
+
+
+## v2.2 Google 로그인 안정화
+
+- `auth-callback.html` 없이 4개 파일만 사용합니다.
+- 로그인 버튼은 `index.html`에서 직접 연결되어 `app.js`나 OCR/XLSX 라이브러리가 늦게 로드되어도 바로 반응합니다.
+- Supabase Redirect URLs에는 `https://schedule-app-nine-tau.vercel.app` 기본 주소만 있으면 됩니다.
