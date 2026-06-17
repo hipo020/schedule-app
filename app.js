@@ -273,6 +273,7 @@ function bindEvents() {
   });
 
   bindOcrEvents();
+  bindImageViewerEvents();
 }
 
 function initMonthSelect() {
@@ -2245,3 +2246,35 @@ function loadState() {
 }
 
 init();
+
+
+function bindImageViewerEvents() {
+  const btn = el('floatingImageViewerBtn');
+  const modal = el('imageViewerModal');
+  const closeBtn = el('closeImageModalBtn');
+  const backdrop = document.querySelector('.image-modal-backdrop');
+  const modalImg = el('modalImagePreview');
+  const modalEmpty = el('modalImageEmpty');
+
+  if (!btn || !modal) return;
+
+  const openModal = () => {
+    if (state.imageData) {
+      modalImg.src = state.imageData;
+      modalImg.style.display = 'block';
+      modalEmpty.style.display = 'none';
+    } else {
+      modalImg.style.display = 'none';
+      modalEmpty.style.display = 'block';
+    }
+    modal.classList.remove('is-hidden');
+  };
+
+  const closeModal = () => {
+    modal.classList.add('is-hidden');
+  };
+
+  btn.addEventListener('click', openModal);
+  closeBtn?.addEventListener('click', closeModal);
+  backdrop?.addEventListener('click', closeModal);
+}

@@ -1593,3 +1593,106 @@ body {
     grid-column: 1 / -1;
   }
 }
+
+
+/* =========================================
+   연차(AL) 빨간색 고정 스타일
+========================================= */
+.badge.leave, 
+.week-day-card.leave .badge, 
+.day-cell.leave .day-code {
+  background-color: #fee2e2 !important; 
+  color: #dc2626 !important; /* 눈에 띄는 빨간색 */
+  border: 1px solid #fca5a5 !important;
+}
+.day-cell.leave {
+  background-color: #fff5f5 !important; /* 달력 칸 배경도 옅은 빨간색으로 */
+}
+
+/* =========================================
+   플로팅 버튼 & 이미지 뷰어 모달 디자인
+========================================= */
+.floating-btn {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--navy);
+  color: white;
+  border: none;
+  box-shadow: 0 8px 24px rgba(23, 38, 66, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  transition: all 0.2s ease;
+}
+.floating-btn:hover {
+  transform: scale(1.08) translateY(-4px);
+  background-color: #2a3f63;
+  box-shadow: 0 12px 28px rgba(23, 38, 66, 0.35);
+}
+.image-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.image-modal.is-hidden {
+  display: none;
+}
+.image-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+.image-modal-content {
+  position: relative;
+  background: var(--card);
+  border-radius: 16px;
+  width: 92vw;
+  max-width: 1200px;
+  height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  overflow: hidden;
+  animation: modalFadeIn 0.3s ease;
+}
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.image-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--card);
+  z-index: 10;
+}
+.image-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.image-modal-body {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: var(--bg);
+}
+.image-modal-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
