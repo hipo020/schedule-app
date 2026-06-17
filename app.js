@@ -16,6 +16,7 @@ function getSupabaseClient() {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      flowType: 'pkce',
     },
   });
   return supabaseClient;
@@ -336,12 +337,25 @@ async function initAuth() {
     setAuthMessage('Supabase 라이브러리를 불러오지 못했어요. 네트워크를 확인한 뒤 새로고침해 주세요.', 'error');
     return false;
   }
+
+  try {
+    const callbackSession = await processAuthCallback(client);
+    if (callbackSession) {
+      currentSession = callbackSession;
+      currentUser = callbackSession.user || null;
+    }
+  } catch (callbackError) {
+    console.error('로그인 콜백 처리 실패', callbackError);
+    setAuthMessage(`로그인 링크 확인 중 오류가 발생했어요: ${callbackError?.message || callbackError}`, 'error');
+  }
+
   const { data, error } = await client.auth.getSession();
   if (error) {
     console.warn('세션 확인 실패', error);
+    setAuthMessage(`세션 확인 실패: ${error.message}`, 'error');
     return false;
   }
-  currentSession = data?.session || null;
+  currentSession = data?.session || currentSession || null;
   currentUser = currentSession?.user || null;
 
   client.auth.onAuthStateChange((event, session) => {
@@ -363,6 +377,53 @@ async function initAuth() {
   });
 
   return Boolean(currentUser);
+}
+
+
+async function processAuthCallback(client) {
+  const href = window.location.href;
+  const url = new URL(href);
+  const query = url.searchParams;
+  const hashString = window.location.hash ? window.location.hash.slice(1) : '';
+  const hash = new URLSearchParams(hashString);
+
+  const errorDescription = query.get('error_description') || hash.get('error_description') || query.get('error') || hash.get('error');
+  if (errorDescription) {
+    cleanupAuthUrl();
+    throw new Error(decodeURIComponent(errorDescription.replace(/\+/g, ' ')));
+  }
+
+  const code = query.get('code');
+  if (code) {
+    setAuthMessage('로그인 링크를 확인하고 있어요. 잠시만 기다려 주세요.', '');
+    const { data, error } = await client.auth.exchangeCodeForSession(code);
+    cleanupAuthUrl();
+    if (error) throw error;
+    setAuthMessage('로그인 완료. 앱을 여는 중이에요.', 'ok');
+    return data?.session || null;
+  }
+
+  const accessToken = hash.get('access_token');
+  const refreshToken = hash.get('refresh_token');
+  if (accessToken && refreshToken) {
+    setAuthMessage('로그인 링크를 확인하고 있어요. 잠시만 기다려 주세요.', '');
+    const { data, error } = await client.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
+    cleanupAuthUrl();
+    if (error) throw error;
+    setAuthMessage('로그인 완료. 앱을 여는 중이에요.', 'ok');
+    return data?.session || null;
+  }
+
+  return null;
+}
+
+function cleanupAuthUrl() {
+  if (!window.history?.replaceState) return;
+  const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+  window.history.replaceState({}, document.title, cleanUrl);
 }
 
 async function sendMagicLink() {
