@@ -1,3 +1,12 @@
+// Supabase 연결 정보
+// Publishable key는 브라우저에서 사용하는 공개용 키입니다.
+// Secret key는 절대 이 파일에 넣지 마세요.
+const SUPABASE_URL = "https://fergbabqmwnbkkxjvgkj.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
+const supabaseClient = window.supabase
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  : null;
+
 const state = {
   year: new Date().getFullYear(),
   month: new Date().getMonth() + 1,
@@ -8,11 +17,22 @@ const state = {
   activePage: 'home',
   imageData: '',
   imageName: '',
+  imageUpdatedAt: '',
+  monthStore: {},
+  archiveMeta: [],
   ocr: getDefaultOcrState(),
 };
 
 const el = (id) => document.getElementById(id);
 const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+const STORAGE_KEY = 'shift-organizer-v1';
+const IMAGE_DB_NAME = 'shift-organizer-images-v1';
+const IMAGE_STORE_NAME = 'monthlyImages';
+const MAX_STORED_IMAGE_WIDTH = 2400;
+const MAX_STORED_IMAGE_HEIGHT = 1600;
+const THUMB_WIDTH = 360;
+const THUMB_HEIGHT = 240;
+
 
 function getDefaultCodes() {
   return {
@@ -68,12 +88,15 @@ function getDefaultOcrState() {
   };
 }
 
-function init() {
+async function init() {
   loadState();
   initMonthSelect();
   bindEvents();
   ensurePeople();
+  normalizePeopleDays();
   syncInputs();
+  await loadImageForCurrentMonth();
+  await refreshArchiveMeta();
   renderUploadedImage();
   syncOcrInputs();
   renderOcrResultTable();
@@ -83,8 +106,8 @@ function init() {
 }
 
 function bindEvents() {
-  el('yearInput').addEventListener('input', (e) => { state.year = Number(e.target.value); renderScheduleTable(); renderAll(); saveState(false); });
-  el('monthInput').addEventListener('change', (e) => { state.month = Number(e.target.value); renderScheduleTable(); renderAll(); saveState(false); });
+  el('yearInput').addEventListener('input', async (e) => { await changeActiveMonth(Number(e.target.value), state.month); });
+  el('monthInput').addEventListener('change', async (e) => { await changeActiveMonth(state.year, Number(e.target.value)); });
   el('myNameInput').addEventListener('input', (e) => { state.myName = e.target.value.trim(); renderAll(); saveState(false); });
   el('selectedDateInput').addEventListener('change', (e) => { state.selectedDate = e.target.value; renderAll(); saveState(false); });
   el('uploadButton').addEventListener('click', () => el('imageInput').click());
@@ -107,6 +130,199 @@ function bindEvents() {
 
 function initMonthSelect() {
   el('monthInput').innerHTML = Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}">${i + 1}월</option>`).join('');
+}
+
+function monthKey(year = state.year, month = state.month) {
+  return `${year}-${String(month).padStart(2, '0')}`;
+}
+
+function parseMonthKey(key) {
+  const [year, month] = String(key).split('-').map(Number);
+  return { year, month };
+}
+
+function ensureMonthStore() {
+  if (!state.monthStore || typeof state.monthStore !== 'object') state.monthStore = {};
+  if (!state.archiveMeta || !Array.isArray(state.archiveMeta)) state.archiveMeta = [];
+}
+
+function clonePlain(value) {
+  return JSON.parse(JSON.stringify(value ?? null));
+}
+
+function sanitizeOcrForStorage(ocr) {
+  const next = { ...getDefaultOcrState(), ...(ocr || {}) };
+  if (Array.isArray(next.results)) {
+    next.results = next.results.map((row) => ({
+      name: row.name,
+      schedules: row.schedules || [],
+      confidence: row.confidence || 0,
+      rawText: '',
+    }));
+  }
+  return next;
+}
+
+function saveCurrentMonthToStore() {
+  ensureMonthStore();
+  normalizePeopleDays();
+  const key = monthKey();
+  state.monthStore[key] = {
+    key,
+    year: state.year,
+    month: state.month,
+    people: clonePlain(state.people || []),
+    ocr: sanitizeOcrForStorage(state.ocr),
+    imageName: state.imageName || state.monthStore[key]?.imageName || '',
+    imageUpdatedAt: state.imageUpdatedAt || state.monthStore[key]?.imageUpdatedAt || '',
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function loadMonthDataFromStore(key = monthKey()) {
+  ensureMonthStore();
+  const saved = state.monthStore[key];
+  if (saved) {
+    state.people = clonePlain(saved.people || []);
+    state.ocr = { ...getDefaultOcrState(), ...(saved.ocr || {}) };
+    state.imageName = saved.imageName || '';
+    state.imageUpdatedAt = saved.imageUpdatedAt || '';
+  } else {
+    state.people = [makePerson(''), makePerson(''), makePerson(''), makePerson(''), makePerson('')];
+    state.ocr = getDefaultOcrState();
+    state.imageName = '';
+    state.imageUpdatedAt = '';
+  }
+  ensurePeople();
+  normalizePeopleDays();
+}
+
+async function changeActiveMonth(nextYear, nextMonth) {
+  if (!Number.isFinite(nextYear) || !Number.isFinite(nextMonth)) return;
+  saveCurrentMonthToStore();
+  state.year = nextYear;
+  state.month = nextMonth;
+  const currentDay = Number(String(state.selectedDate || '').slice(-2)) || 1;
+  const clampedDay = Math.min(currentDay, daysInMonth(state.year, state.month));
+  state.selectedDate = `${state.year}-${String(state.month).padStart(2, '0')}-${String(clampedDay).padStart(2, '0')}`;
+  loadMonthDataFromStore(monthKey());
+  await loadImageForCurrentMonth();
+  await refreshArchiveMeta();
+  syncInputs();
+  renderUploadedImage();
+  syncOcrInputs();
+  renderOcrResultTable();
+  setTimeout(drawOcrPreview, 0);
+  renderScheduleTable();
+  renderAll();
+  saveState(false);
+}
+
+function openScheduleImageDb() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(IMAGE_DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(IMAGE_STORE_NAME)) {
+        db.createObjectStore(IMAGE_STORE_NAME, { keyPath: 'key' });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function withImageStore(mode, callback) {
+  const db = await openScheduleImageDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IMAGE_STORE_NAME, mode);
+    const store = tx.objectStore(IMAGE_STORE_NAME);
+    let callbackResult;
+    try {
+      callbackResult = callback(store);
+    } catch (error) {
+      reject(error);
+      return;
+    }
+    tx.oncomplete = () => {
+      db.close();
+      resolve(callbackResult);
+    };
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error);
+    };
+  });
+}
+
+function requestToPromise(request) {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function putStoredImage(record) {
+  await withImageStore('readwrite', (store) => store.put(record));
+}
+
+async function getStoredImage(key) {
+  const db = await openScheduleImageDb();
+  try {
+    const tx = db.transaction(IMAGE_STORE_NAME, 'readonly');
+    const store = tx.objectStore(IMAGE_STORE_NAME);
+    return await requestToPromise(store.get(key));
+  } finally {
+    db.close();
+  }
+}
+
+async function getAllStoredImages() {
+  const db = await openScheduleImageDb();
+  try {
+    const tx = db.transaction(IMAGE_STORE_NAME, 'readonly');
+    const store = tx.objectStore(IMAGE_STORE_NAME);
+    return await requestToPromise(store.getAll());
+  } finally {
+    db.close();
+  }
+}
+
+async function deleteStoredImage(key) {
+  await withImageStore('readwrite', (store) => store.delete(key));
+}
+
+async function loadImageForCurrentMonth() {
+  try {
+    const record = await getStoredImage(monthKey());
+    if (record?.imageData) {
+      state.imageData = record.imageData;
+      state.imageName = record.imageName || state.imageName || '';
+      state.imageUpdatedAt = record.updatedAt || state.imageUpdatedAt || '';
+    } else {
+      state.imageData = '';
+    }
+  } catch (error) {
+    console.warn('저장 이미지 로드 실패', error);
+    state.imageData = '';
+  }
+}
+
+async function refreshArchiveMeta() {
+  try {
+    const records = await getAllStoredImages();
+    state.archiveMeta = records.map((record) => ({
+      key: record.key,
+      year: record.year,
+      month: record.month,
+      imageName: record.imageName || '',
+      updatedAt: record.updatedAt || '',
+      thumbData: record.thumbData || record.imageData || '',
+    })).sort((a, b) => String(b.key).localeCompare(String(a.key)));
+  } catch (error) {
+    console.warn('월별 보관함 로드 실패', error);
+    state.archiveMeta = state.archiveMeta || [];
+  }
 }
 
 function syncInputs() {
@@ -232,18 +448,75 @@ function loadSample() {
   saveState(true);
 }
 
-function handleImageUpload(e) {
+async function handleImageUpload(e) {
   const file = e.target.files?.[0];
   if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    alert('이미지 파일만 업로드할 수 있어요.');
+    return;
+  }
 
-  const reader = new FileReader();
-  reader.onload = () => {
-    state.imageData = reader.result;
+  const status = el('imageStatus');
+  if (status) {
+    status.innerHTML = `<strong>${state.year}년 ${state.month}월 이미지 처리 중</strong><span>큰 사진은 앱에서 자동으로 가볍게 변환하고 있어요.</span>`;
+    status.classList.add('uploaded');
+  }
+
+  try {
+    const originalDataUrl = await readFileAsDataUrl(file);
+    const compressedDataUrl = await resizeImageDataUrl(originalDataUrl, MAX_STORED_IMAGE_WIDTH, MAX_STORED_IMAGE_HEIGHT, 0.88);
+    const thumbDataUrl = await resizeImageDataUrl(originalDataUrl, THUMB_WIDTH, THUMB_HEIGHT, 0.76);
+    const key = monthKey();
+    const now = new Date().toISOString();
+    state.imageData = compressedDataUrl;
     state.imageName = file.name;
+    state.imageUpdatedAt = now;
+    await putStoredImage({
+      key,
+      year: state.year,
+      month: state.month,
+      imageName: file.name,
+      imageData: compressedDataUrl,
+      thumbData: thumbDataUrl,
+      updatedAt: now,
+    });
+    saveCurrentMonthToStore();
+    await refreshArchiveMeta();
     renderUploadedImage();
+    drawOcrPreview();
+    renderAll();
     saveState(false);
-  };
-  reader.readAsDataURL(file);
+  } catch (error) {
+    console.error('이미지 업로드 실패', error);
+    alert('이미지를 저장하지 못했어요. 브라우저 저장 공간이 부족하거나 이미지가 너무 클 수 있어요. 다른 이미지로 다시 시도해 주세요.');
+  } finally {
+    e.target.value = '';
+  }
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function resizeImageDataUrl(src, maxWidth, maxHeight, quality = 0.9) {
+  const img = await loadImage(src);
+  const ratio = Math.min(1, maxWidth / img.naturalWidth, maxHeight / img.naturalHeight);
+  const width = Math.max(1, Math.round(img.naturalWidth * ratio));
+  const height = Math.max(1, Math.round(img.naturalHeight * ratio));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, width, height);
+  ctx.drawImage(img, 0, 0, width, height);
+  return canvas.toDataURL('image/jpeg', quality);
 }
 
 function renderUploadedImage() {
@@ -259,7 +532,7 @@ function renderUploadedImage() {
     image.style.display = 'block';
     emptyPreview.style.display = 'none';
     if (status) {
-      status.innerHTML = `<strong>업로드 완료</strong><span>${escapeHtml(state.imageName || '스케줄표 이미지')}</span><small>다음 단계: 자동 추출 페이지에서 표 영역을 확인한 뒤 추출을 시작해 주세요.</small>`;
+      status.innerHTML = `<strong>${state.year}년 ${state.month}월 근무표 저장됨</strong><span>${escapeHtml(state.imageName || '스케줄표 이미지')}</span><small>새로고침 후에도 같은 브라우저에서 다시 볼 수 있어요. 다른 월을 선택하면 해당 월 이미지가 자동으로 바뀝니다.</small>`;
       status.classList.add('uploaded');
     }
     if (actions) actions.classList.add('show');
@@ -268,7 +541,7 @@ function renderUploadedImage() {
     image.style.display = 'none';
     emptyPreview.style.display = 'grid';
     if (status) {
-      status.textContent = '아직 업로드된 이미지가 없어요.';
+      status.innerHTML = `<strong>${state.year}년 ${state.month}월 이미지 없음</strong><span>이 월의 근무표 이미지를 업로드해 주세요.</span>`;
       status.classList.remove('uploaded');
     }
     if (actions) actions.classList.remove('show');
@@ -599,6 +872,7 @@ function renderViews() {
     dayRoster: renderDayRoster,
     offDays: renderOffDays,
     share: renderShare,
+    archive: renderArchive,
     settings: renderSettings,
   };
   Object.entries(map).forEach(([page, renderer]) => {
@@ -719,6 +993,49 @@ function renderShare() {
   `;
 }
 
+
+function renderArchive() {
+  const records = state.archiveMeta || [];
+  if (!records.length) {
+    return `
+      <div class="empty-archive">
+        <h3>아직 저장된 근무표 이미지가 없어요.</h3>
+        <p>설정·이미지 페이지에서 기준 연도와 월을 맞춘 뒤 이미지를 업로드하면 5월, 6월처럼 월별로 쌓입니다.</p>
+      </div>
+    `;
+  }
+  return `
+    <div class="archive-grid">
+      ${records.map((record) => {
+        const savedMonth = state.monthStore?.[record.key];
+        const peopleCount = savedMonth?.people?.filter((p) => p.name).length || 0;
+        const activeClass = record.key === monthKey() ? 'active' : '';
+        return `
+          <article class="archive-card ${activeClass}">
+            <div class="archive-thumb">${record.thumbData ? `<img src="${record.thumbData}" alt="${record.key} 근무표" />` : '<span>이미지</span>'}</div>
+            <div class="archive-body">
+              <strong>${record.year}년 ${record.month}월</strong>
+              <span>${escapeHtml(record.imageName || '스케줄표 이미지')}</span>
+              <small>스케줄 ${peopleCount}명 · 저장 ${formatSavedDate(record.updatedAt)}</small>
+            </div>
+            <div class="archive-actions">
+              <button class="primary-btn load-month" data-month-key="${record.key}">불러오기</button>
+              <button class="ghost-btn delete-month-image" data-month-key="${record.key}">이미지 삭제</button>
+            </div>
+          </article>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function formatSavedDate(value) {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '-';
+  return `${date.getFullYear()}.${String(date.getMonth()+1).padStart(2,'0')}.${String(date.getDate()).padStart(2,'0')}`;
+}
+
 function renderSettings() {
   const rows = Object.entries(state.codes).map(([code, info]) => `
     <div class="code-editor-row">
@@ -752,6 +1069,33 @@ function bindViewEvents() {
     alert('카톡용 텍스트를 복사했어요.');
   });
   el('downloadExcelButton')?.addEventListener('click', downloadExcel);
+  document.querySelectorAll('.load-month').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const { year, month } = parseMonthKey(button.dataset.monthKey);
+      await changeActiveMonth(year, month);
+      switchPage('setup', true);
+    });
+  });
+  document.querySelectorAll('.delete-month-image').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const key = button.dataset.monthKey;
+      if (!confirm(`${key} 근무표 이미지만 삭제할까요? 입력한 스케줄 데이터는 유지됩니다.`)) return;
+      await deleteStoredImage(key);
+      if (key === monthKey()) {
+        state.imageData = '';
+        state.imageName = '';
+        state.imageUpdatedAt = '';
+      }
+      if (state.monthStore?.[key]) {
+        state.monthStore[key].imageName = '';
+        state.monthStore[key].imageUpdatedAt = '';
+      }
+      await refreshArchiveMeta();
+      renderUploadedImage();
+      renderAll();
+      saveState(false);
+    });
+  });
   el('addCodeButton')?.addEventListener('click', () => {
     let key = prompt('추가할 코드를 입력하세요. 예: AQ');
     if (!key) return;
@@ -859,36 +1203,69 @@ function toDateInputValue(date) { return `${date.getFullYear()}-${String(date.ge
 function isSameMonth(date) { return date.getFullYear() === state.year && date.getMonth() + 1 === state.month; }
 function escapeHtml(value) { return String(value ?? '').replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m])); }
 
+function getPersistableState() {
+  saveCurrentMonthToStore();
+  const persistable = { ...state };
+  // 이미지 원본/base64는 IndexedDB에 월별로 저장하고, localStorage에는 스케줄 데이터만 저장합니다.
+  persistable.imageData = '';
+  persistable.archiveMeta = (state.archiveMeta || []).map((record) => ({
+    key: record.key,
+    year: record.year,
+    month: record.month,
+    imageName: record.imageName || '',
+    updatedAt: record.updatedAt || '',
+  }));
+  return persistable;
+}
+
 function saveState(showAlert = false) {
   try {
-    localStorage.setItem('shift-organizer-v1', JSON.stringify({ ...state }));
-    if (showAlert) alert('저장했어요. 같은 브라우저에서 다시 열면 유지됩니다.');
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(getPersistableState()));
+    if (showAlert) alert('저장했어요. 같은 브라우저에서 월별 스케줄 데이터와 저장된 이미지를 다시 불러올 수 있습니다.');
   } catch (error) {
     console.warn('저장 실패', error);
-    if (state.imageData) {
-      const imageData = state.imageData;
-      state.imageData = '';
-      try {
-        localStorage.setItem('shift-organizer-v1', JSON.stringify({ ...state }));
-        state.imageData = imageData;
-        alert('이미지 용량이 커서 스케줄 데이터만 저장했어요. 이미지는 새로고침 후 다시 업로드해 주세요.');
-      } catch (secondError) {
-        state.imageData = imageData;
-        alert('브라우저 저장 공간이 부족해서 저장하지 못했어요.');
+    try {
+      const lightState = getPersistableState();
+      if (lightState.ocr?.results) {
+        lightState.ocr.results = lightState.ocr.results.map((row) => ({
+          name: row.name,
+          schedules: row.schedules,
+          confidence: row.confidence || 0,
+          rawText: '',
+        }));
       }
+      Object.values(lightState.monthStore || {}).forEach((month) => {
+        if (month.ocr?.results) {
+          month.ocr.results = month.ocr.results.map((row) => ({
+            name: row.name,
+            schedules: row.schedules,
+            confidence: row.confidence || 0,
+            rawText: '',
+          }));
+        }
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(lightState));
+      if (showAlert) alert('OCR 원문 일부를 제외하고 저장했어요. 월별 스케줄 데이터는 유지됩니다.');
+    } catch (secondError) {
+      alert('브라우저 저장 공간이 부족해서 저장하지 못했어요. 오래된 월 데이터를 정리하거나 다른 브라우저에서 시도해 주세요.');
     }
   }
 }
 
 function loadState() {
-  const saved = localStorage.getItem('shift-organizer-v1');
+  const saved = localStorage.getItem(STORAGE_KEY);
   if (!saved) return;
   try {
     const parsed = JSON.parse(saved);
+    parsed.imageData = '';
     Object.assign(state, parsed);
+    state.imageData = '';
     state.codes = parsed.codes || getDefaultCodes();
+    state.monthStore = parsed.monthStore || {};
+    state.archiveMeta = Array.isArray(parsed.archiveMeta) ? parsed.archiveMeta : [];
     state.ocr = { ...getDefaultOcrState(), ...(parsed.ocr || {}) };
     state.activePage = parsed.activePage || parsed.activeTab || 'home';
+    ensureMonthStore();
   } catch (e) {
     console.warn('저장 데이터 로드 실패', e);
   }
