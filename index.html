@@ -34,7 +34,7 @@
             persistSession: true,
             autoRefreshToken: true,
             detectSessionInUrl: true,
-            flowType: 'pkce'
+            flowType: 'implicit'
           }
         });
         window.__scheduleSupabaseClient = client;
@@ -45,7 +45,7 @@
         const redirectTo = `${window.location.origin}${window.location.pathname}`;
         const { error } = await client.auth.signInWithOAuth({
           provider: 'google',
-          options: { redirectTo }
+          options: { redirectTo, queryParams: { prompt: 'select_account' } }
         });
         if (error) {
           setMessage(`Google 로그인 시작 실패: ${error.message}`, 'error');
@@ -73,7 +73,7 @@
       }
     });
   </script>
-  <script defer src="./app.js?v=google-click-fix-1"></script>
+  <script defer src="./app.js?v=google-implicit-fix-1"></script>
 </head>
 <body>
   <section id="authGate" class="auth-gate">

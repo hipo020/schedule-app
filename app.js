@@ -20,7 +20,7 @@ function getSupabaseClient() {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
-      flowType: 'pkce',
+      flowType: 'implicit',
     },
   });
   window.__scheduleSupabaseClient = supabaseClient;
@@ -380,7 +380,9 @@ async function processAuthCallback(client) {
     setAuthMessage('Google 로그인 정보를 확인하고 있어요. 잠시만 기다려 주세요.', '');
     const { data, error } = await client.auth.exchangeCodeForSession(code);
     cleanupAuthUrl();
-    if (error) throw error;
+    if (error) {
+      throw new Error('이전 로그인 링크 처리에 실패했어요. 새 버전 반영 후 Google 로그인 버튼을 다시 눌러 주세요. 상세: ' + error.message);
+    }
     setAuthMessage('로그인 완료. 앱을 여는 중이에요.', 'ok');
     return data?.session || null;
   }
@@ -429,7 +431,7 @@ async function signInWithGoogle() {
     const redirectTo = `${window.location.origin}${window.location.pathname}`;
     const { error } = await client.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo },
+      options: { redirectTo, queryParams: { prompt: 'select_account' } },
     });
     if (error) {
       setAuthMessage(`Google 로그인 시작 실패: ${error.message}`, 'error');
