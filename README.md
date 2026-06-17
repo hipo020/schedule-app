@@ -25,3 +25,7 @@ Authentication > URL Configuration
 - 승인된 JavaScript 원본: https://schedule-app-nine-tau.vercel.app
 - 승인된 리디렉션 URI: https://fergbabqmwnbkkxjvgkj.supabase.co/auth/v1/callback
 
+
+
+## 2026-06-17 로그인 콜백 수정
+Google OAuth가 `#access_token` 형태로 돌아오는 경우를 앱 로딩 초기에 먼저 세션으로 저장하도록 수정했습니다.

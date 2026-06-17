@@ -5,12 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>근무표 정리함 v2</title>
   <link rel="stylesheet" href="./styles.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
     window.SCHEDULE_SUPABASE_URL = "https://fergbabqmwnbkkxjvgkj.supabase.co";
     window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
+  </script>
+  <script>
+    window.__scheduleAuthBootstrapPromise = (async function bootstrapSupabaseAuthFromUrl() {
+      try {
+        const hashText = window.location.hash ? window.location.hash.slice(1) : '';
+        const params = new URLSearchParams(hashText || window.location.search.slice(1));
+        const hasToken = params.has('access_token') && params.has('refresh_token');
+        const hasCode = new URLSearchParams(window.location.search).has('code');
+        if (!hasToken && !hasCode) return null;
+        if (!window.supabase?.createClient) return null;
+        const client = window.__scheduleSupabaseClient || window.supabase.createClient(
+          window.SCHEDULE_SUPABASE_URL,
+          window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY,
+          {
+            auth: {
+              persistSession: true,
+              autoRefreshToken: true,
+              detectSessionInUrl: false,
+              flowType: 'implicit'
+            }
+          }
+        );
+        window.__scheduleSupabaseClient = client;
+        let result = null;
+        if (hasToken) {
+          result = await client.auth.setSession({
+            access_token: params.get('access_token'),
+            refresh_token: params.get('refresh_token')
+          });
+        } else if (hasCode) {
+          result = await client.auth.exchangeCodeForSession(new URLSearchParams(window.location.search).get('code'));
+        }
+        if (result?.error) throw result.error;
+        if (window.history?.replaceState) {
+          window.history.replaceState({}, document.title, `${window.location.origin}${window.location.pathname}`);
+        }
+        return result?.data?.session || null;
+      } catch (error) {
+        console.error('초기 로그인 콜백 처리 실패', error);
+        window.__scheduleAuthBootstrapError = error;
+        return null;
+      }
+    })();
   </script>
   <script>
     window.startGoogleLoginDirect = async function startGoogleLoginDirect() {
@@ -73,7 +116,7 @@
       }
     });
   </script>
-  <script defer src="./app.js?v=google-implicit-fix-1"></script>
+  <script defer src="./app.js?v=google-hash-callback-fix-2"></script>
 </head>
 <body>
   <section id="authGate" class="auth-gate">

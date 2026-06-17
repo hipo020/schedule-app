@@ -19,7 +19,7 @@ function getSupabaseClient() {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true,
+      detectSessionInUrl: false,
       flowType: 'implicit',
     },
   });
@@ -320,28 +320,43 @@ async function initAuth() {
     return false;
   }
 
-  // 1. 에러 파라미터가 있는지 우선 확인 (사용자가 구글 로그인을 취소한 경우 등)
-  const url = new URL(window.location.href);
-  const query = url.searchParams;
-  const errorDescription = query.get('error_description') || query.get('error');
-  if (errorDescription) {
-    setAuthMessage(`로그인 에러: ${decodeURIComponent(errorDescription.replace(/\+/g, ' '))}`, 'error');
-    cleanupAuthUrl();
+  try {
+    if (window.__scheduleAuthBootstrapPromise) {
+      setAuthMessage('Google 로그인 정보를 확인하고 있어요. 잠시만 기다려 주세요.', '');
+      const bootSession = await window.__scheduleAuthBootstrapPromise;
+      if (bootSession) {
+        currentSession = bootSession;
+        currentUser = bootSession.user || null;
+      }
+    }
+    if (window.__scheduleAuthBootstrapError) {
+      throw window.__scheduleAuthBootstrapError;
+    }
+    if (!currentSession) {
+      const callbackSession = await processAuthCallback(client);
+      if (callbackSession) {
+        currentSession = callbackSession;
+        currentUser = callbackSession.user || null;
+      }
+    }
+  } catch (callbackError) {
+    console.error('로그인 콜백 처리 실패', callbackError);
+    setAuthMessage(`Google 로그인 확인 중 오류가 발생했어요: ${callbackError?.message || callbackError}`, 'error');
+  }
+
+  const { data, error } = await client.auth.getSession();
+  if (error) {
+    console.warn('세션 확인 실패', error);
+    setAuthMessage(`세션 확인 실패: ${error.message}`, 'error');
     return false;
   }
+  currentSession = data?.session || currentSession || null;
+  currentUser = currentSession?.user || null;
 
-  // 로그인 직후 리디렉션되어 돌아왔을 때의 메시지 처리
-  if (query.get('code')) {
-    setAuthMessage('Google 로그인 정보를 확인하고 있어요. 잠시만 기다려 주세요.', '');
-  }
-
-  // 2. 상태 변화 리스너 등록 (SDK가 자동으로 URL의 code를 교환한 뒤 SIGNED_IN 이벤트를 발생시킵니다)
   client.auth.onAuthStateChange((event, session) => {
     currentSession = session || null;
     currentUser = session?.user || null;
-
     if (event === 'SIGNED_IN' && currentUser) {
-      cleanupAuthUrl(); // 자동 로그인 처리가 성공한 후에 URL의 지저분한 코드를 지워줍니다.
       showAppShell();
       showCloudStatus('로그인 완료. 데이터를 불러오는 중이에요.', 'ok');
       loadCloudInitialData(true).then(() => {
@@ -350,25 +365,15 @@ async function initAuth() {
         renderUploadedImage();
         renderAll();
       });
-    } else if (event === 'SIGNED_OUT') {
+    }
+    if (event === 'SIGNED_OUT') {
       showAuthGate('로그아웃했어요. 다시 사용하려면 Google 계정으로 로그인해 주세요.');
     }
   });
 
-  // 3. 기존 세션 확인 (이미 로그인되어 있던 사용자인 경우)
-  const { data, error } = await client.auth.getSession();
-  if (error) {
-    console.warn('세션 확인 실패', error);
-    return false;
-  }
-
-  currentSession = data?.session || null;
-  currentUser = currentSession?.user || null;
-
   return Boolean(currentUser);
 }
 
-// 주의: 기존에 있던 processAuthCallback 함수는 완전히 삭제하시면 됩니다!
 
 async function processAuthCallback(client) {
   const href = window.location.href;
@@ -405,8 +410,9 @@ async function processAuthCallback(client) {
     });
     cleanupAuthUrl();
     if (error) throw error;
+    const session = data?.session || (await client.auth.getSession())?.data?.session || null;
     setAuthMessage('로그인 완료. 앱을 여는 중이에요.', 'ok');
-    return data?.session || null;
+    return session;
   }
 
   return null;
