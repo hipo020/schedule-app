@@ -3,9 +3,20 @@
 // Secret key는 절대 이 파일에 넣지 마세요.
 const SUPABASE_URL = "https://fergbabqmwnbkkxjvgkj.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
-const supabaseClient = window.supabase
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
-  : null;
+let supabaseClient = null;
+
+function getSupabaseClient() {
+  if (supabaseClient) return supabaseClient;
+  if (!window.supabase?.createClient) return null;
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  });
+  return supabaseClient;
+}
 
 let currentSession = null;
 let currentUser = null;
@@ -29,6 +40,14 @@ const state = {
 };
 
 const el = (id) => document.getElementById(id);
+function on(id, eventName, handler) {
+  const node = el(id);
+  if (!node) {
+    console.warn(`[bindEvents] #${id} 요소를 찾지 못했어요.`);
+    return;
+  }
+  node.addEventListener(eventName, handler);
+}
 const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
 const STORAGE_KEY = 'shift-organizer-v1';
 const IMAGE_DB_NAME = 'shift-organizer-images-v1';
@@ -181,8 +200,12 @@ function getDefaultOcrState() {
 async function init() {
   loadState();
   initMonthSelect();
-  bindEvents();
   bindAuthEvents();
+  try {
+    bindEvents();
+  } catch (error) {
+    console.warn('일반 화면 이벤트 연결 중 오류가 발생했지만 로그인 기능은 계속 사용할 수 있어요.', error);
+  }
 
   const authenticated = await initAuth();
   if (!authenticated) {
@@ -208,13 +231,13 @@ async function init() {
 }
 
 function bindEvents() {
-  el('yearInput').addEventListener('input', async (e) => { await changeActiveMonth(Number(e.target.value), state.month); });
-  el('monthInput').addEventListener('change', async (e) => { await changeActiveMonth(state.year, Number(e.target.value)); });
-  el('myNameInput').addEventListener('input', (e) => { state.myName = e.target.value.trim(); renderAll(); saveState(false); });
-  el('selectedDateInput').addEventListener('change', (e) => { state.selectedDate = e.target.value; renderAll(); saveState(false); });
-  el('uploadButton').addEventListener('click', () => el('imageInput').click());
-  el('imageInput').addEventListener('change', handleImageUpload);
-  el('loadSampleButton').addEventListener('click', loadSample);
+  on('yearInput', 'input', async (e) => { await changeActiveMonth(Number(e.target.value), state.month); });
+  on('monthInput', 'change', async (e) => { await changeActiveMonth(state.year, Number(e.target.value)); });
+  on('myNameInput', 'input', (e) => { state.myName = e.target.value.trim(); renderAll(); saveState(false); });
+  on('selectedDateInput', 'change', (e) => { state.selectedDate = e.target.value; renderAll(); saveState(false); });
+  on('uploadButton', 'click', () => el('imageInput')?.click());
+  on('imageInput', 'change', handleImageUpload);
+  on('loadSampleButton', 'click', loadSample);
   el('loadSampleFromUploadButton')?.addEventListener('click', () => { loadSample(); switchPage('home', true); });
   bindDataInputEvents();
   el('cloudSaveButton')?.addEventListener('click', async () => {
@@ -227,13 +250,13 @@ function bindEvents() {
     renderUploadedImage();
     renderAll();
   });
-  el('clearButton').addEventListener('click', clearAll);
-  el('saveButton').addEventListener('click', async () => {
+  on('clearButton', 'click', clearAll);
+  on('saveButton', 'click', async () => {
     saveState(false);
     await saveCurrentMonthToCloud(true);
   });
-  el('addPersonButton').addEventListener('click', addPerson);
-  el('removeEmptyRowsButton').addEventListener('click', removeEmptyRows);
+  on('addPersonButton', 'click', addPerson);
+  on('removeEmptyRowsButton', 'click', removeEmptyRows);
   document.querySelectorAll('.sheet-tab').forEach((button) => {
     button.addEventListener('click', () => switchPage(button.dataset.page, true));
   });
@@ -259,10 +282,17 @@ function parseMonthKey(key) {
 
 
 function bindAuthEvents() {
-  el('magicLinkButton')?.addEventListener('click', sendMagicLink);
+  on('magicLinkButton', 'click', sendMagicLink);
+  el('authEmailInput')?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      sendMagicLink();
+    }
+  });
   el('logoutButton')?.addEventListener('click', async () => {
-    if (!supabaseClient) return;
-    await supabaseClient.auth.signOut();
+    const client = getSupabaseClient();
+    if (!client) return;
+    await client.auth.signOut();
     currentSession = null;
     currentUser = null;
     showAuthGate('로그아웃했어요. 다시 사용하려면 이메일로 로그인해 주세요.');
@@ -270,8 +300,12 @@ function bindAuthEvents() {
 }
 
 async function initAuth() {
-  if (!supabaseClient) return false;
-  const { data, error } = await supabaseClient.auth.getSession();
+  const client = getSupabaseClient();
+  if (!client) {
+    setAuthMessage('Supabase 라이브러리를 불러오지 못했어요. 네트워크를 확인한 뒤 새로고침해 주세요.', 'error');
+    return false;
+  }
+  const { data, error } = await client.auth.getSession();
   if (error) {
     console.warn('세션 확인 실패', error);
     return false;
@@ -279,7 +313,7 @@ async function initAuth() {
   currentSession = data?.session || null;
   currentUser = currentSession?.user || null;
 
-  supabaseClient.auth.onAuthStateChange((event, session) => {
+  client.auth.onAuthStateChange((event, session) => {
     currentSession = session || null;
     currentUser = session?.user || null;
     if (event === 'SIGNED_IN' && currentUser) {
@@ -301,25 +335,54 @@ async function initAuth() {
 }
 
 async function sendMagicLink() {
-  if (!supabaseClient) {
-    setAuthMessage('Supabase 연결 정보를 확인하지 못했어요. app.js의 URL과 Publishable key를 확인해 주세요.', 'error');
-    return;
+  const button = el('magicLinkButton');
+  const originalText = button?.textContent || '로그인 링크 보내기';
+  try {
+    const client = getSupabaseClient();
+    if (!client) {
+      setAuthMessage('Supabase 연결을 초기화하지 못했어요. 인터넷 연결 또는 CDN 로딩 상태를 확인해 주세요.', 'error');
+      return;
+    }
+    const email = el('authEmailInput')?.value?.trim();
+    if (!email) {
+      setAuthMessage('이메일을 입력해 주세요.', 'error');
+      el('authEmailInput')?.focus();
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setAuthMessage('이메일 형식을 확인해 주세요. 예: name@example.com', 'error');
+      el('authEmailInput')?.focus();
+      return;
+    }
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = '로그인 링크 보내는 중...';
+    }
+    setAuthMessage('로그인 링크를 보내는 중이에요. 잠시만 기다려 주세요.', '');
+
+    const redirectTo = `${window.location.origin}${window.location.pathname}`;
+    const { error } = await client.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: redirectTo,
+        shouldCreateUser: true,
+      },
+    });
+    if (error) {
+      setAuthMessage(`로그인 링크 전송 실패: ${error.message}`, 'error');
+      return;
+    }
+    setAuthMessage('로그인 링크를 보냈어요. 메일함에서 링크를 눌러 다시 돌아와 주세요. 메일이 안 보이면 스팸함도 확인해 주세요.', 'ok');
+  } catch (error) {
+    console.error('로그인 링크 전송 오류', error);
+    setAuthMessage(`로그인 처리 중 오류가 발생했어요: ${error?.message || error}`, 'error');
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
   }
-  const email = el('authEmailInput')?.value?.trim();
-  if (!email) {
-    setAuthMessage('이메일을 입력해 주세요.', 'error');
-    return;
-  }
-  const redirectTo = `${window.location.origin}${window.location.pathname}`;
-  const { error } = await supabaseClient.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: redirectTo },
-  });
-  if (error) {
-    setAuthMessage(`로그인 링크 전송 실패: ${error.message}`, 'error');
-    return;
-  }
-  setAuthMessage('로그인 링크를 보냈어요. 메일함에서 링크를 눌러 다시 돌아와 주세요.', 'ok');
 }
 
 function setAuthMessage(message, type = '') {

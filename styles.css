@@ -588,3 +588,18 @@ textarea.share-box { min-height: 250px; line-height: 1.7; resize: vertical; }
   .review-summary-grid, .week-summary-grid, .off-group-grid, .week-strip { grid-template-columns: 1fr; }
   .week-day-card { min-height: auto; }
 }
+
+button:disabled {
+  opacity: .58;
+  cursor: not-allowed;
+}
+.auth-message.ok {
+  background: #ecfdf5;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+.auth-message.error {
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
