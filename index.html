@@ -5,93 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>근무표 정리함 v2</title>
   <link rel="stylesheet" href="./styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    window.SCHEDULE_SUPABASE_URL = "https://fergbabqmwnbkkxjvgkj.supabase.co";
-    window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
-
-    // 로그인 버튼은 app.js가 늦게 로드되어도 바로 반응하도록 헤드에서 먼저 연결합니다.
-    window.scheduleDirectGoogleLogin = async function scheduleDirectGoogleLogin(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-      }
-
-      const button = document.getElementById('googleLoginButton');
-      const message = document.getElementById('authMessage');
-      const setMessage = (text, type = '') => {
-        if (!message) return;
-        message.textContent = text;
-        message.className = `auth-message ${type}`;
-      };
-
-      if (!window.supabase || !window.supabase.createClient) {
-        setMessage('Supabase 로그인 모듈을 아직 불러오지 못했어요. 잠시 후 새로고침해 주세요.', 'error');
-        return false;
-      }
-
-      try {
-        if (button) {
-          button.disabled = true;
-          button.textContent = 'Google 로그인으로 이동 중...';
-        }
-        setMessage('Google 로그인으로 이동하고 있어요.', '');
-
-        const client = window.__scheduleSupabaseClient || window.supabase.createClient(
-          window.SCHEDULE_SUPABASE_URL,
-          window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY,
-          {
-            auth: {
-              persistSession: true,
-              autoRefreshToken: true,
-              detectSessionInUrl: true,
-              flowType: 'implicit'
-            }
-          }
-        );
-        window.__scheduleSupabaseClient = client;
-
-        const { error } = await client.auth.signInWithOAuth({
-          provider: 'google',
-          options: { redirectTo: window.location.origin }
-        });
-
-        if (error) throw error;
-        return false;
-      } catch (error) {
-        console.error('Google 로그인 시작 실패', error);
-        setMessage(`Google 로그인 시작 실패: ${error?.message || error}`, 'error');
-        if (button) {
-          button.disabled = false;
-          button.textContent = 'Google로 로그인';
-        }
-        return false;
-      }
-    };
-
-    document.addEventListener('DOMContentLoaded', function () {
-      const button = document.getElementById('googleLoginButton');
-      if (button && !button.dataset.directAuthBound) {
-        button.dataset.directAuthBound = 'true';
-        button.addEventListener('click', window.scheduleDirectGoogleLogin, true);
-      }
-    });
-  </script>
-  <script defer src="./app.js?v=google-stable-final-1"></script>
-  <script async src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-  <script async src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script defer src="./app.js"></script>
 </head>
 <body>
   <section id="authGate" class="auth-gate">
     <div class="auth-card">
       <p class="eyebrow">Monthly Shift Organizer</p>
       <h1>근무표 정리함</h1>
-      <p>Google 계정으로 로그인하면 월별 근무표 이미지와 스케줄 데이터를 Supabase에 저장하고, 다른 기기에서도 다시 불러올 수 있어요.</p>
-      <button id="googleLoginButton" class="primary-btn auth-main-btn google-login-btn" type="button" onclick="return window.scheduleDirectGoogleLogin ? window.scheduleDirectGoogleLogin(event) : false;">Google로 로그인</button>
-      <div id="authMessage" class="auth-message">Google 로그인 버튼을 눌러 시작해 주세요.</div>
-      <small class="auth-help">Google 로그인 후 앱으로 자동으로 돌아와요.</small>
+      <p>이메일로 로그인하면 월별 근무표 이미지와 스케줄 데이터를 Supabase에 저장하고, 다른 기기에서도 다시 불러올 수 있어요.</p>
+      <label class="auth-label">
+        이메일
+        <input id="authEmailInput" type="email" placeholder="name@example.com" autocomplete="email" />
+      </label>
+      <button id="magicLinkButton" class="primary-btn auth-main-btn">로그인 링크 보내기</button>
+      <div id="authMessage" class="auth-message">로그인 링크는 입력한 이메일로 전송됩니다.</div>
+      <small class="auth-help">메일함에서 링크를 누르면 이 앱으로 다시 돌아옵니다. Supabase Auth의 Redirect URL에 Vercel 주소가 등록되어 있어야 합니다.</small>
     </div>
   </section>
 

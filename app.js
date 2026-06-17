@@ -1,40 +1,15 @@
 // Supabase 연결 정보
 // Publishable key는 브라우저에서 사용하는 공개용 키입니다.
 // Secret key는 절대 이 파일에 넣지 마세요.
-const SUPABASE_URL = window.SCHEDULE_SUPABASE_URL || "https://fergbabqmwnbkkxjvgkj.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
-let supabaseClient = null;
-
-function getSupabaseClient() {
-  if (supabaseClient) return supabaseClient;
-  if (window.__scheduleSupabaseClient) {
-    supabaseClient = window.__scheduleSupabaseClient;
-    return supabaseClient;
-  }
-  if (!window.supabase?.createClient) {
-    console.warn('Supabase SDK가 아직 로드되지 않았어요.', window.supabase);
-    return null;
-  }
-
-  // 참고한 쉼표 앱처럼 Supabase JS 기본 세션 처리 흐름을 사용합니다.
-  // 핵심은 redirectTo를 앱 루트로 돌리고, getSession/onAuthStateChange가 세션을 잡게 하는 것입니다.
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      flowType: 'implicit',
-    },
-  });
-  window.__scheduleSupabaseClient = supabaseClient;
-  return supabaseClient;
-}
+const SUPABASE_URL = "https://fergbabqmwnbkkxjvgkj.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
+const supabaseClient = window.supabase
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  : null;
 
 let currentSession = null;
 let currentUser = null;
-let isGuestMode = false;
 let isCloudBusy = false;
-window.__scheduleAppAuthBound = false;
 
 
 const state = {
@@ -54,14 +29,6 @@ const state = {
 };
 
 const el = (id) => document.getElementById(id);
-function on(id, eventName, handler) {
-  const node = el(id);
-  if (!node) {
-    console.warn(`[bindEvents] #${id} 요소를 찾지 못했어요.`);
-    return;
-  }
-  node.addEventListener(eventName, handler);
-}
 const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
 const STORAGE_KEY = 'shift-organizer-v1';
 const IMAGE_DB_NAME = 'shift-organizer-images-v1';
@@ -70,7 +37,6 @@ const MAX_STORED_IMAGE_WIDTH = 2400;
 const MAX_STORED_IMAGE_HEIGHT = 1600;
 const THUMB_WIDTH = 360;
 const THUMB_HEIGHT = 240;
-const DEFAULT_CULINARY_NAMES = ['이준호', '류선협', '이상민', '김도영', '이승호', '곽병우', '이미현', '이다연', '김성민', '정세환'];
 
 function getExtractionPrompt() {
   return `당신은 근무표 이미지에서 데이터를 정확히 추출하는 데이터 변환 담당자입니다.
@@ -205,30 +171,21 @@ function getDefaultCodes() {
 
 function getDefaultOcrState() {
   return {
-    names: DEFAULT_CULINARY_NAMES.join('\n'),
+    names: ['곽병우', '이준호', '유희수', '김도영', '이다운', '이상민', '정세완'].join('\n'),
     rect: { x: 18.3, y: 12.1, w: 49.6, h: 25.5 },
     results: [],
   };
 }
 
 async function init() {
-  try {
-    loadState();
-  } catch (error) {
-    console.warn('저장 데이터 초기화 중 오류', error);
-  }
+  loadState();
   initMonthSelect();
+  bindEvents();
   bindAuthEvents();
-  setAuthMessage('로그인 화면 준비 완료. Google 로그인 버튼을 눌러 주세요.', '');
-  try {
-    bindEvents();
-  } catch (error) {
-    console.warn('일반 화면 이벤트 연결 중 오류가 발생했지만 로그인 기능은 계속 사용할 수 있어요.', error);
-  }
 
   const authenticated = await initAuth();
   if (!authenticated) {
-    showAuthGate('로그인이 필요합니다. Google 계정으로 로그인해 주세요.');
+    showAuthGate('로그인이 필요합니다. 이메일을 입력하고 로그인 링크를 받아 주세요.');
     return;
   }
 
@@ -250,13 +207,13 @@ async function init() {
 }
 
 function bindEvents() {
-  on('yearInput', 'input', async (e) => { await changeActiveMonth(Number(e.target.value), state.month); });
-  on('monthInput', 'change', async (e) => { await changeActiveMonth(state.year, Number(e.target.value)); });
-  on('myNameInput', 'input', (e) => { state.myName = e.target.value.trim(); renderAll(); saveState(false); });
-  on('selectedDateInput', 'change', (e) => { state.selectedDate = e.target.value; renderAll(); saveState(false); });
-  on('uploadButton', 'click', () => el('imageInput')?.click());
-  on('imageInput', 'change', handleImageUpload);
-  on('loadSampleButton', 'click', loadSample);
+  el('yearInput').addEventListener('input', async (e) => { await changeActiveMonth(Number(e.target.value), state.month); });
+  el('monthInput').addEventListener('change', async (e) => { await changeActiveMonth(state.year, Number(e.target.value)); });
+  el('myNameInput').addEventListener('input', (e) => { state.myName = e.target.value.trim(); renderAll(); saveState(false); });
+  el('selectedDateInput').addEventListener('change', (e) => { state.selectedDate = e.target.value; renderAll(); saveState(false); });
+  el('uploadButton').addEventListener('click', () => el('imageInput').click());
+  el('imageInput').addEventListener('change', handleImageUpload);
+  el('loadSampleButton').addEventListener('click', loadSample);
   el('loadSampleFromUploadButton')?.addEventListener('click', () => { loadSample(); switchPage('home', true); });
   bindDataInputEvents();
   el('cloudSaveButton')?.addEventListener('click', async () => {
@@ -269,13 +226,13 @@ function bindEvents() {
     renderUploadedImage();
     renderAll();
   });
-  on('clearButton', 'click', clearAll);
-  on('saveButton', 'click', async () => {
+  el('clearButton').addEventListener('click', clearAll);
+  el('saveButton').addEventListener('click', async () => {
     saveState(false);
     await saveCurrentMonthToCloud(true);
   });
-  on('addPersonButton', 'click', addPerson);
-  on('removeEmptyRowsButton', 'click', removeEmptyRows);
+  el('addPersonButton').addEventListener('click', addPerson);
+  el('removeEmptyRowsButton').addEventListener('click', removeEmptyRows);
   document.querySelectorAll('.sheet-tab').forEach((button) => {
     button.addEventListener('click', () => switchPage(button.dataset.page, true));
   });
@@ -301,62 +258,29 @@ function parseMonthKey(key) {
 
 
 function bindAuthEvents() {
-  const googleButton = el('googleLoginButton');
-  if (googleButton && !googleButton.dataset.authBound) {
-    googleButton.dataset.authBound = 'true';
-    // index.html의 직접 연결 함수가 우선 동작합니다. 혹시 직접 연결이 없는 경우에만 app.js가 처리합니다.
-    googleButton.addEventListener('click', (event) => {
-      if (window.scheduleDirectGoogleLogin) return;
-      signInWithGoogle(event);
-    });
-  }
-
-  const logoutButton = el('logoutButton');
-  if (logoutButton && !logoutButton.dataset.authBound) {
-    logoutButton.dataset.authBound = 'true';
-    logoutButton.addEventListener('click', async () => {
-      const client = getSupabaseClient();
-      if (client && currentUser) await client.auth.signOut();
-      currentSession = null;
-      currentUser = null;
-      isGuestMode = false;
-      showAuthGate('로그아웃했어요. 다시 사용하려면 Google 계정으로 로그인해 주세요.');
-    });
-  }
+  el('magicLinkButton')?.addEventListener('click', sendMagicLink);
+  el('logoutButton')?.addEventListener('click', async () => {
+    if (!supabaseClient) return;
+    await supabaseClient.auth.signOut();
+    currentSession = null;
+    currentUser = null;
+    showAuthGate('로그아웃했어요. 다시 사용하려면 이메일로 로그인해 주세요.');
+  });
 }
 
 async function initAuth() {
-  const client = getSupabaseClient();
-  if (!client) {
-    setAuthMessage('Supabase 라이브러리를 불러오지 못했어요. 네트워크를 확인한 뒤 새로고침해 주세요.', 'error');
-    return false;
-  }
-
-  try {
-    const callbackSession = await processAuthCallback(client);
-    if (callbackSession) {
-      currentSession = callbackSession;
-      currentUser = callbackSession.user || null;
-    }
-  } catch (callbackError) {
-    console.error('로그인 콜백 처리 실패', callbackError);
-    setAuthMessage(`Google 로그인 확인 중 오류가 발생했어요: ${callbackError?.message || callbackError}`, 'error');
-  }
-
-  const { data, error } = await client.auth.getSession();
+  if (!supabaseClient) return false;
+  const { data, error } = await supabaseClient.auth.getSession();
   if (error) {
     console.warn('세션 확인 실패', error);
-    setAuthMessage(`세션 확인 실패: ${error.message}`, 'error');
     return false;
   }
-
-  currentSession = data?.session || currentSession || null;
+  currentSession = data?.session || null;
   currentUser = currentSession?.user || null;
 
-  client.auth.onAuthStateChange((event, session) => {
+  supabaseClient.auth.onAuthStateChange((event, session) => {
     currentSession = session || null;
     currentUser = session?.user || null;
-
     if (event === 'SIGNED_IN' && currentUser) {
       showAppShell();
       showCloudStatus('로그인 완료. 데이터를 불러오는 중이에요.', 'ok');
@@ -365,108 +289,36 @@ async function initAuth() {
         renderScheduleTable();
         renderUploadedImage();
         renderAll();
-      }).catch((error) => {
-        console.error('로그인 후 데이터 로드 실패', error);
-        showCloudStatus('로그인은 완료됐지만 데이터를 불러오지 못했어요. Supabase 테이블 권한을 확인해 주세요.', 'warn');
       });
     }
-
     if (event === 'SIGNED_OUT') {
-      showAuthGate('로그아웃했어요. 다시 사용하려면 Google 계정으로 로그인해 주세요.');
+      showAuthGate('로그아웃했어요. 다시 사용하려면 이메일로 로그인해 주세요.');
     }
   });
 
   return Boolean(currentUser);
 }
 
-async function processAuthCallback(client) {
-  const url = new URL(window.location.href);
-  const query = url.searchParams;
-  const hashString = window.location.hash ? window.location.hash.slice(1) : '';
-  const hash = new URLSearchParams(hashString);
-
-  const errorDescription = query.get('error_description') || hash.get('error_description') || query.get('error') || hash.get('error');
-  if (errorDescription) {
-    cleanupAuthUrl();
-    throw new Error(decodeURIComponent(errorDescription.replace(/\+/g, ' ')));
+async function sendMagicLink() {
+  if (!supabaseClient) {
+    setAuthMessage('Supabase 연결 정보를 확인하지 못했어요. app.js의 URL과 Publishable key를 확인해 주세요.', 'error');
+    return;
   }
-
-  // Google OAuth가 ?code=... 로 돌아오는 경우
-  const code = query.get('code');
-  if (code) {
-    setAuthMessage('Google 로그인 정보를 확인하고 있어요. 잠시만 기다려 주세요.', '');
-    const { data, error } = await client.auth.exchangeCodeForSession(code);
-    cleanupAuthUrl();
-    if (error) throw error;
-    setAuthMessage('로그인 완료. 앱을 여는 중이에요.', 'ok');
-    return data?.session || null;
+  const email = el('authEmailInput')?.value?.trim();
+  if (!email) {
+    setAuthMessage('이메일을 입력해 주세요.', 'error');
+    return;
   }
-
-  // Google OAuth가 #access_token=... 로 돌아오는 경우
-  const accessToken = hash.get('access_token');
-  const refreshToken = hash.get('refresh_token');
-  if (accessToken && refreshToken) {
-    setAuthMessage('Google 로그인 정보를 확인하고 있어요. 잠시만 기다려 주세요.', '');
-    const { data, error } = await client.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
-    cleanupAuthUrl();
-    if (error) throw error;
-    setAuthMessage('로그인 완료. 앱을 여는 중이에요.', 'ok');
-    return data?.session || null;
+  const redirectTo = `${window.location.origin}${window.location.pathname}`;
+  const { error } = await supabaseClient.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: redirectTo },
+  });
+  if (error) {
+    setAuthMessage(`로그인 링크 전송 실패: ${error.message}`, 'error');
+    return;
   }
-
-  return null;
-}
-
-function cleanupAuthUrl() {
-  if (!window.history?.replaceState) return;
-  const cleanUrl = `${window.location.origin}${window.location.pathname}`;
-  window.history.replaceState({}, document.title, cleanUrl);
-}
-
-async function signInWithGoogle(event) {
-  if (event) event.preventDefault();
-  setAuthMessage('Google 로그인으로 이동하고 있어요.', '');
-  const button = el('googleLoginButton');
-  const originalText = button?.textContent || 'Google로 로그인';
-
-  try {
-    const client = getSupabaseClient();
-    if (!client) {
-      setAuthMessage('Supabase 연결을 초기화하지 못했어요. 인터넷 연결 또는 CDN 로딩 상태를 확인해 주세요.', 'error');
-      return;
-    }
-
-    if (button) {
-      button.disabled = true;
-      button.textContent = 'Google 로그인으로 이동 중...';
-    }
-
-    // 참고용으로 받은 쉼표 앱과 동일하게 앱 루트로 직접 돌아오게 합니다.
-    // 별도 auth-callback.html 없이 index.html/app.js에서 세션을 처리합니다.
-    const redirectTo = window.location.origin;
-    const { error } = await client.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo },
-    });
-
-    if (error) {
-      setAuthMessage(`Google 로그인 시작 실패: ${error.message}`, 'error');
-      if (button) {
-        button.disabled = false;
-        button.textContent = originalText;
-      }
-    }
-  } catch (error) {
-    console.error('Google 로그인 시작 오류', error);
-    setAuthMessage(`Google 로그인 처리 중 오류가 발생했어요: ${error?.message || error}`, 'error');
-    if (button) {
-      button.disabled = false;
-      button.textContent = originalText;
-    }
-  }
+  setAuthMessage('로그인 링크를 보냈어요. 메일함에서 링크를 눌러 다시 돌아와 주세요.', 'ok');
 }
 
 function setAuthMessage(message, type = '') {
@@ -1215,7 +1067,7 @@ function bindOcrEvents() {
     });
   });
   el('loadDefaultNamesButton')?.addEventListener('click', () => {
-    state.ocr.names = DEFAULT_CULINARY_NAMES.join('\n');
+    state.ocr.names = getDefaultOcrState().names;
     syncOcrInputs();
     saveState(false);
   });
@@ -1627,10 +1479,9 @@ function importCsvFromInput(showAlert = true) {
     renderScheduleTable();
     renderAll();
     saveState(false);
-    setCsvInputStatus(`${state.year}년 ${state.month}월 데이터 ${parsed.people.length}명을 불러왔어요. 데이터 확인 탭에서 검토해 주세요.`, 'ok');
+    setCsvInputStatus(`${state.year}년 ${state.month}월 데이터 ${parsed.people.length}명을 검수표에 반영했어요.`, 'ok');
     renderCsvPreview();
-    switchPage('dataReview', true);
-    if (showAlert) alert('CSV 데이터를 불러왔어요. 데이터 확인 탭에서 먼저 확인해 주세요.');
+    if (showAlert) alert('CSV 데이터를 검수표에 반영했어요. 확인 후 저장해 주세요.');
     return true;
   } catch (error) {
     setCsvInputStatus(error.message || String(error), 'error');
@@ -1667,65 +1518,6 @@ function renderDataInput() {
   return '';
 }
 
-function renderDataReview() {
-  const people = state.people.filter((p) => p.name);
-  const days = daysInMonth(state.year, state.month);
-  if (!people.length) {
-    return `
-      <div class="view-title"><h3>입력 데이터 확인</h3><span>아직 불러온 데이터가 없어요</span></div>
-      <div class="empty-archive">
-        <h3>CSV 데이터를 먼저 불러와 주세요.</h3>
-        <p>데이터 입력 탭에서 ChatGPT/Gemini가 추출한 CSV를 붙여넣고 CSV 불러오기를 누르면 여기에서 결과를 확인할 수 있어요.</p>
-        <button class="primary-btn" data-go-page="dataInput">데이터 입력으로 이동</button>
-      </div>
-    `;
-  }
-  const codeCount = {};
-  people.forEach((person) => {
-    person.schedules.forEach((code) => {
-      if (!code) return;
-      codeCount[code] = (codeCount[code] || 0) + 1;
-    });
-  });
-  const topCodes = Object.entries(codeCount)
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, 8)
-    .map(([code, count]) => `<span class="stat-pill"><b>${escapeHtml(code)}</b>${count}</span>`)
-    .join('');
-  const header = Array.from({ length: days }, (_, i) => `<th>${i + 1}</th>`).join('');
-  const rows = people.map((person) => `
-    <tr>
-      <td><strong>${escapeHtml(person.name)}</strong></td>
-      ${person.schedules.slice(0, days).map((code) => {
-        const info = getCodeInfo(code);
-        return `<td><span class="badge ${badgeClass(info.type)}">${escapeHtml(code || '-')}</span></td>`;
-      }).join('')}
-    </tr>
-  `).join('');
-  return `
-    <div class="view-title"><h3>입력 데이터 확인</h3><span>${state.year}년 ${state.month}월 · ${people.length}명</span></div>
-    <div class="review-summary-grid">
-      <div class="summary-card"><p>입력 인원</p><strong>${people.length}명</strong><span>검수표에 반영된 사람 수</span></div>
-      <div class="summary-card"><p>날짜 범위</p><strong>1~${days}일</strong><span>d01~d${String(days).padStart(2, '0')} 사용</span></div>
-      <div class="summary-card"><p>내 이름</p><strong>${escapeHtml(state.myName || '-')}</strong><span>홈/주간/월간 기준</span></div>
-      <div class="summary-card"><p>주요 코드</p><div class="stat-pill-wrap">${topCodes || '<span class="stat-pill">없음</span>'}</div></div>
-    </div>
-    <div class="action-row review-actions">
-      <button class="primary-btn" data-go-page="editor">검수표에서 수정하기</button>
-      <button class="secondary-btn" data-go-page="daily">일간 보기</button>
-      <button class="secondary-btn" data-go-page="weekly">주간 보기</button>
-      <button class="secondary-btn" data-go-page="monthly">월간 보기</button>
-      <button class="secondary-btn" data-go-page="dayRoster">출근 현황 보기</button>
-    </div>
-    <div class="table-scroll review-table-wrap">
-      <table class="schedule-table review-table">
-        <thead><tr><th>이름</th>${header}</tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-  `;
-}
-
 function renderAll() {
   renderSummary();
   renderViews();
@@ -1759,7 +1551,8 @@ function getScheduleRowsForPerson(person) {
 
 function renderSummary() {
   const person = getMyPerson();
-  const selectedDay = getCurrentDisplayDay();
+  const selected = new Date(state.selectedDate || Date.now());
+  const selectedDay = isSameMonth(selected) ? selected.getDate() : 1;
   const todayCode = person?.schedules[selectedDay - 1] || '';
   const todayInfo = getCodeInfo(todayCode);
   const rows = person ? getScheduleRowsForPerson(person) : [];
@@ -1787,7 +1580,6 @@ function renderViews() {
     archive: renderArchive,
     settings: renderSettings,
     dataInput: renderDataInput,
-    dataReview: renderDataReview,
   };
   Object.entries(map).forEach(([page, renderer]) => {
     const target = el(`${page}Content`);
@@ -1808,32 +1600,14 @@ function switchPage(page, shouldSave = true) {
   });
   if (page === 'extract') setTimeout(drawOcrPreview, 0);
   if (page === 'dataInput') renderCsvPreview();
-  if (page === 'dataReview') renderViews();
   if (shouldSave) saveState(false);
   if (shouldSave) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-
-function getCurrentDisplayDay() {
-  const today = new Date();
-  if (today.getFullYear() === state.year && today.getMonth() + 1 === state.month) {
-    return today.getDate();
-  }
-  const selected = new Date(state.selectedDate || Date.now());
-  return isSameMonth(selected) ? selected.getDate() : 1;
-}
-
-function getDisplayDayLabel(day) {
-  const today = new Date();
-  if (today.getFullYear() === state.year && today.getMonth() + 1 === state.month && today.getDate() === day) {
-    return '오늘';
-  }
-  return '선택일';
-}
-
 function renderDaily() {
   const person = getMyPerson();
-  const day = getCurrentDisplayDay();
+  const selected = new Date(state.selectedDate || Date.now());
+  const day = isSameMonth(selected) ? selected.getDate() : 1;
   const code = person?.schedules[day - 1] || '';
   const info = getCodeInfo(code);
   const roster = getDayRoster(day);
@@ -1850,7 +1624,7 @@ function renderDaily() {
 function renderWeekly() {
   const person = getMyPerson();
   const selected = new Date(state.selectedDate || Date.now());
-  const baseDay = isSameMonth(selected) ? selected.getDate() : getCurrentDisplayDay();
+  const baseDay = isSameMonth(selected) ? selected.getDate() : 1;
   const date = getDateObj(baseDay);
   const mondayOffset = (date.getDay() + 6) % 7;
   const monday = baseDay - mondayOffset;
@@ -1864,16 +1638,10 @@ function renderWeekly() {
   }
   const workCount = rows.filter((r) => r.info.type === 'work').length;
   const offCount = rows.filter((r) => ['off', 'leave'].includes(r.info.type)).length;
-  const earlyTimes = rows.map((r) => r.info.start).filter(Boolean).sort();
   return `
-    <div class="view-title"><h3>주간 보기</h3><span>${state.month}/${rows[0]?.day || baseDay}~${state.month}/${rows[rows.length - 1]?.day || baseDay} · 근무 ${workCount}일 · 휴무/연차 ${offCount}일</span></div>
-    <div class="week-summary-grid">
-      <div class="summary-card"><p>이번 주 근무</p><strong>${workCount}일</strong><span>내 이름 기준</span></div>
-      <div class="summary-card"><p>이번 주 휴무/연차</p><strong>${offCount}일</strong><span>DO/PH/SD/AL 등</span></div>
-      <div class="summary-card"><p>가장 이른 출근</p><strong>${earlyTimes[0] || '-'}</strong><span>${earlyTimes[0] ? '이번 주 기준' : '시간 정보 없음'}</span></div>
-    </div>
-    <div class="week-strip">
-      ${rows.map(({ day, code, info }) => `<button class="week-day-card ${badgeClass(info.type)}" data-pick-day="${day}"><b>${dayNames[getDateObj(day).getDay()]}</b><strong>${state.month}/${day}</strong><span class="badge ${badgeClass(info.type)}">${code || '-'}</span><small>${formatTime(info) || info.label}</small></button>`).join('')}
+    <div class="view-title"><h3>주간 보기</h3><span>근무 ${workCount}일 · 휴무/연차 ${offCount}일</span></div>
+    <div class="list">
+      ${rows.map(({ day, code, info }) => `<div class="list-row"><strong>${state.month}/${day}(${dayNames[getDateObj(day).getDay()]})</strong><span>${formatTime(info) || info.label}</span><span class="badge ${badgeClass(info.type)}">${code || '-'}</span></div>`).join('')}
     </div>
   `;
 }
@@ -1882,24 +1650,24 @@ function renderMonthly() {
   const person = getMyPerson();
   const days = daysInMonth(state.year, state.month);
   const first = new Date(state.year, state.month - 1, 1).getDay();
-  const displayDay = getCurrentDisplayDay();
-  let html = `<div class="view-title"><h3>${state.year}년 ${state.month}월 월간 캘린더</h3><span>날짜를 누르면 일간 보기로 이동합니다</span></div><div class="calendar enhanced-calendar">`;
-  dayNames.forEach((name, idx) => html += `<div class="calendar-head ${idx === 0 ? 'sun' : idx === 6 ? 'sat' : ''}">${name}</div>`);
+  const selectedDay = new Date(state.selectedDate || Date.now()).getDate();
+  let html = `<div class="view-title"><h3>${state.year}년 ${state.month}월 월간 캘린더</h3></div><div class="calendar">`;
+  dayNames.forEach((name) => html += `<div class="calendar-head">${name}</div>`);
   for (let i = 0; i < first; i++) html += `<div class="day-cell empty"></div>`;
   for (let day = 1; day <= days; day++) {
     const code = person?.schedules[day - 1] || '';
     const info = getCodeInfo(code);
-    const selectedClass = day === displayDay ? 'today' : '';
-    html += `<button class="day-cell ${selectedClass} ${badgeClass(info.type)}" data-pick-day="${day}"><span class="day-number">${day}</span><span class="badge day-code ${badgeClass(info.type)}">${code || '-'}</span><small>${formatTime(info) || info.label}</small></button>`;
+    const todayClass = day === selectedDay && isSameMonth(new Date(state.selectedDate || Date.now())) ? 'today' : '';
+    html += `<button class="day-cell ${todayClass}" data-pick-day="${day}"><span class="day-number">${day}</span><span class="badge day-code ${badgeClass(info.type)}">${code || '-'}</span><small>${formatTime(info) || info.label}</small></button>`;
   }
   html += '</div>';
   return html;
 }
 
 function renderDayRoster() {
-  const day = getCurrentDisplayDay();
-  const label = getDisplayDayLabel(day);
-  return `<div class="view-title"><h3>${state.month}/${day} ${label} 출근 현황</h3><span>기준 날짜가 바뀌면 이 내용도 함께 바뀝니다</span></div>${renderRosterBlocks(day)}`;
+  const selected = new Date(state.selectedDate || Date.now());
+  const day = isSameMonth(selected) ? selected.getDate() : 1;
+  return `<div class="view-title"><h3>${state.month}/${day} 오늘 출근 현황</h3></div>${renderRosterBlocks(day)}`;
 }
 
 function renderRosterBlocks(day) {
@@ -1914,36 +1682,16 @@ function renderRosterBlocks(day) {
 function renderOffDays() {
   const person = getMyPerson();
   const rows = person ? getScheduleRowsForPerson(person).filter((row) => ['off', 'leave'].includes(row.type)) : [];
-  const grouped = rows.reduce((acc, row) => {
-    const key = row.code || '기타';
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(row);
-    return acc;
-  }, {});
-  const groupHtml = Object.entries(grouped).map(([code, items]) => `
-    <div class="off-group-card">
-      <div class="off-group-head"><strong>${escapeHtml(code)}</strong><span>${items.length}일</span></div>
-      <div class="roster-pill-wrap">${items.map((row) => `<span class="person-pill">${row.dateText}</span>`).join('')}</div>
-    </div>
-  `).join('');
   return `
-    <div class="view-title"><h3>휴무일 보기</h3><span>${state.myName || '내 이름'} 기준 · 총 ${rows.length}일</span></div>
-    <div class="review-summary-grid">
-      <div class="summary-card"><p>전체 휴무/연차</p><strong>${rows.length}일</strong><span>이번 달 내 일정 기준</span></div>
-      <div class="summary-card"><p>연차</p><strong>${rows.filter((r) => r.type === 'leave').length}일</strong><span>AL 코드</span></div>
-      <div class="summary-card"><p>휴무</p><strong>${rows.filter((r) => r.type === 'off').length}일</strong><span>DO/PH/SD 등</span></div>
-    </div>
-    <div class="off-group-grid">${groupHtml || '<p>휴무일이 없거나 내 이름이 선택되지 않았습니다.</p>'}</div>
-    <div class="list off-list-detail">${rows.map((row) => `<div class="list-row"><strong>${row.dateText}</strong><span>${row.label}</span><span class="badge ${badgeClass(row.type)}">${row.code}</span></div>`).join('')}</div>
+    <div class="view-title"><h3>휴무일만 보기</h3><span>총 ${rows.length}일</span></div>
+    <div class="list">${rows.map((row) => `<div class="list-row"><strong>${row.dateText}</strong><span>${row.label}</span><span class="badge ${badgeClass(row.type)}">${row.code}</span></div>`).join('') || '<p>휴무일이 없거나 내 이름이 선택되지 않았습니다.</p>'}</div>
   `;
 }
 
 function renderShare() {
   const text = makeShareText();
-  const day = getCurrentDisplayDay();
   return `
-    <div class="view-title"><h3>공유 / 엑셀</h3><span>${state.month}/${day} 출근 현황은 기준 날짜에 맞춰 자동 생성됩니다</span></div>
-    <div class="notice"><strong>카톡용 텍스트</strong><span>아래 내용은 현재 선택된 날짜 또는 실제 오늘 날짜를 기준으로 매번 다시 만들어집니다. 날짜를 바꾸려면 설정·이미지의 날짜 선택 또는 월간 캘린더에서 날짜를 눌러 주세요.</span></div>
+    <div class="view-title"><h3>카톡 공유 / 엑셀 저장</h3></div>
     <textarea id="shareText" class="share-box" readonly>${escapeHtml(text)}</textarea>
     <div class="action-row" style="margin-top:12px;">
       <button id="copyShareButton" class="primary-btn">카톡용 텍스트 복사</button>
@@ -2013,9 +1761,6 @@ function renderSettings() {
 }
 
 function bindViewEvents() {
-  document.querySelectorAll('[data-go-page]').forEach((button) => {
-    button.onclick = () => switchPage(button.dataset.goPage, true);
-  });
   document.querySelectorAll('[data-pick-day]').forEach((button) => {
     button.addEventListener('click', () => {
       const day = String(button.dataset.pickDay).padStart(2, '0');
@@ -2124,12 +1869,13 @@ function makeShareText() {
   if (!person) return '내 이름을 입력하고, 해당 이름의 스케줄을 먼저 입력해 주세요.';
   const rows = getScheduleRowsForPerson(person);
   const offRows = rows.filter((row) => ['off', 'leave'].includes(row.type));
-  const day = getCurrentDisplayDay();
+  const selected = new Date(state.selectedDate || Date.now());
+  const day = isSameMonth(selected) ? selected.getDate() : 1;
   const roster = getDayRoster(day);
   const main = rows.map((row) => `${row.dateText} ${row.code || '-'} ${formatTime(row) || row.label}`).join('\n');
   const off = offRows.map((row) => row.dateText).join(', ') || '없음';
   const rosterText = Object.entries(roster.byStart).sort(([a], [b]) => a.localeCompare(b)).map(([time, people]) => `${time} 출근: ${people.map((p) => p.name).join(', ')}`).join('\n');
-  return `[${state.month}/${day} 출근 현황]\n${rosterText || '출근자 없음'}\n휴무/연차: ${roster.offPeople.map((p) => p.name).join(', ') || '없음'}\n\n[${state.year}년 ${state.month}월 ${state.myName} 스케줄]\n${main}\n\n[휴무일]\n${off}`;
+  return `[${state.year}년 ${state.month}월 ${state.myName} 스케줄]\n\n${main}\n\n[휴무일]\n${off}\n\n[${state.month}/${day} 출근 현황]\n${rosterText || '출근자 없음'}\n휴무/연차: ${roster.offPeople.map((p) => p.name).join(', ') || '없음'}`;
 }
 
 function downloadExcel() {
@@ -2245,18 +1991,4 @@ function loadState() {
   }
 }
 
-function bootScheduleApp() {
-  if (window.__scheduleAppBooted) return;
-  window.__scheduleAppBooted = true;
-  init().catch((error) => {
-    console.error('앱 초기화 실패', error);
-    setAuthMessage(`앱 초기화 중 오류가 발생했어요: ${error?.message || error}`, 'error');
-    showAuthGate();
-  });
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootScheduleApp);
-} else {
-  bootScheduleApp();
-}
+init();
