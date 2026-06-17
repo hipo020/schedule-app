@@ -77,3 +77,12 @@ Secret key는 절대 넣지 마세요.
 - Supabase Authentication > Providers > Google에서 Google Provider를 켜고 Client ID / Client Secret을 저장해야 합니다.
 - Supabase Authentication > URL Configuration의 Site URL과 Redirect URLs에는 Vercel 앱 기본 주소를 넣습니다.
 - Google Cloud OAuth 클라이언트의 승인된 JavaScript 원본에는 Vercel 앱 주소를 넣고, 승인된 리디렉션 URI에는 Supabase Callback URL을 넣습니다.
+
+
+## v2 UX 반영 사항
+- Google 로그인 정상 동작 버전을 기준으로 유지했습니다.
+- OCR 보조 탭의 기본 이름 목록을 현재 팀 순서로 교체했습니다.
+- 데이터 입력과 입력 후 확인 화면을 더 명확히 분리했습니다.
+- OCR은 주 입력 방식이 아닌 보조 기능으로 한구석에 유지했습니다.
+- 주간, 월간, 휴무일, 공유·엑셀 화면의 UI를 정리했습니다.
+- 공유·엑셀 화면은 선택일 기준 `[월/일 출근 현황]` 형식의 공유문을 우선 표시합니다.
