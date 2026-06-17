@@ -13,49 +13,6 @@
     window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
   </script>
   <script>
-    window.__scheduleAuthBootstrapPromise = (async function bootstrapSupabaseAuthFromUrl() {
-      try {
-        const hashText = window.location.hash ? window.location.hash.slice(1) : '';
-        const params = new URLSearchParams(hashText || window.location.search.slice(1));
-        const hasToken = params.has('access_token') && params.has('refresh_token');
-        const hasCode = new URLSearchParams(window.location.search).has('code');
-        if (!hasToken && !hasCode) return null;
-        if (!window.supabase?.createClient) return null;
-        const client = window.__scheduleSupabaseClient || window.supabase.createClient(
-          window.SCHEDULE_SUPABASE_URL,
-          window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY,
-          {
-            auth: {
-              persistSession: true,
-              autoRefreshToken: true,
-              detectSessionInUrl: false,
-              flowType: 'implicit'
-            }
-          }
-        );
-        window.__scheduleSupabaseClient = client;
-        let result = null;
-        if (hasToken) {
-          result = await client.auth.setSession({
-            access_token: params.get('access_token'),
-            refresh_token: params.get('refresh_token')
-          });
-        } else if (hasCode) {
-          result = await client.auth.exchangeCodeForSession(new URLSearchParams(window.location.search).get('code'));
-        }
-        if (result?.error) throw result.error;
-        if (window.history?.replaceState) {
-          window.history.replaceState({}, document.title, `${window.location.origin}${window.location.pathname}`);
-        }
-        return result?.data?.session || null;
-      } catch (error) {
-        console.error('초기 로그인 콜백 처리 실패', error);
-        window.__scheduleAuthBootstrapError = error;
-        return null;
-      }
-    })();
-  </script>
-  <script>
     window.startGoogleLoginDirect = async function startGoogleLoginDirect() {
       const message = document.getElementById('authMessage');
       const button = document.getElementById('googleLoginButton');
@@ -70,14 +27,14 @@
           setMessage('Supabase 로그인 모듈을 아직 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.', 'error');
           return;
         }
-        const url = window.SCHEDULE_SUPABASE_URL || 'https://fergbabqmwnbkkxjvgkj.supabase.co';
-        const key = window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv';
+        const url = window.SCHEDULE_SUPABASE_URL;
+        const key = window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY;
         const client = window.__scheduleSupabaseClient || window.supabase.createClient(url, key, {
           auth: {
             persistSession: true,
             autoRefreshToken: true,
-            detectSessionInUrl: true,
-            flowType: 'implicit'
+            detectSessionInUrl: true, // SDK가 자동으로 URL을 읽도록 허용
+            flowType: 'pkce' // 가장 안정적인 기본 방식
           }
         });
         window.__scheduleSupabaseClient = client;
@@ -116,7 +73,7 @@
       }
     });
   </script>
-  <script defer src="./app.js?v=google-hash-callback-fix-2"></script>
+  <script defer src="./app.js?v=clean-pkce-fix-1"></script>
 </head>
 <body>
   <section id="authGate" class="auth-gate">
@@ -124,7 +81,7 @@
       <p class="eyebrow">Monthly Shift Organizer</p>
       <h1>근무표 정리함</h1>
       <p>Google 계정으로 로그인하면 월별 근무표 이미지와 스케줄 데이터를 Supabase에 저장하고, 다른 기기에서도 다시 불러올 수 있어요.</p>
-      <button id="googleLoginButton" class="primary-btn auth-main-btn google-login-btn" type="button" onclick="window.startGoogleLoginDirect && window.startGoogleLoginDirect()">Google로 로그인</button>
+      <button id="googleLoginButton" class="primary-btn auth-main-btn google-login-btn" type="button">Google로 로그인</button>
       <div id="authMessage" class="auth-message">Google 로그인 버튼을 눌러 시작해 주세요.</div>
       <small class="auth-help">Google 로그인 후 이 앱으로 자동으로 돌아와요. 로그인 후에도 이 화면이 보이면 Google/Supabase 리디렉션 주소를 확인해 주세요.</small>
     </div>
@@ -188,22 +145,10 @@
             <h2>기본 설정</h2>
           </div>
           <div class="setup-grid">
-            <label>
-              기준 연도
-              <input id="yearInput" type="number" min="2020" max="2100" />
-            </label>
-            <label>
-              기준 월
-              <select id="monthInput"></select>
-            </label>
-            <label>
-              내 이름
-              <input id="myNameInput" type="text" placeholder="예: 유희수" />
-            </label>
-            <label>
-              오늘 날짜 확인용
-              <input id="selectedDateInput" type="date" />
-            </label>
+            <label>기준 연도<input id="yearInput" type="number" min="2020" max="2100" /></label>
+            <label>기준 월<select id="monthInput"></select></label>
+            <label>내 이름<input id="myNameInput" type="text" placeholder="예: 유희수" /></label>
+            <label>오늘 날짜 확인용<input id="selectedDateInput" type="date" /></label>
           </div>
         </section>
 
@@ -235,37 +180,19 @@
       <section class="app-page" data-page="dataInput">
         <section class="panel view-panel">
           <div class="section-title with-actions">
-            <div>
-              <p>STEP 3</p>
-              <h2>데이터 입력</h2>
-            </div>
-            <div class="action-row">
-              <button id="copyExtractionPromptButton" class="secondary-btn">추출 프롬프트 복사</button>
-            </div>
+            <div><p>STEP 3</p><h2>데이터 입력</h2></div>
+            <div class="action-row"><button id="copyExtractionPromptButton" class="secondary-btn">추출 프롬프트 복사</button></div>
           </div>
-
-          <div class="notice">
-            <strong>추천 흐름</strong>
-            <span>근무표 이미지는 ChatGPT 또는 Gemini에 맡겨 CSV로 추출하고, 여기에는 추출된 CSV만 붙여넣어 주세요. 프롬프트는 길어서 화면에 표시하지 않고 복사 버튼으로만 제공합니다.</span>
-          </div>
-
+          <div class="notice"><strong>추천 흐름</strong><span>근무표 이미지는 ChatGPT 또는 Gemini에 맡겨 CSV로 추출하고, 여기에는 추출된 CSV만 붙여넣어 주세요.</span></div>
           <div class="data-input-grid">
             <div class="data-guide-card">
               <h3>1. AI에게 데이터 추출 요청</h3>
-              <p>현재 선택한 연도/월을 기준으로, 다른 AI 계정에서도 같은 형식의 CSV가 나오도록 고정 프롬프트를 복사합니다.</p>
-              <div class="mini-checklist">
-                <span>상단 메인 근무표만 추출</span>
-                <span>CSV 헤더 고정</span>
-                <span>d01~d31 날짜 컬럼 유지</span>
-                <span>불확실한 값은 확인필요</span>
-              </div>
+              <div class="mini-checklist"><span>상단 메인 근무표만 추출</span><span>CSV 헤더 고정</span><span>d01~d31 날짜 컬럼 유지</span><span>불확실한 값은 확인필요</span></div>
               <button id="copyExtractionPromptButton2" class="primary-btn">프롬프트 복사하기</button>
               <small id="promptCopyStatus" class="helper-text">복사 후 ChatGPT/Gemini에 근무표 이미지를 첨부하고 그대로 붙여넣으세요.</small>
             </div>
-
             <div class="data-guide-card">
               <h3>2. 추출된 CSV 입력</h3>
-              <p>AI가 반환한 CSV를 그대로 붙여넣거나, CSV 파일로 저장해서 업로드할 수 있습니다.</p>
               <input id="csvFileInput" type="file" accept=".csv,text/csv" hidden />
               <div class="action-row">
                 <button id="chooseCsvFileButton" class="secondary-btn">CSV 파일 선택</button>
@@ -274,41 +201,28 @@
               <small id="csvInputStatus" class="helper-text">필수 헤더: year, month, person_name, d01~d31</small>
             </div>
           </div>
-
-          <textarea id="csvDataInput" class="share-box csv-input-box" rows="14" placeholder="여기에 ChatGPT/Gemini가 반환한 CSV를 붙여넣어 주세요.&#10;&#10;예:&#10;year,month,department,employee_id,person_name,hire_date,d01,d02,...,d31&#10;2026,6,Culinary,2022006,이준호,2022-04-04,DO,DO,AH,..."></textarea>
-
+          <textarea id="csvDataInput" class="share-box csv-input-box" rows="14" placeholder="여기에 ChatGPT/Gemini가 반환한 CSV를 붙여넣어 주세요."></textarea>
           <div class="action-row" style="margin-top:12px;">
             <button id="importCsvButton" class="primary-btn">CSV를 검수표에 반영</button>
             <button id="saveImportedCsvButton" class="secondary-btn">클라우드 저장</button>
           </div>
-
           <div id="csvPreviewWrap" class="csv-preview-wrap"></div>
         </section>
       </section>
 
-
       <section class="app-page" data-page="extract">
         <section class="panel view-panel">
           <div class="section-title with-actions">
-            <div>
-              <p>STEP 3</p>
-              <h2>이미지 자동 추출</h2>
-            </div>
+            <div><p>STEP 3</p><h2>이미지 자동 추출</h2></div>
             <div class="action-row">
               <button id="useTopTablePresetButton" class="secondary-btn">기본 영역</button>
               <button id="runOcrButton" class="primary-btn">자동 추출 시작</button>
             </div>
           </div>
-
-          <div class="notice">
-            <strong>OCR 베타</strong>
-            <span>노란 영역이 날짜별 코드 셀만 감싸도록 조정한 뒤 추출하세요. 추출 후에는 검수표에서 반드시 확인해 주세요.</span>
-          </div>
-
+          <div class="notice"><strong>OCR 베타</strong><span>노란 영역이 날짜별 코드 셀만 감싸도록 조정한 뒤 추출하세요. 추출 후에는 검수표에서 반드시 확인해 주세요.</span></div>
           <div class="ocr-grid">
             <div class="ocr-control-card">
               <h3>사람 이름</h3>
-              <p>스케줄표에 있는 사람 이름을 위에서 아래 순서대로 입력해 주세요.</p>
               <textarea id="ocrNamesInput" class="share-box" rows="8"></textarea>
               <button id="loadDefaultNamesButton" class="ghost-btn">기본 이름 불러오기</button>
               <h3>추출 영역</h3>
@@ -321,27 +235,17 @@
               <button id="drawOcrPreviewButton" class="secondary-btn">영역 다시 보기</button>
               <div id="ocrProgress" class="ocr-progress">이미지를 업로드한 뒤 자동 추출을 시작해 주세요.</div>
             </div>
-
             <div class="ocr-preview-card">
               <h3>추출 영역 미리보기</h3>
-              <div class="ocr-preview-wrap">
-                <canvas id="ocrPreviewCanvas"></canvas>
-                <div id="ocrEmptyPreview" class="empty-preview">이미지를 먼저 업로드해 주세요.</div>
-              </div>
+              <div class="ocr-preview-wrap"><canvas id="ocrPreviewCanvas"></canvas><div id="ocrEmptyPreview" class="empty-preview">이미지를 먼저 업로드해 주세요.</div></div>
             </div>
           </div>
-
           <div class="ocr-result-card">
             <div class="section-title with-actions">
-              <div>
-                <p>RESULT</p>
-                <h2>추출 결과</h2>
-              </div>
+              <div><p>RESULT</p><h2>추출 결과</h2></div>
               <button id="applyOcrToEditorButton" class="primary-btn">추출 결과 검수표에 반영</button>
             </div>
-            <div class="table-scroll">
-              <table id="ocrResultTable" class="schedule-table"></table>
-            </div>
+            <div class="table-scroll"><table id="ocrResultTable" class="schedule-table"></table></div>
           </div>
         </section>
       </section>
@@ -349,42 +253,13 @@
       <section class="app-page" data-page="editor">
         <section class="panel editor-panel">
           <div class="section-title with-actions">
-            <div>
-              <p>STEP 4</p>
-              <h2>스케줄 데이터 검수</h2>
-            </div>
+            <div><p>STEP 4</p><h2>스케줄 데이터 검수</h2></div>
             <div class="action-row">
               <button id="loadSampleButton" class="secondary-btn">샘플 채우기</button>
               <button id="clearButton" class="ghost-btn">전체 비우기</button>
               <button id="saveButton" class="primary-btn">저장</button>
             </div>
           </div>
-
-          <div class="notice">
-            <strong>입력 방식</strong>
-            <span>사람 이름을 세로로 두고, 날짜별 코드를 입력하세요. 예: BM, AM, DO, AL, PH, SD</span>
-          </div>
-
+          <div class="notice"><strong>입력 방식</strong><span>사람 이름을 세로로 두고, 날짜별 코드를 입력하세요. 예: BM, AM, DO, AL, PH, SD</span></div>
           <div class="toolbar">
-            <button id="addPersonButton" class="secondary-btn">사람 추가</button>
-            <button id="removeEmptyRowsButton" class="ghost-btn">빈 행 정리</button>
-          </div>
-
-          <div class="table-scroll">
-            <table id="scheduleTable" class="schedule-table"></table>
-          </div>
-        </section>
-      </section>
-
-      <section class="app-page" data-page="daily"><section class="panel view-panel"><div id="dailyContent" class="page-content"></div></section></section>
-      <section class="app-page" data-page="weekly"><section class="panel view-panel"><div id="weeklyContent" class="page-content"></div></section></section>
-      <section class="app-page" data-page="monthly"><section class="panel view-panel"><div id="monthlyContent" class="page-content"></div></section></section>
-      <section class="app-page" data-page="dayRoster"><section class="panel view-panel"><div id="dayRosterContent" class="page-content"></div></section></section>
-      <section class="app-page" data-page="offDays"><section class="panel view-panel"><div id="offDaysContent" class="page-content"></div></section></section>
-      <section class="app-page" data-page="archive"><section class="panel view-panel"><div id="archiveContent" class="page-content"></div></section></section>
-      <section class="app-page" data-page="share"><section class="panel view-panel"><div id="shareContent" class="page-content"></div></section></section>
-      <section class="app-page" data-page="settings"><section class="panel view-panel"><div id="settingsContent" class="page-content"></div></section></section>
-    </main>
-  </div>
-</body>
-</html>
+            <button id="addPerson
