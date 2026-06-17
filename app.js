@@ -44,6 +44,32 @@ const MAX_STORED_IMAGE_HEIGHT = 1600;
 const THUMB_WIDTH = 360;
 const THUMB_HEIGHT = 240;
 
+const PAGE_CATEGORY = {
+  home: 'view',
+  daily: 'view',
+  weekly: 'view',
+  monthly: 'view',
+  offDays: 'view',
+  setup: 'manage',
+  dataInput: 'manage',
+  editor: 'manage',
+  settings: 'manage',
+  extract: 'manage',
+  archive: 'export',
+  share: 'export',
+  dayRoster: 'view',
+};
+const CATEGORY_DEFAULT_PAGE = {
+  view: 'home',
+  manage: 'dataInput',
+  export: 'archive',
+};
+
+function getPageCategory(page) {
+  return PAGE_CATEGORY[page] || 'view';
+}
+
+
 function getExtractionPrompt() {
   return `당신은 근무표 이미지에서 데이터를 정확히 추출하는 데이터 변환 담당자입니다.
 
@@ -241,6 +267,14 @@ function bindEvents() {
   el('removeEmptyRowsButton').addEventListener('click', removeEmptyRows);
   document.querySelectorAll('.sheet-tab').forEach((button) => {
     button.addEventListener('click', () => switchPage(button.dataset.page, true));
+  });
+  document.querySelectorAll('.category-tab').forEach((button) => {
+    button.addEventListener('click', () => {
+      const category = button.dataset.category;
+      const currentCategory = getPageCategory(state.activePage);
+      if (category === currentCategory) return;
+      switchPage(CATEGORY_DEFAULT_PAGE[category] || 'home', true);
+    });
   });
   document.querySelectorAll('.page-shortcut').forEach((button) => {
     button.addEventListener('click', () => switchPage(button.dataset.goPage, true));
@@ -1613,6 +1647,12 @@ function switchPage(page, shouldSave = true) {
   const pages = Array.from(document.querySelectorAll('.app-page')).map((section) => section.dataset.page);
   if (!page || !pages.includes(page)) page = 'home';
   state.activePage = page;
+  const activeCategory = getPageCategory(page);
+  const categoryShell = document.querySelector('.category-shell');
+  if (categoryShell) categoryShell.dataset.activeCategory = activeCategory;
+  document.querySelectorAll('.category-tab').forEach((button) => {
+    button.classList.toggle('active', button.dataset.category === activeCategory);
+  });
   document.querySelectorAll('.app-page').forEach((section) => {
     section.classList.toggle('active', section.dataset.page === page);
   });

@@ -1038,3 +1038,461 @@ button.offday-summary-card { cursor: pointer; }
   .improved-month-calendar .day-cell { min-height: 66px; }
   .improved-month-calendar .day-code { font-size: 9.5px; }
 }
+
+/************************************************************
+ * v2.3 카테고리형 내비게이션 + 파스텔 모바일 카드 디자인
+ * 참고 이미지처럼 부드러운 배경, 큰 라운드 카드, 카테고리 칩 구조로 재정리
+ ************************************************************/
+:root {
+  --peach: #fff0d2;
+  --mint: #e4f5dc;
+  --apricot: #ffe2a4;
+  --blue-soft: #e7f6ff;
+  --ink: #142742;
+  --text-soft: #607188;
+}
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 8% 8%, rgba(255, 226, 164, .58), transparent 360px),
+    radial-gradient(circle at 92% 6%, rgba(212, 235, 249, .72), transparent 390px),
+    radial-gradient(circle at 82% 88%, rgba(228, 245, 220, .72), transparent 420px),
+    linear-gradient(135deg, #fff9ed 0%, #f7fbff 45%, #fff8e5 100%);
+}
+.app-shell {
+  width: min(1320px, calc(100% - 32px));
+}
+.hero {
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 42px;
+  background: rgba(255,255,255,.46);
+  border: 1px solid rgba(255,255,255,.75);
+  box-shadow: 0 24px 80px rgba(20, 39, 66, .08);
+  backdrop-filter: blur(14px);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: auto auto -56px -42px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: rgba(255, 226, 164, .55);
+  pointer-events: none;
+}
+.hero::after {
+  content: "📋";
+  position: absolute;
+  right: 330px;
+  bottom: 20px;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 16px 35px rgba(20,39,66,.09);
+  font-size: 28px;
+  transform: rotate(-8deg);
+}
+.hero > div:first-child,
+.hero-card { position: relative; z-index: 1; }
+.hero h1 {
+  font-size: clamp(42px, 7vw, 72px);
+  letter-spacing: -0.07em;
+}
+.hero-desc {
+  max-width: 760px;
+  color: #5b7087;
+}
+.hero-card {
+  background:
+    radial-gradient(circle at 90% 20%, rgba(255,255,255,.9), transparent 90px),
+    linear-gradient(145deg, #fff, #ecf8ff 65%, #fff3c9);
+  border-radius: 32px;
+  border-color: rgba(255,255,255,.9);
+  box-shadow: 0 18px 44px rgba(20,39,66,.08);
+}
+.hero-card::after {
+  content: "🐤";
+  align-self: end;
+  justify-self: end;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: #ffe59a;
+  font-size: 26px;
+  box-shadow: 0 12px 24px rgba(20,39,66,.08);
+}
+.panel {
+  border-radius: 34px;
+  border-color: rgba(255,255,255,.84);
+  background: rgba(255,255,255,.78);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 22px 54px rgba(20,39,66,.08);
+}
+.category-shell {
+  position: sticky;
+  top: 10px;
+  z-index: 30;
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 22px;
+  padding: 12px;
+  border-radius: 32px;
+  background: rgba(255,255,255,.74);
+  border: 1px solid rgba(255,255,255,.85);
+  box-shadow: 0 18px 46px rgba(20,39,66,.08);
+  backdrop-filter: blur(18px);
+}
+.category-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.category-tab {
+  border: 0;
+  border-radius: 24px;
+  min-height: 74px;
+  padding: 12px 14px;
+  background: #f7f8fb;
+  color: #607188;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.category-tab:hover { transform: translateY(-2px); }
+.category-tab.active {
+  background: linear-gradient(135deg, var(--navy), #264d70);
+  color: #fff;
+  box-shadow: 0 16px 34px rgba(20,39,66,.18);
+}
+.category-tab:nth-child(2).active { background: linear-gradient(135deg, #234861, #6db7dc); }
+.category-tab:nth-child(3).active { background: linear-gradient(135deg, #65522a, #ffcb5c); }
+.category-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(255,255,255,.72);
+  font-size: 22px;
+}
+.category-tab strong,
+.category-tab small { display: block; }
+.category-tab strong { font-size: 15px; letter-spacing: -0.04em; }
+.category-tab small { margin-top: 4px; opacity: .78; font-size: 11px; font-weight: 800; line-height: 1.25; }
+.category-shell .sheet-nav {
+  position: static;
+  margin: 0;
+  padding: 6px;
+  border: 0;
+  border-radius: 22px;
+  background: rgba(244,247,250,.72);
+  box-shadow: none;
+  display: flex;
+  flex-wrap: nowrap;
+}
+.category-shell[data-active-category="view"] .sheet-tab:not([data-category="view"]),
+.category-shell[data-active-category="manage"] .sheet-tab:not([data-category="manage"]),
+.category-shell[data-active-category="export"] .sheet-tab:not([data-category="export"]) {
+  display: none;
+}
+.sheet-tab {
+  min-height: 42px;
+  background: transparent;
+  color: #6f7f92;
+}
+.sheet-tab.active {
+  background: #fff;
+  color: var(--navy);
+  box-shadow: 0 10px 22px rgba(20,39,66,.08);
+}
+.sheet-tab.utility-tab { border-style: solid; }
+.section-title h2, .view-title h3 { letter-spacing: -0.055em; }
+.summary-card,
+.info-card,
+.data-guide-card,
+.share-card,
+.offday-group,
+.offday-planner-card,
+.code-editor-row.compact-code-card,
+.ocr-control-card,
+.ocr-preview-card,
+.ocr-result-card,
+.archive-card {
+  border-color: rgba(232,237,243,.9);
+  border-radius: 26px;
+}
+.summary-card:nth-child(1) { background: #eef8fe; }
+.summary-card:nth-child(2) { background: #fff4d8; }
+.summary-card:nth-child(3) { background: #eff9e8; }
+.primary-btn { background: #2f7df0; box-shadow: 0 10px 24px rgba(47,125,240,.18); }
+.secondary-btn { background: #d7effb; }
+.ghost-btn { background: #f1f4f8; }
+.notice {
+  background: rgba(236,248,255,.84);
+  border-color: #d8eefb;
+}
+
+/* 월간: 코드가 가운데에 가득 차도록 재배치 */
+.improved-month-calendar .day-cell {
+  align-items: stretch;
+  text-align: center;
+  padding: 10px 8px;
+}
+.month-day-main {
+  place-items: center;
+  align-content: center;
+  justify-content: center;
+}
+.improved-month-calendar .day-code {
+  width: 100%;
+  max-width: 72px;
+  justify-self: center;
+}
+
+/* 데이터 확인: 모바일에서 실제 데이터가 보이도록 이름/날짜 너비 조정 */
+.schedule-table th:first-child,
+.schedule-table td:first-child {
+  min-width: 112px;
+  width: 112px;
+}
+.schedule-table td:not(:first-child) input {
+  min-width: 38px;
+}
+.schedule-table input.name-input {
+  width: 100%;
+}
+
+/* 코드 설정: 너무 긴 가로 카드 대신 촘촘한 미니 카드 */
+.code-editor-grid {
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+}
+.code-editor-row.compact-code-card {
+  grid-template-columns: 76px 1fr;
+}
+.code-editor-row.compact-code-card label:nth-child(2) {
+  grid-column: 2;
+}
+.code-editor-row.compact-code-card label:nth-child(3),
+.code-editor-row.compact-code-card label:nth-child(4) {
+  grid-column: span 1;
+}
+
+/* 휴무일 탭: 계획용 카드 느낌 강화 */
+.offday-summary-card.next::after {
+  content: "바로 이동";
+  width: fit-content;
+  margin-top: 4px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #2f7df0;
+  color: #fff;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+}
+.offday-streak,
+.offday-chip,
+.offday-summary-card {
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.offday-streak:hover,
+.offday-chip:hover,
+.offday-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(20,39,66,.08);
+}
+
+/* OCR 이름 입력은 한 줄 흐름으로 보이되 내부 데이터는 그대로 저장 */
+#ocrNamesInput {
+  min-height: 108px;
+  line-height: 1.8;
+}
+
+@media (min-width: 981px) {
+  .page-area {
+    border-radius: 38px;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 18px;
+    border-radius: 30px;
+  }
+  .hero::after { right: 26px; bottom: 20px; }
+  .category-tabs {
+    grid-template-columns: 1fr;
+  }
+  .category-tab {
+    min-height: 62px;
+  }
+}
+
+@media (max-width: 780px) {
+  body {
+    overflow-x: hidden;
+  }
+  .app-shell {
+    width: 100%;
+    padding: 10px 10px 78px;
+  }
+  .hero {
+    margin: 0 0 12px;
+    border-radius: 28px;
+  }
+  .hero h1 {
+    font-size: 40px;
+  }
+  .hero-desc {
+    font-size: 14px;
+    line-height: 1.55;
+    padding-right: 54px;
+  }
+  .hero-card::after { display: none; }
+  .category-shell {
+    top: 0;
+    margin: 0 -10px 14px;
+    padding: 10px;
+    border-radius: 0 0 26px 26px;
+    border-left: 0;
+    border-right: 0;
+  }
+  .category-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .category-tab {
+    min-height: 70px;
+    padding: 9px 6px;
+    border-radius: 18px;
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 4px;
+  }
+  .category-icon {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    border-radius: 13px;
+    font-size: 18px;
+  }
+  .category-tab strong { font-size: 12px; }
+  .category-tab small { display: none; }
+  .category-shell .sheet-nav {
+    overflow-x: auto;
+    padding: 5px;
+    border-radius: 18px;
+  }
+  .sheet-tab {
+    min-height: 38px;
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+  .panel {
+    border-radius: 26px;
+    padding: 14px;
+  }
+  .data-input-grid,
+  .setup-grid,
+  .upload-grid,
+  .share-layout,
+  .archive-grid,
+  .ocr-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .table-scroll {
+    margin-left: -4px;
+    margin-right: -4px;
+    width: calc(100% + 8px);
+  }
+  .schedule-table {
+    min-width: 760px;
+    font-size: 11px;
+  }
+  .schedule-table th:first-child,
+  .schedule-table td:first-child {
+    min-width: 92px;
+    width: 92px;
+  }
+  .schedule-table input.name-input {
+    min-width: 76px;
+    font-size: 11px;
+  }
+  .schedule-table td:not(:first-child) input {
+    min-width: 32px;
+  }
+  .monthly-calendar-wrap {
+    overflow: hidden;
+    width: 100%;
+  }
+  .calendar.improved-month-calendar {
+    gap: 3px;
+  }
+  .improved-month-calendar .day-cell {
+    min-height: 68px;
+    padding: 5px 2px;
+    border-radius: 13px;
+  }
+  .improved-month-calendar .day-code {
+    max-width: 100%;
+    font-size: 9.5px;
+    padding: 4px 2px;
+  }
+  .improved-month-calendar small {
+    display: none;
+  }
+  .offday-summary-grid,
+  .improved-offday-grid,
+  .offday-streak-list {
+    grid-template-columns: 1fr !important;
+  }
+  .code-editor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .code-editor-row.compact-code-card {
+    grid-template-columns: 1fr;
+    padding: 11px;
+  }
+  .code-editor-row.compact-code-card label:nth-child(2),
+  .code-editor-row.compact-code-card label:nth-child(3),
+  .code-editor-row.compact-code-card label:nth-child(4) {
+    grid-column: auto;
+  }
+  .compact-code-card label span {
+    font-size: 10px;
+  }
+  .compact-code-card input {
+    min-height: 36px;
+    padding: 8px;
+    font-size: 12px;
+  }
+  .compact-code-card .delete-code {
+    padding: 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero h1 { font-size: 34px; }
+  .hero-desc { padding-right: 0; }
+  .category-tab { min-height: 64px; }
+  .code-editor-grid { grid-template-columns: 1fr; }
+  .schedule-table { min-width: 720px; }
+  .improved-month-calendar .day-cell { min-height: 62px; }
+  .improved-month-calendar .day-number { font-size: 11px; }
+}
