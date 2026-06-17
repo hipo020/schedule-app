@@ -211,7 +211,7 @@ async function init() {
   }
   initMonthSelect();
   bindAuthEvents();
-  setAuthMessage('로그인 화면 준비 완료. 이메일을 입력한 뒤 로그인 링크를 보내 주세요.', '');
+  setAuthMessage('로그인 화면 준비 완료. Google 로그인 버튼을 눌러 주세요.', '');
   try {
     bindEvents();
   } catch (error) {
@@ -220,7 +220,7 @@ async function init() {
 
   const authenticated = await initAuth();
   if (!authenticated) {
-    showAuthGate('로그인이 필요합니다. 이메일을 입력하고 로그인 링크를 받아 주세요.');
+    showAuthGate('로그인이 필요합니다. Google 계정으로 로그인해 주세요.');
     return;
   }
 
@@ -293,21 +293,16 @@ function parseMonthKey(key) {
 
 
 function bindAuthEvents() {
-  const loginButton = el('magicLinkButton');
-  if (loginButton && !loginButton.dataset.bound) {
-    loginButton.dataset.bound = 'true';
-    loginButton.addEventListener('click', (event) => {
+  const googleButton = el('googleLoginButton');
+  if (googleButton && !googleButton.dataset.bound) {
+    googleButton.dataset.bound = 'true';
+    googleButton.addEventListener('click', (event) => {
       event.preventDefault();
-      sendMagicLink();
+      signInWithGoogle();
     });
     window.__scheduleAppAuthBound = true;
   }
-  el('authEmailInput')?.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      sendMagicLink();
-    }
-  });
+
   el('guestModeButton')?.addEventListener('click', () => {
     isGuestMode = true;
     currentSession = null;
@@ -327,7 +322,7 @@ function bindAuthEvents() {
     currentSession = null;
     currentUser = null;
     isGuestMode = false;
-    showAuthGate('로그아웃했어요. 다시 사용하려면 이메일로 로그인해 주세요.');
+    showAuthGate('로그아웃했어요. 다시 사용하려면 Google 계정으로 로그인해 주세요.');
   });
 }
 
@@ -346,7 +341,7 @@ async function initAuth() {
     }
   } catch (callbackError) {
     console.error('로그인 콜백 처리 실패', callbackError);
-    setAuthMessage(`로그인 링크 확인 중 오류가 발생했어요: ${callbackError?.message || callbackError}`, 'error');
+    setAuthMessage(`Google 로그인 확인 중 오류가 발생했어요: ${callbackError?.message || callbackError}`, 'error');
   }
 
   const { data, error } = await client.auth.getSession();
@@ -372,7 +367,7 @@ async function initAuth() {
       });
     }
     if (event === 'SIGNED_OUT') {
-      showAuthGate('로그아웃했어요. 다시 사용하려면 이메일로 로그인해 주세요.');
+      showAuthGate('로그아웃했어요. 다시 사용하려면 Google 계정으로 로그인해 주세요.');
     }
   });
 
@@ -395,7 +390,7 @@ async function processAuthCallback(client) {
 
   const code = query.get('code');
   if (code) {
-    setAuthMessage('로그인 링크를 확인하고 있어요. 잠시만 기다려 주세요.', '');
+    setAuthMessage('Google 로그인 정보를 확인하고 있어요. 잠시만 기다려 주세요.', '');
     const { data, error } = await client.auth.exchangeCodeForSession(code);
     cleanupAuthUrl();
     if (error) throw error;
@@ -406,7 +401,7 @@ async function processAuthCallback(client) {
   const accessToken = hash.get('access_token');
   const refreshToken = hash.get('refresh_token');
   if (accessToken && refreshToken) {
-    setAuthMessage('로그인 링크를 확인하고 있어요. 잠시만 기다려 주세요.', '');
+    setAuthMessage('Google 로그인 정보를 확인하고 있어요. 잠시만 기다려 주세요.', '');
     const { data, error } = await client.auth.setSession({
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -426,51 +421,40 @@ function cleanupAuthUrl() {
   window.history.replaceState({}, document.title, cleanUrl);
 }
 
-async function sendMagicLink() {
-  setAuthMessage('버튼 클릭 확인됨. 로그인 링크 전송을 준비하고 있어요.', '');
-  const button = el('magicLinkButton');
-  const originalText = button?.textContent || '로그인 링크 보내기';
+async function signInWithGoogle() {
+  setAuthMessage('Google 로그인으로 이동하고 있어요.', '');
+  const button = el('googleLoginButton');
+  const originalText = button?.textContent || 'Google로 로그인';
   try {
     const client = getSupabaseClient();
     if (!client) {
       setAuthMessage('Supabase 연결을 초기화하지 못했어요. 인터넷 연결 또는 CDN 로딩 상태를 확인해 주세요.', 'error');
       return;
     }
-    const email = el('authEmailInput')?.value?.trim();
-    if (!email) {
-      setAuthMessage('이메일을 입력해 주세요.', 'error');
-      el('authEmailInput')?.focus();
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setAuthMessage('이메일 형식을 확인해 주세요. 예: name@example.com', 'error');
-      el('authEmailInput')?.focus();
-      return;
-    }
 
     if (button) {
       button.disabled = true;
-      button.textContent = '로그인 링크 보내는 중...';
+      button.textContent = 'Google 로그인으로 이동 중...';
     }
-    setAuthMessage('로그인 링크를 보내는 중이에요. 잠시만 기다려 주세요.', '');
 
     const redirectTo = `${window.location.origin}${window.location.pathname}`;
-    const { error } = await client.auth.signInWithOtp({
-      email,
+    const { error } = await client.auth.signInWithOAuth({
+      provider: 'google',
       options: {
-        emailRedirectTo: redirectTo,
-        shouldCreateUser: true,
+        redirectTo,
       },
     });
     if (error) {
-      setAuthMessage(`로그인 링크 전송 실패: ${error.message}`, 'error');
+      setAuthMessage(`Google 로그인 시작 실패: ${error.message}`, 'error');
+      if (button) {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
       return;
     }
-    setAuthMessage('로그인 링크를 보냈어요. 메일함에서 링크를 눌러 다시 돌아와 주세요. 메일이 안 보이면 스팸함도 확인해 주세요.', 'ok');
   } catch (error) {
-    console.error('로그인 링크 전송 오류', error);
-    setAuthMessage(`로그인 처리 중 오류가 발생했어요: ${error?.message || error}`, 'error');
-  } finally {
+    console.error('Google 로그인 시작 오류', error);
+    setAuthMessage(`Google 로그인 처리 중 오류가 발생했어요: ${error?.message || error}`, 'error');
     if (button) {
       button.disabled = false;
       button.textContent = originalText;
