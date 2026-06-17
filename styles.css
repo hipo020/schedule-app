@@ -424,3 +424,68 @@ textarea.share-box { min-height: 250px; line-height: 1.7; resize: vertical; }
 .cloud-status.ok { background: #eef9f0; color: #25613a; }
 .cloud-status.warn { background: #fff8e4; color: #765315; }
 .cloud-status.error { background: #fff1f1; color: #8a2d2d; }
+
+/* Data input / extraction prompt */
+.data-input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 18px 0;
+}
+.data-guide-card {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: #fff;
+  padding: 20px;
+  box-shadow: 0 12px 28px rgba(18, 45, 69, .05);
+}
+.data-guide-card h3 {
+  margin: 0 0 8px;
+  color: #102a43;
+}
+.data-guide-card p {
+  margin: 0 0 14px;
+  color: #526173;
+  line-height: 1.6;
+}
+.mini-checklist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+.mini-checklist span {
+  border-radius: 999px;
+  background: #f4f9fc;
+  color: #345970;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.helper-text {
+  display: block;
+  margin-top: 10px;
+  color: #6f8495;
+  line-height: 1.45;
+}
+.helper-text.ok { color: #25613a; }
+.helper-text.error { color: #8a2d2d; }
+.csv-input-box {
+  min-height: 260px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  white-space: pre;
+}
+.csv-preview-wrap {
+  margin-top: 16px;
+}
+.csv-preview-card .list-row span:first-of-type {
+  overflow-wrap: anywhere;
+}
+.notice.error {
+  background: #fff1f1;
+  color: #8a2d2d;
+  border-color: rgba(138,45,45,.18);
+}
+@media (max-width: 780px) {
+  .data-input-grid, .mini-checklist { grid-template-columns: 1fr; }
+}
