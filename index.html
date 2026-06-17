@@ -3,13 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>근무표 정리함 v1</title>
+  <title>근무표 정리함 v2</title>
   <link rel="stylesheet" href="./styles.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script defer src="./app.js"></script>
 </head>
 <body>
-  <div class="app-shell">
+  <section id="authGate" class="auth-gate">
+    <div class="auth-card">
+      <p class="eyebrow">Monthly Shift Organizer</p>
+      <h1>근무표 정리함</h1>
+      <p>이메일로 로그인하면 월별 근무표 이미지와 스케줄 데이터를 Supabase에 저장하고, 다른 기기에서도 다시 불러올 수 있어요.</p>
+      <label class="auth-label">
+        이메일
+        <input id="authEmailInput" type="email" placeholder="name@example.com" autocomplete="email" />
+      </label>
+      <button id="magicLinkButton" class="primary-btn auth-main-btn">로그인 링크 보내기</button>
+      <div id="authMessage" class="auth-message">로그인 링크는 입력한 이메일로 전송됩니다.</div>
+      <small class="auth-help">메일함에서 링크를 누르면 이 앱으로 다시 돌아옵니다. Supabase Auth의 Redirect URL에 Vercel 주소가 등록되어 있어야 합니다.</small>
+    </div>
+  </section>
+
+  <div id="appShell" class="app-shell is-hidden">
     <header class="hero">
       <div>
         <p class="eyebrow">Monthly Shift Organizer</p>
@@ -17,21 +34,30 @@
         <p class="hero-desc">매월 공유받는 스케줄표 이미지를 올려두고, 내 스케줄과 오늘 출근 현황을 일·주·월 단위로 정리합니다.</p>
       </div>
       <div class="hero-card">
-        <span>v1</span>
-        <strong>페이지형 MVP</strong>
-        <small>시트 탭처럼 눌러서 화면 이동</small>
+        <span>v2</span>
+        <strong>Supabase 저장</strong>
+        <small id="userEmailText">로그인 확인 중</small>
+        <div class="hero-actions">
+          <button id="cloudSaveButton" class="secondary-btn">클라우드 저장</button>
+          <button id="cloudReloadButton" class="ghost-btn">새로 불러오기</button>
+          <button id="logoutButton" class="ghost-btn">로그아웃</button>
+        </div>
       </div>
     </header>
+
+    <div id="cloudStatus" class="cloud-status">Supabase 연결 상태를 확인하고 있어요.</div>
 
     <nav class="sheet-nav" aria-label="앱 페이지 이동">
       <button class="sheet-tab active" data-page="home">홈</button>
       <button class="sheet-tab" data-page="setup">설정·이미지</button>
+      <button class="sheet-tab" data-page="extract">자동추출</button>
       <button class="sheet-tab" data-page="editor">검수표</button>
       <button class="sheet-tab" data-page="daily">일간</button>
       <button class="sheet-tab" data-page="weekly">주간</button>
       <button class="sheet-tab" data-page="monthly">월간</button>
       <button class="sheet-tab" data-page="dayRoster">오늘 출근</button>
       <button class="sheet-tab" data-page="offDays">휴무일</button>
+      <button class="sheet-tab" data-page="archive">월별 보관함</button>
       <button class="sheet-tab" data-page="share">공유·엑셀</button>
       <button class="sheet-tab" data-page="settings">코드 설정</button>
     </nav>
@@ -85,10 +111,11 @@
             <div class="drop-zone" id="dropZone">
               <input id="imageInput" type="file" accept="image/*" hidden />
               <button id="uploadButton" class="secondary-btn">이미지 선택</button>
-              <p>사진은 원본 확인용으로 표시됩니다. v1에서는 자동 OCR 추출 대신 검수표에서 직접 입력/수정합니다.</p>
+              <p>이미지는 월별로 Supabase Storage에 저장됩니다. 업로드 후 자동추출 페이지에서 표 영역을 조정해 주세요.</p>
               <div id="imageStatus" class="upload-status">아직 업로드된 이미지가 없어요.</div>
               <div id="uploadNextActions" class="upload-next-actions">
-                <button id="goEditorAfterUploadButton" class="primary-btn page-shortcut" data-go-page="editor">검수표 입력하러 가기</button>
+                <button id="goExtractAfterUploadButton" class="primary-btn page-shortcut" data-go-page="extract">자동 추출하러 가기</button>
+                <button id="goEditorAfterUploadButton" class="secondary-btn page-shortcut" data-go-page="editor">검수표 입력하러 가기</button>
                 <button id="loadSampleFromUploadButton" class="secondary-btn">샘플 데이터로 기능 보기</button>
               </div>
             </div>
@@ -100,11 +127,70 @@
         </section>
       </section>
 
+      <section class="app-page" data-page="extract">
+        <section class="panel view-panel">
+          <div class="section-title with-actions">
+            <div>
+              <p>STEP 3</p>
+              <h2>이미지 자동 추출</h2>
+            </div>
+            <div class="action-row">
+              <button id="useTopTablePresetButton" class="secondary-btn">기본 영역</button>
+              <button id="runOcrButton" class="primary-btn">자동 추출 시작</button>
+            </div>
+          </div>
+
+          <div class="notice">
+            <strong>OCR 베타</strong>
+            <span>노란 영역이 날짜별 코드 셀만 감싸도록 조정한 뒤 추출하세요. 추출 후에는 검수표에서 반드시 확인해 주세요.</span>
+          </div>
+
+          <div class="ocr-grid">
+            <div class="ocr-control-card">
+              <h3>사람 이름</h3>
+              <p>스케줄표에 있는 사람 이름을 위에서 아래 순서대로 입력해 주세요.</p>
+              <textarea id="ocrNamesInput" class="share-box" rows="8"></textarea>
+              <button id="loadDefaultNamesButton" class="ghost-btn">기본 이름 불러오기</button>
+              <h3>추출 영역</h3>
+              <div class="ocr-number-grid">
+                <label>X %<input id="ocrXInput" type="number" step="0.1" /></label>
+                <label>Y %<input id="ocrYInput" type="number" step="0.1" /></label>
+                <label>W %<input id="ocrWInput" type="number" step="0.1" /></label>
+                <label>H %<input id="ocrHInput" type="number" step="0.1" /></label>
+              </div>
+              <button id="drawOcrPreviewButton" class="secondary-btn">영역 다시 보기</button>
+              <div id="ocrProgress" class="ocr-progress">이미지를 업로드한 뒤 자동 추출을 시작해 주세요.</div>
+            </div>
+
+            <div class="ocr-preview-card">
+              <h3>추출 영역 미리보기</h3>
+              <div class="ocr-preview-wrap">
+                <canvas id="ocrPreviewCanvas"></canvas>
+                <div id="ocrEmptyPreview" class="empty-preview">이미지를 먼저 업로드해 주세요.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ocr-result-card">
+            <div class="section-title with-actions">
+              <div>
+                <p>RESULT</p>
+                <h2>추출 결과</h2>
+              </div>
+              <button id="applyOcrToEditorButton" class="primary-btn">추출 결과 검수표에 반영</button>
+            </div>
+            <div class="table-scroll">
+              <table id="ocrResultTable" class="schedule-table"></table>
+            </div>
+          </div>
+        </section>
+      </section>
+
       <section class="app-page" data-page="editor">
         <section class="panel editor-panel">
           <div class="section-title with-actions">
             <div>
-              <p>STEP 3</p>
+              <p>STEP 4</p>
               <h2>스케줄 데이터 검수</h2>
             </div>
             <div class="action-row">
@@ -130,47 +216,14 @@
         </section>
       </section>
 
-      <section class="app-page" data-page="daily">
-        <section class="panel view-panel">
-          <div id="dailyContent" class="page-content"></div>
-        </section>
-      </section>
-
-      <section class="app-page" data-page="weekly">
-        <section class="panel view-panel">
-          <div id="weeklyContent" class="page-content"></div>
-        </section>
-      </section>
-
-      <section class="app-page" data-page="monthly">
-        <section class="panel view-panel">
-          <div id="monthlyContent" class="page-content"></div>
-        </section>
-      </section>
-
-      <section class="app-page" data-page="dayRoster">
-        <section class="panel view-panel">
-          <div id="dayRosterContent" class="page-content"></div>
-        </section>
-      </section>
-
-      <section class="app-page" data-page="offDays">
-        <section class="panel view-panel">
-          <div id="offDaysContent" class="page-content"></div>
-        </section>
-      </section>
-
-      <section class="app-page" data-page="share">
-        <section class="panel view-panel">
-          <div id="shareContent" class="page-content"></div>
-        </section>
-      </section>
-
-      <section class="app-page" data-page="settings">
-        <section class="panel view-panel">
-          <div id="settingsContent" class="page-content"></div>
-        </section>
-      </section>
+      <section class="app-page" data-page="daily"><section class="panel view-panel"><div id="dailyContent" class="page-content"></div></section></section>
+      <section class="app-page" data-page="weekly"><section class="panel view-panel"><div id="weeklyContent" class="page-content"></div></section></section>
+      <section class="app-page" data-page="monthly"><section class="panel view-panel"><div id="monthlyContent" class="page-content"></div></section></section>
+      <section class="app-page" data-page="dayRoster"><section class="panel view-panel"><div id="dayRosterContent" class="page-content"></div></section></section>
+      <section class="app-page" data-page="offDays"><section class="panel view-panel"><div id="offDaysContent" class="page-content"></div></section></section>
+      <section class="app-page" data-page="archive"><section class="panel view-panel"><div id="archiveContent" class="page-content"></div></section></section>
+      <section class="app-page" data-page="share"><section class="panel view-panel"><div id="shareContent" class="page-content"></div></section></section>
+      <section class="app-page" data-page="settings"><section class="panel view-panel"><div id="settingsContent" class="page-content"></div></section></section>
     </main>
   </div>
 </body>

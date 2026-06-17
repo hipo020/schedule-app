@@ -7,6 +7,11 @@ const supabaseClient = window.supabase
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
   : null;
 
+let currentSession = null;
+let currentUser = null;
+let isCloudBusy = false;
+
+
 const state = {
   year: new Date().getFullYear(),
   month: new Date().getMonth() + 1,
@@ -92,10 +97,22 @@ async function init() {
   loadState();
   initMonthSelect();
   bindEvents();
+  bindAuthEvents();
+
+  const authenticated = await initAuth();
+  if (!authenticated) {
+    showAuthGate('로그인이 필요합니다. 이메일을 입력하고 로그인 링크를 받아 주세요.');
+    return;
+  }
+
+  showAppShell();
+  await ensureProfile();
+  await loadCloudInitialData();
+
   ensurePeople();
   normalizePeopleDays();
   syncInputs();
-  await loadImageForCurrentMonth();
+  if (!currentUser) await loadImageForCurrentMonth();
   await refreshArchiveMeta();
   renderUploadedImage();
   syncOcrInputs();
@@ -114,8 +131,21 @@ function bindEvents() {
   el('imageInput').addEventListener('change', handleImageUpload);
   el('loadSampleButton').addEventListener('click', loadSample);
   el('loadSampleFromUploadButton')?.addEventListener('click', () => { loadSample(); switchPage('home', true); });
+  el('cloudSaveButton')?.addEventListener('click', async () => {
+    saveState(false);
+    await saveCurrentMonthToCloud(true);
+  });
+  el('cloudReloadButton')?.addEventListener('click', async () => {
+    await loadCloudInitialData(true);
+    renderScheduleTable();
+    renderUploadedImage();
+    renderAll();
+  });
   el('clearButton').addEventListener('click', clearAll);
-  el('saveButton').addEventListener('click', () => saveState(true));
+  el('saveButton').addEventListener('click', async () => {
+    saveState(false);
+    await saveCurrentMonthToCloud(true);
+  });
   el('addPersonButton').addEventListener('click', addPerson);
   el('removeEmptyRowsButton').addEventListener('click', removeEmptyRows);
   document.querySelectorAll('.sheet-tab').forEach((button) => {
@@ -140,6 +170,118 @@ function parseMonthKey(key) {
   const [year, month] = String(key).split('-').map(Number);
   return { year, month };
 }
+
+
+function bindAuthEvents() {
+  el('magicLinkButton')?.addEventListener('click', sendMagicLink);
+  el('logoutButton')?.addEventListener('click', async () => {
+    if (!supabaseClient) return;
+    await supabaseClient.auth.signOut();
+    currentSession = null;
+    currentUser = null;
+    showAuthGate('로그아웃했어요. 다시 사용하려면 이메일로 로그인해 주세요.');
+  });
+}
+
+async function initAuth() {
+  if (!supabaseClient) return false;
+  const { data, error } = await supabaseClient.auth.getSession();
+  if (error) {
+    console.warn('세션 확인 실패', error);
+    return false;
+  }
+  currentSession = data?.session || null;
+  currentUser = currentSession?.user || null;
+
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    currentSession = session || null;
+    currentUser = session?.user || null;
+    if (event === 'SIGNED_IN' && currentUser) {
+      showAppShell();
+      showCloudStatus('로그인 완료. 데이터를 불러오는 중이에요.', 'ok');
+      loadCloudInitialData(true).then(() => {
+        syncInputs();
+        renderScheduleTable();
+        renderUploadedImage();
+        renderAll();
+      });
+    }
+    if (event === 'SIGNED_OUT') {
+      showAuthGate('로그아웃했어요. 다시 사용하려면 이메일로 로그인해 주세요.');
+    }
+  });
+
+  return Boolean(currentUser);
+}
+
+async function sendMagicLink() {
+  if (!supabaseClient) {
+    setAuthMessage('Supabase 연결 정보를 확인하지 못했어요. app.js의 URL과 Publishable key를 확인해 주세요.', 'error');
+    return;
+  }
+  const email = el('authEmailInput')?.value?.trim();
+  if (!email) {
+    setAuthMessage('이메일을 입력해 주세요.', 'error');
+    return;
+  }
+  const redirectTo = `${window.location.origin}${window.location.pathname}`;
+  const { error } = await supabaseClient.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: redirectTo },
+  });
+  if (error) {
+    setAuthMessage(`로그인 링크 전송 실패: ${error.message}`, 'error');
+    return;
+  }
+  setAuthMessage('로그인 링크를 보냈어요. 메일함에서 링크를 눌러 다시 돌아와 주세요.', 'ok');
+}
+
+function setAuthMessage(message, type = '') {
+  const node = el('authMessage');
+  if (!node) return;
+  node.textContent = message;
+  node.className = `auth-message ${type}`;
+}
+
+function showAuthGate(message = '') {
+  el('authGate')?.classList.remove('is-hidden');
+  el('appShell')?.classList.add('is-hidden');
+  if (message) setAuthMessage(message);
+}
+
+function showAppShell() {
+  el('authGate')?.classList.add('is-hidden');
+  el('appShell')?.classList.remove('is-hidden');
+  if (el('userEmailText')) el('userEmailText').textContent = currentUser?.email || '로그인됨';
+  showCloudStatus('Supabase에 연결됐어요. 저장 버튼을 누르면 현재 월 데이터가 클라우드에 저장됩니다.', 'ok');
+}
+
+function showCloudStatus(message, type = '') {
+  const node = el('cloudStatus');
+  if (!node) return;
+  node.textContent = message;
+  node.className = `cloud-status ${type}`;
+}
+
+function requireUser() {
+  if (!currentUser) {
+    showCloudStatus('로그인이 필요해요.', 'warn');
+    return null;
+  }
+  return currentUser;
+}
+
+async function ensureProfile() {
+  const user = requireUser();
+  if (!user || !supabaseClient) return;
+  const { error } = await supabaseClient.from('profiles').upsert({
+    id: user.id,
+    email: user.email || '',
+    display_name: state.myName || user.email || '',
+  });
+  if (error) console.warn('프로필 저장 실패', error);
+}
+
 
 function ensureMonthStore() {
   if (!state.monthStore || typeof state.monthStore !== 'object') state.monthStore = {};
@@ -205,8 +347,12 @@ async function changeActiveMonth(nextYear, nextMonth) {
   const currentDay = Number(String(state.selectedDate || '').slice(-2)) || 1;
   const clampedDay = Math.min(currentDay, daysInMonth(state.year, state.month));
   state.selectedDate = `${state.year}-${String(state.month).padStart(2, '0')}-${String(clampedDay).padStart(2, '0')}`;
-  loadMonthDataFromStore(monthKey());
-  await loadImageForCurrentMonth();
+  if (currentUser) {
+    await loadCloudMonthData(state.year, state.month);
+  } else {
+    loadMonthDataFromStore(monthKey());
+    await loadImageForCurrentMonth();
+  }
   await refreshArchiveMeta();
   syncInputs();
   renderUploadedImage();
@@ -216,6 +362,236 @@ async function changeActiveMonth(nextYear, nextMonth) {
   renderScheduleTable();
   renderAll();
   saveState(false);
+}
+
+
+async function loadCloudInitialData(showMessage = false) {
+  const user = requireUser();
+  if (!user || !supabaseClient || isCloudBusy) return;
+  isCloudBusy = true;
+  try {
+    if (showMessage) showCloudStatus('클라우드 데이터를 불러오는 중이에요.', 'warn');
+    await loadWorkCodesFromCloud();
+    await loadCloudMonthData(state.year, state.month);
+    await refreshArchiveMeta();
+    if (showMessage) showCloudStatus('클라우드 데이터를 불러왔어요.', 'ok');
+  } catch (error) {
+    console.error('클라우드 로드 실패', error);
+    showCloudStatus(`클라우드 데이터를 불러오지 못했어요: ${error.message || error}`, 'error');
+  } finally {
+    isCloudBusy = false;
+  }
+}
+
+async function loadWorkCodesFromCloud() {
+  const user = requireUser();
+  if (!user || !supabaseClient) return;
+  const { data, error } = await supabaseClient
+    .from('work_codes')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('code', { ascending: true });
+  if (error) throw error;
+  if (!data?.length) {
+    await saveWorkCodesToCloud(false);
+    return;
+  }
+  const codes = {};
+  data.forEach((row) => {
+    codes[row.code] = {
+      label: row.label || '근무',
+      start: row.start_time || '',
+      end: row.end_time || '',
+      type: row.is_off ? (row.code === 'AL' ? 'leave' : 'off') : deriveCodeType(row.code, { start: row.start_time || '', end: row.end_time || '' }),
+    };
+  });
+  state.codes = codes;
+}
+
+async function saveWorkCodesToCloud(throwOnError = true) {
+  const user = requireUser();
+  if (!user || !supabaseClient) return;
+  const rows = Object.entries(state.codes || {}).map(([code, info]) => ({
+    user_id: user.id,
+    code,
+    label: info.label || '',
+    start_time: info.start || '',
+    end_time: info.end || '',
+    is_off: ['off', 'leave'].includes(deriveCodeType(code, info)),
+  }));
+  if (!rows.length) return;
+  const { error } = await supabaseClient.from('work_codes').upsert(rows, { onConflict: 'user_id,code' });
+  if (error && throwOnError) throw error;
+  if (error) console.warn('근무 코드 저장 실패', error);
+}
+
+async function getCloudMonthRow(year = state.year, month = state.month) {
+  const user = requireUser();
+  if (!user || !supabaseClient) return null;
+  const { data, error } = await supabaseClient
+    .from('schedule_months')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('year', year)
+    .eq('month', month)
+    .maybeSingle();
+  if (error) throw error;
+  return data || null;
+}
+
+async function upsertCloudMonth(imagePath = undefined) {
+  const user = requireUser();
+  if (!user || !supabaseClient) return null;
+  const payload = {
+    user_id: user.id,
+    year: state.year,
+    month: state.month,
+    title: `${state.year}년 ${state.month}월 근무표`,
+    selected_name: state.myName || '',
+  };
+  if (imagePath !== undefined) payload.image_path = imagePath;
+  const { data, error } = await supabaseClient
+    .from('schedule_months')
+    .upsert(payload, { onConflict: 'user_id,year,month' })
+    .select('*')
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+async function saveCurrentMonthToCloud(showAlert = false) {
+  const user = requireUser();
+  if (!user || !supabaseClient || isCloudBusy) return;
+  isCloudBusy = true;
+  try {
+    showCloudStatus('현재 월 데이터를 클라우드에 저장하는 중이에요.', 'warn');
+    saveCurrentMonthToStore();
+    await ensureProfile();
+    await saveWorkCodesToCloud(true);
+    const monthRow = await upsertCloudMonth();
+    const monthId = monthRow.id;
+    const days = daysInMonth(state.year, state.month);
+    const rows = [];
+    state.people.filter((p) => p.name).forEach((person) => {
+      for (let i = 0; i < days; i++) {
+        rows.push({
+          schedule_month_id: monthId,
+          user_id: user.id,
+          day: i + 1,
+          person_name: person.name,
+          code: person.schedules?.[i] || '',
+          note: '',
+        });
+      }
+    });
+    await supabaseClient
+      .from('schedule_entries')
+      .delete()
+      .eq('schedule_month_id', monthId)
+      .eq('user_id', user.id);
+    if (rows.length) {
+      const { error: insertError } = await supabaseClient.from('schedule_entries').insert(rows);
+      if (insertError) throw insertError;
+    }
+    await refreshArchiveMeta();
+    showCloudStatus('클라우드 저장 완료. 다른 기기에서도 로그인하면 불러올 수 있어요.', 'ok');
+    if (showAlert) alert('클라우드에 저장했어요.');
+  } catch (error) {
+    console.error('클라우드 저장 실패', error);
+    showCloudStatus(`클라우드 저장 실패: ${error.message || error}`, 'error');
+    if (showAlert) alert(`클라우드 저장 실패: ${error.message || error}`);
+  } finally {
+    isCloudBusy = false;
+  }
+}
+
+async function loadCloudMonthData(year = state.year, month = state.month) {
+  const user = requireUser();
+  if (!user || !supabaseClient) return false;
+  const monthRow = await getCloudMonthRow(year, month);
+  if (!monthRow) {
+    loadMonthDataFromStore(monthKey(year, month));
+    state.imageData = '';
+    state.imageName = '';
+    state.imageUpdatedAt = '';
+    return false;
+  }
+  state.myName = monthRow.selected_name || state.myName || '';
+  state.imageName = monthRow.image_path ? monthRow.image_path.split('/').pop() : '';
+  state.imageUpdatedAt = monthRow.updated_at || monthRow.created_at || '';
+
+  const { data: entries, error: entriesError } = await supabaseClient
+    .from('schedule_entries')
+    .select('*')
+    .eq('schedule_month_id', monthRow.id)
+    .eq('user_id', user.id)
+    .order('person_name', { ascending: true })
+    .order('day', { ascending: true });
+  if (entriesError) throw entriesError;
+
+  const peopleMap = new Map();
+  const days = daysInMonth(year, month);
+  (entries || []).forEach((row) => {
+    if (!peopleMap.has(row.person_name)) {
+      peopleMap.set(row.person_name, { name: row.person_name, schedules: Array.from({ length: days }, () => '') });
+    }
+    const person = peopleMap.get(row.person_name);
+    if (row.day >= 1 && row.day <= days) person.schedules[row.day - 1] = row.code || '';
+  });
+  state.people = Array.from(peopleMap.values());
+  ensurePeople();
+  normalizePeopleDays();
+
+  if (monthRow.image_path) {
+    state.imageData = await loadImageDataFromCloud(monthRow.image_path);
+  } else {
+    state.imageData = '';
+  }
+  saveCurrentMonthToStore();
+  saveState(false);
+  return true;
+}
+
+async function uploadImageDataToCloud(dataUrl, originalName = 'schedule.jpg') {
+  const user = requireUser();
+  if (!user || !supabaseClient || !dataUrl) return null;
+  const blob = await dataUrlToBlob(dataUrl);
+  const path = `${user.id}/${monthKey()}/schedule.jpg`;
+  const { error } = await supabaseClient.storage
+    .from('schedule-images')
+    .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+  if (error) throw error;
+  await upsertCloudMonth(path);
+  return path;
+}
+
+async function loadImageDataFromCloud(path) {
+  if (!path || !supabaseClient) return '';
+  const { data, error } = await supabaseClient.storage
+    .from('schedule-images')
+    .createSignedUrl(path, 60 * 60);
+  if (error) throw error;
+  const res = await fetch(data.signedUrl);
+  const blob = await res.blob();
+  return await blobToDataUrl(blob);
+}
+
+function dataUrlToBlob(dataUrl) {
+  const [header, body] = String(dataUrl).split(',');
+  const mime = header.match(/data:(.*?);/)?.[1] || 'image/jpeg';
+  const binary = atob(body || '');
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 function openScheduleImageDb() {
@@ -309,6 +685,46 @@ async function loadImageForCurrentMonth() {
 }
 
 async function refreshArchiveMeta() {
+  if (currentUser && supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('schedule_months')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('year', { ascending: false })
+        .order('month', { ascending: false });
+      if (error) throw error;
+      const records = [];
+      for (const row of data || []) {
+        let thumbData = '';
+        if (row.image_path) {
+          try {
+            const { data: signed } = await supabaseClient.storage
+              .from('schedule-images')
+              .createSignedUrl(row.image_path, 60 * 60);
+            thumbData = signed?.signedUrl || '';
+          } catch (e) {
+            thumbData = '';
+          }
+        }
+        records.push({
+          key: monthKey(row.year, row.month),
+          year: row.year,
+          month: row.month,
+          imageName: row.image_path ? row.image_path.split('/').pop() : '',
+          updatedAt: row.updated_at || row.created_at || '',
+          thumbData,
+          cloud: true,
+        });
+      }
+      state.archiveMeta = records;
+      return;
+    } catch (error) {
+      console.warn('클라우드 월별 보관함 로드 실패', error);
+      showCloudStatus(`월별 보관함을 불러오지 못했어요: ${error.message || error}`, 'error');
+    }
+  }
+
   try {
     const records = await getAllStoredImages();
     state.archiveMeta = records.map((record) => ({
@@ -481,6 +897,11 @@ async function handleImageUpload(e) {
       updatedAt: now,
     });
     saveCurrentMonthToStore();
+    if (currentUser) {
+      showCloudStatus('이미지를 Supabase Storage에 업로드하는 중이에요.', 'warn');
+      await uploadImageDataToCloud(compressedDataUrl, file.name);
+      showCloudStatus('이미지 업로드 완료. 스케줄 검수 후 저장 버튼을 눌러 주세요.', 'ok');
+    }
     await refreshArchiveMeta();
     renderUploadedImage();
     drawOcrPreview();
@@ -532,7 +953,7 @@ function renderUploadedImage() {
     image.style.display = 'block';
     emptyPreview.style.display = 'none';
     if (status) {
-      status.innerHTML = `<strong>${state.year}년 ${state.month}월 근무표 저장됨</strong><span>${escapeHtml(state.imageName || '스케줄표 이미지')}</span><small>새로고침 후에도 같은 브라우저에서 다시 볼 수 있어요. 다른 월을 선택하면 해당 월 이미지가 자동으로 바뀝니다.</small>`;
+      status.innerHTML = `<strong>${state.year}년 ${state.month}월 근무표 저장됨</strong><span>${escapeHtml(state.imageName || '스케줄표 이미지')}</span><small>로그인 상태에서는 Supabase에도 저장되어 다른 기기에서 불러올 수 있어요.</small>`;
       status.classList.add('uploaded');
     }
     if (actions) actions.classList.add('show');
@@ -1080,6 +1501,19 @@ function bindViewEvents() {
     button.addEventListener('click', async () => {
       const key = button.dataset.monthKey;
       if (!confirm(`${key} 근무표 이미지만 삭제할까요? 입력한 스케줄 데이터는 유지됩니다.`)) return;
+      if (currentUser && supabaseClient) {
+        try {
+          const { year, month } = parseMonthKey(key);
+          const row = await getCloudMonthRow(year, month);
+          if (row?.image_path) {
+            await supabaseClient.storage.from('schedule-images').remove([row.image_path]);
+            await supabaseClient.from('schedule_months').update({ image_path: null }).eq('id', row.id).eq('user_id', currentUser.id);
+          }
+        } catch (error) {
+          alert(`클라우드 이미지 삭제 실패: ${error.message || error}`);
+          return;
+        }
+      }
       await deleteStoredImage(key);
       if (key === monthKey()) {
         state.imageData = '';
@@ -1221,7 +1655,7 @@ function getPersistableState() {
 function saveState(showAlert = false) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(getPersistableState()));
-    if (showAlert) alert('저장했어요. 같은 브라우저에서 월별 스케줄 데이터와 저장된 이미지를 다시 불러올 수 있습니다.');
+    if (showAlert) alert('브라우저에 저장했어요. 로그인 상태에서는 저장 버튼으로 클라우드에도 저장됩니다.');
   } catch (error) {
     console.warn('저장 실패', error);
     try {
