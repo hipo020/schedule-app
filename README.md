@@ -49,8 +49,8 @@ Secret key는 절대 넣지 마세요.
 
 ## 사용 흐름
 
-1. 이메일 입력 후 로그인 링크 보내기
-2. 메일에서 로그인 링크 클릭
+1. 이메일 입력 후 Google 로그인 보내기
+2. 메일에서 Google 로그인 클릭
 3. 기준 연도/월 선택
 4. 근무표 이미지 업로드
 5. 데이터 입력 탭에서 추출 프롬프트 복사
@@ -66,3 +66,14 @@ Secret key는 절대 넣지 마세요.
 - 데이터 입력 탭의 프롬프트는 화면에 길게 표시하지 않고 복사 버튼으로 제공합니다.
 - OCR은 베타 기능이므로 권장 방식은 ChatGPT/Gemini로 CSV를 추출한 뒤 앱에 입력하는 방식입니다.
 - Supabase Storage bucket 이름은 반드시 `schedule-images`로 만들어야 합니다.
+
+
+## Google 로그인 적용 안내
+
+이 버전은 기존 정상 작동 버전에서 로그인 방식만 Google OAuth로 변경한 버전입니다.
+
+- GitHub에는 `index.html`, `styles.css`, `app.js`, `README.md` 4개 파일만 업로드하면 됩니다.
+- `auth-callback.html`은 사용하지 않습니다.
+- Supabase Authentication > Providers > Google에서 Google Provider를 켜고 Client ID / Client Secret을 저장해야 합니다.
+- Supabase Authentication > URL Configuration의 Site URL과 Redirect URLs에는 Vercel 앱 기본 주소를 넣습니다.
+- Google Cloud OAuth 클라이언트의 승인된 JavaScript 원본에는 Vercel 앱 주소를 넣고, 승인된 리디렉션 URI에는 Supabase Callback URL을 넣습니다.

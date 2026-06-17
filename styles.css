@@ -401,6 +401,23 @@ textarea.share-box { min-height: 250px; line-height: 1.7; resize: vertical; }
   background: #fff;
 }
 .auth-main-btn { width: 100%; margin-top: 16px; justify-content: center; }
+.auth-main-btn {
+  min-height: 54px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.google-mark {
+  width: 26px;
+  height: 26px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #102a43;
+  font-weight: 950;
+}
+
 .auth-message {
   margin-top: 14px;
   border-radius: 18px;

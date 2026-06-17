@@ -4,7 +4,13 @@
 const SUPABASE_URL = "https://fergbabqmwnbkkxjvgkj.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
 const supabaseClient = window.supabase
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    })
   : null;
 
 let currentSession = null;
@@ -185,7 +191,7 @@ async function init() {
 
   const authenticated = await initAuth();
   if (!authenticated) {
-    showAuthGate('로그인이 필요합니다. 이메일을 입력하고 로그인 링크를 받아 주세요.');
+    showAuthGate('Google 로그인이 필요합니다. 아래 버튼을 눌러 로그인해 주세요.');
     return;
   }
 
@@ -258,13 +264,13 @@ function parseMonthKey(key) {
 
 
 function bindAuthEvents() {
-  el('magicLinkButton')?.addEventListener('click', sendMagicLink);
+  el('googleLoginButton')?.addEventListener('click', signInWithGoogle);
   el('logoutButton')?.addEventListener('click', async () => {
     if (!supabaseClient) return;
     await supabaseClient.auth.signOut();
     currentSession = null;
     currentUser = null;
-    showAuthGate('로그아웃했어요. 다시 사용하려면 이메일로 로그인해 주세요.');
+    showAuthGate('로그아웃했어요. 다시 사용하려면 Google로 로그인해 주세요.');
   });
 }
 
@@ -277,13 +283,20 @@ async function initAuth() {
   }
   currentSession = data?.session || null;
   currentUser = currentSession?.user || null;
+  if (currentUser && (window.location.hash || window.location.search.includes('code='))) {
+    window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+  }
 
   supabaseClient.auth.onAuthStateChange((event, session) => {
     currentSession = session || null;
     currentUser = session?.user || null;
     if (event === 'SIGNED_IN' && currentUser) {
+      if (window.location.hash || window.location.search.includes('code=')) {
+        window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+      }
       showAppShell();
       showCloudStatus('로그인 완료. 데이터를 불러오는 중이에요.', 'ok');
+      ensureProfile();
       loadCloudInitialData(true).then(() => {
         syncInputs();
         renderScheduleTable();
@@ -292,33 +305,42 @@ async function initAuth() {
       });
     }
     if (event === 'SIGNED_OUT') {
-      showAuthGate('로그아웃했어요. 다시 사용하려면 이메일로 로그인해 주세요.');
+      showAuthGate('로그아웃했어요. 다시 사용하려면 Google로 로그인해 주세요.');
     }
   });
 
   return Boolean(currentUser);
 }
 
-async function sendMagicLink() {
+async function signInWithGoogle() {
   if (!supabaseClient) {
     setAuthMessage('Supabase 연결 정보를 확인하지 못했어요. app.js의 URL과 Publishable key를 확인해 주세요.', 'error');
     return;
   }
-  const email = el('authEmailInput')?.value?.trim();
-  if (!email) {
-    setAuthMessage('이메일을 입력해 주세요.', 'error');
-    return;
+
+  const button = el('googleLoginButton');
+  const previousHtml = button?.innerHTML;
+  if (button) {
+    button.disabled = true;
+    button.innerHTML = '<span class="google-mark">G</span><span>Google 로그인으로 이동 중...</span>';
   }
-  const redirectTo = `${window.location.origin}${window.location.pathname}`;
-  const { error } = await supabaseClient.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: redirectTo },
+  setAuthMessage('Google 로그인 화면으로 이동하고 있어요.', 'ok');
+
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin,
+    },
   });
+
   if (error) {
-    setAuthMessage(`로그인 링크 전송 실패: ${error.message}`, 'error');
-    return;
+    console.error('Google 로그인 실패', error);
+    if (button) {
+      button.disabled = false;
+      button.innerHTML = previousHtml || '<span class="google-mark">G</span><span>Google로 로그인</span>';
+    }
+    setAuthMessage(`Google 로그인 연결 실패: ${error.message}`, 'error');
   }
-  setAuthMessage('로그인 링크를 보냈어요. 메일함에서 링크를 눌러 다시 돌아와 주세요.', 'ok');
 }
 
 function setAuthMessage(message, type = '') {
