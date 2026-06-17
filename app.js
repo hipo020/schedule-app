@@ -1,4 +1,6 @@
 // Supabase 연결 정보
+// Publishable key는 브라우저에서 사용하는 공개용 키입니다.
+// Secret key는 절대 이 파일에 넣지 마세요.
 const SUPABASE_URL = "https://fergbabqmwnbkkxjvgkj.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
 let supabaseClient = null;
@@ -13,12 +15,14 @@ function getSupabaseClient() {
     console.warn('Supabase SDK가 아직 로드되지 않았어요.', window.supabase);
     return null;
   }
+
+  // 참고한 쉼표 앱처럼 Supabase JS 기본 세션 처리 흐름을 사용합니다.
+  // 핵심은 redirectTo를 앱 루트로 돌리고, getSession/onAuthStateChange가 세션을 잡게 하는 것입니다.
   supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: false, // 자동 감지 끄기 (수동 제어)
-      flowType: 'implicit', // implicit 흐름 강제 지정
+      detectSessionInUrl: true,
     },
   });
   window.__scheduleSupabaseClient = supabaseClient;
@@ -30,6 +34,7 @@ let currentUser = null;
 let isGuestMode = false;
 let isCloudBusy = false;
 window.__scheduleAppAuthBound = false;
+
 
 const state = {
   year: new Date().getFullYear(),
@@ -50,7 +55,10 @@ const state = {
 const el = (id) => document.getElementById(id);
 function on(id, eventName, handler) {
   const node = el(id);
-  if (!node) return;
+  if (!node) {
+    console.warn(`[bindEvents] #${id} 요소를 찾지 못했어요.`);
+    return;
+  }
   node.addEventListener(eventName, handler);
 }
 const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
@@ -62,10 +70,6 @@ const MAX_STORED_IMAGE_HEIGHT = 1600;
 const THUMB_WIDTH = 360;
 const THUMB_HEIGHT = 240;
 const DEFAULT_CULINARY_NAMES = ['이준호', '류선협', '이상민', '김도영', '이승호', '곽병우', '이미현', '이다연', '김성민', '정세환'];
-
-// --- [OCR & Utilities Functions Omitted for brevity: keep everything from getExtractionPrompt downwards the same] ---
-// 이 아래로는 기존 app.js에 있던 기본 유틸 함수들 그대로입니다. 
-// auth 관련 부분만 새로 작성했습니다.
 
 function getExtractionPrompt() {
   return `당신은 근무표 이미지에서 데이터를 정확히 추출하는 데이터 변환 담당자입니다.
@@ -207,11 +211,19 @@ function getDefaultOcrState() {
 }
 
 async function init() {
-  try { loadState(); } catch (error) { console.warn('저장 데이터 초기화 중 오류', error); }
+  try {
+    loadState();
+  } catch (error) {
+    console.warn('저장 데이터 초기화 중 오류', error);
+  }
   initMonthSelect();
   bindAuthEvents();
   setAuthMessage('로그인 화면 준비 완료. Google 로그인 버튼을 눌러 주세요.', '');
-  try { bindEvents(); } catch (error) { console.warn('이벤트 바인딩 오류', error); }
+  try {
+    bindEvents();
+  } catch (error) {
+    console.warn('일반 화면 이벤트 연결 중 오류가 발생했지만 로그인 기능은 계속 사용할 수 있어요.', error);
+  }
 
   const authenticated = await initAuth();
   if (!authenticated) {
@@ -222,6 +234,7 @@ async function init() {
   showAppShell();
   await ensureProfile();
   await loadCloudInitialData();
+
   ensurePeople();
   normalizePeopleDays();
   syncInputs();
@@ -245,7 +258,10 @@ function bindEvents() {
   on('loadSampleButton', 'click', loadSample);
   el('loadSampleFromUploadButton')?.addEventListener('click', () => { loadSample(); switchPage('home', true); });
   bindDataInputEvents();
-  el('cloudSaveButton')?.addEventListener('click', async () => { saveState(false); await saveCurrentMonthToCloud(true); });
+  el('cloudSaveButton')?.addEventListener('click', async () => {
+    saveState(false);
+    await saveCurrentMonthToCloud(true);
+  });
   el('cloudReloadButton')?.addEventListener('click', async () => {
     await loadCloudInitialData(true);
     renderScheduleTable();
@@ -253,7 +269,10 @@ function bindEvents() {
     renderAll();
   });
   on('clearButton', 'click', clearAll);
-  on('saveButton', 'click', async () => { saveState(false); await saveCurrentMonthToCloud(true); });
+  on('saveButton', 'click', async () => {
+    saveState(false);
+    await saveCurrentMonthToCloud(true);
+  });
   on('addPersonButton', 'click', addPerson);
   on('removeEmptyRowsButton', 'click', removeEmptyRows);
   document.querySelectorAll('.sheet-tab').forEach((button) => {
@@ -262,6 +281,7 @@ function bindEvents() {
   document.querySelectorAll('.page-shortcut').forEach((button) => {
     button.addEventListener('click', () => switchPage(button.dataset.goPage, true));
   });
+
   bindOcrEvents();
 }
 
@@ -278,77 +298,205 @@ function parseMonthKey(key) {
   return { year, month };
 }
 
+
 function bindAuthEvents() {
-  window.__scheduleAppAuthBound = true;
-  el('logoutButton')?.addEventListener('click', async () => {
-    const client = getSupabaseClient();
-    if (client && currentUser) await client.auth.signOut();
-    currentSession = null;
-    currentUser = null;
-    showAuthGate('로그아웃했어요. 다시 사용하려면 Google 계정으로 로그인해 주세요.');
-  });
+  const googleButton = el('googleLoginButton');
+  if (googleButton && !googleButton.dataset.authBound) {
+    googleButton.dataset.authBound = 'true';
+    googleButton.addEventListener('click', signInWithGoogle);
+  }
+
+  const logoutButton = el('logoutButton');
+  if (logoutButton && !logoutButton.dataset.authBound) {
+    logoutButton.dataset.authBound = 'true';
+    logoutButton.addEventListener('click', async () => {
+      const client = getSupabaseClient();
+      if (client && currentUser) await client.auth.signOut();
+      currentSession = null;
+      currentUser = null;
+      isGuestMode = false;
+      showAuthGate('로그아웃했어요. 다시 사용하려면 Google 계정으로 로그인해 주세요.');
+    });
+  }
 }
 
-// ==== 로그인 로직: 수동 파싱 삭제, 순수 SDK 의존 ====
 async function initAuth() {
   const client = getSupabaseClient();
   if (!client) {
-    setAuthMessage('Supabase를 불러오지 못했어요.', 'error');
+    setAuthMessage('Supabase 라이브러리를 불러오지 못했어요. 네트워크를 확인한 뒤 새로고침해 주세요.', 'error');
     return false;
   }
 
-  // 1. URL 파싱 (Implicit flow는 # 뒤에 토큰이 전달됩니다)
-  const url = new URL(window.location.href);
-  const hashText = window.location.hash.replace('#', '');
-  const hashParams = new URLSearchParams(hashText);
-  
-  const errorParam = url.searchParams.get('error_description') || hashParams.get('error_description');
-  if (errorParam) {
-    setAuthMessage(`로그인 에러: ${decodeURIComponent(errorParam.replace(/\+/g, ' '))}`, 'error');
-    cleanupAuthUrl();
-    return false;
-  }
-
-  const accessToken = hashParams.get('access_token');
-  const refreshToken = hashParams.get('refresh_token');
-
-  // 2. 리디렉션되어 돌아온 경우 수동으로 강제 로그인 처리
-  if (accessToken && refreshToken) {
-    setAuthMessage('인증 정보를 확인 중입니다...', '');
-    const { error } = await client.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken
-    });
-    if (error) {
-      console.error('세션 설정 실패:', error);
-      setAuthMessage(`인증 에러: ${error.message}`, 'error');
+  try {
+    const callbackSession = await processAuthCallback(client);
+    if (callbackSession) {
+      currentSession = callbackSession;
+      currentUser = callbackSession.user || null;
     }
-    cleanupAuthUrl(); // 성공하든 실패하든 주소창 코드는 깔끔하게 정리
-  } else if (url.searchParams.get('code')) {
-    // 이전 PKCE 방식의 로그인 잔재로 ?code=가 들어온 경우 무시
-    cleanupAuthUrl();
+  } catch (callbackError) {
+    console.error('로그인 콜백 처리 실패', callbackError);
+    setAuthMessage(`Google 로그인 확인 중 오류가 발생했어요: ${callbackError?.message || callbackError}`, 'error');
   }
 
-  // 3. 상태 변화 모니터링 (주로 로그아웃 처리용)
+  const { data, error } = await client.auth.getSession();
+  if (error) {
+    console.warn('세션 확인 실패', error);
+    setAuthMessage(`세션 확인 실패: ${error.message}`, 'error');
+    return false;
+  }
+
+  currentSession = data?.session || currentSession || null;
+  currentUser = currentSession?.user || null;
+
   client.auth.onAuthStateChange((event, session) => {
     currentSession = session || null;
     currentUser = session?.user || null;
+
+    if (event === 'SIGNED_IN' && currentUser) {
+      showAppShell();
+      showCloudStatus('로그인 완료. 데이터를 불러오는 중이에요.', 'ok');
+      loadCloudInitialData(true).then(() => {
+        syncInputs();
+        renderScheduleTable();
+        renderUploadedImage();
+        renderAll();
+      }).catch((error) => {
+        console.error('로그인 후 데이터 로드 실패', error);
+        showCloudStatus('로그인은 완료됐지만 데이터를 불러오지 못했어요. Supabase 테이블 권한을 확인해 주세요.', 'warn');
+      });
+    }
+
     if (event === 'SIGNED_OUT') {
-      showAuthGate('로그아웃했어요. 다시 로그인해 주세요.');
+      showAuthGate('로그아웃했어요. 다시 사용하려면 Google 계정으로 로그인해 주세요.');
     }
   });
-
-  // 4. 최종적으로 세션이 유효한지 확인 후 상태 반환
-  const { data, error } = await client.auth.getSession();
-  currentSession = data?.session || null;
-  currentUser = currentSession?.user || null;
 
   return Boolean(currentUser);
 }
 
-// ==========================================
-// 이하 기존 앱 핵심 로직 (완전 동일)
-// ==========================================
+async function processAuthCallback(client) {
+  const url = new URL(window.location.href);
+  const query = url.searchParams;
+  const hashString = window.location.hash ? window.location.hash.slice(1) : '';
+  const hash = new URLSearchParams(hashString);
+
+  const errorDescription = query.get('error_description') || hash.get('error_description') || query.get('error') || hash.get('error');
+  if (errorDescription) {
+    cleanupAuthUrl();
+    throw new Error(decodeURIComponent(errorDescription.replace(/\+/g, ' ')));
+  }
+
+  // Google OAuth가 ?code=... 로 돌아오는 경우
+  const code = query.get('code');
+  if (code) {
+    setAuthMessage('Google 로그인 정보를 확인하고 있어요. 잠시만 기다려 주세요.', '');
+    const { data, error } = await client.auth.exchangeCodeForSession(code);
+    cleanupAuthUrl();
+    if (error) throw error;
+    setAuthMessage('로그인 완료. 앱을 여는 중이에요.', 'ok');
+    return data?.session || null;
+  }
+
+  // Google OAuth가 #access_token=... 로 돌아오는 경우
+  const accessToken = hash.get('access_token');
+  const refreshToken = hash.get('refresh_token');
+  if (accessToken && refreshToken) {
+    setAuthMessage('Google 로그인 정보를 확인하고 있어요. 잠시만 기다려 주세요.', '');
+    const { data, error } = await client.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
+    cleanupAuthUrl();
+    if (error) throw error;
+    setAuthMessage('로그인 완료. 앱을 여는 중이에요.', 'ok');
+    return data?.session || null;
+  }
+
+  return null;
+}
+
+function cleanupAuthUrl() {
+  if (!window.history?.replaceState) return;
+  const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+  window.history.replaceState({}, document.title, cleanUrl);
+}
+
+async function signInWithGoogle() {
+  setAuthMessage('Google 로그인으로 이동하고 있어요.', '');
+  const button = el('googleLoginButton');
+  const originalText = button?.textContent || 'Google로 로그인';
+
+  try {
+    const client = getSupabaseClient();
+    if (!client) {
+      setAuthMessage('Supabase 연결을 초기화하지 못했어요. 인터넷 연결 또는 CDN 로딩 상태를 확인해 주세요.', 'error');
+      return;
+    }
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Google 로그인으로 이동 중...';
+    }
+
+    // 참고용으로 받은 쉼표 앱과 동일하게 앱 루트로 직접 돌아오게 합니다.
+    // 별도 auth-callback.html 없이 index.html/app.js에서 세션을 처리합니다.
+    const redirectTo = window.location.origin;
+    const { error } = await client.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo },
+    });
+
+    if (error) {
+      setAuthMessage(`Google 로그인 시작 실패: ${error.message}`, 'error');
+      if (button) {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+  } catch (error) {
+    console.error('Google 로그인 시작 오류', error);
+    setAuthMessage(`Google 로그인 처리 중 오류가 발생했어요: ${error?.message || error}`, 'error');
+    if (button) {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  }
+}
+
+function setAuthMessage(message, type = '') {
+  const node = el('authMessage');
+  if (!node) return;
+  node.textContent = message;
+  node.className = `auth-message ${type}`;
+}
+
+function showAuthGate(message = '') {
+  el('authGate')?.classList.remove('is-hidden');
+  el('appShell')?.classList.add('is-hidden');
+  if (message) setAuthMessage(message);
+}
+
+function showAppShell() {
+  el('authGate')?.classList.add('is-hidden');
+  el('appShell')?.classList.remove('is-hidden');
+  if (el('userEmailText')) el('userEmailText').textContent = currentUser?.email || '로그인됨';
+  showCloudStatus('Supabase에 연결됐어요. 저장 버튼을 누르면 현재 월 데이터가 클라우드에 저장됩니다.', 'ok');
+}
+
+function showCloudStatus(message, type = '') {
+  const node = el('cloudStatus');
+  if (!node) return;
+  node.textContent = message;
+  node.className = `cloud-status ${type}`;
+}
+
+function requireUser() {
+  if (!currentUser) {
+    showCloudStatus('로그인이 필요해요.', 'warn');
+    return null;
+  }
+  return currentUser;
+}
 
 async function ensureProfile() {
   const user = requireUser();
@@ -360,6 +508,7 @@ async function ensureProfile() {
   });
   if (error) console.warn('프로필 저장 실패', error);
 }
+
 
 function ensureMonthStore() {
   if (!state.monthStore || typeof state.monthStore !== 'object') state.monthStore = {};
@@ -441,6 +590,7 @@ async function changeActiveMonth(nextYear, nextMonth) {
   renderAll();
   saveState(false);
 }
+
 
 async function loadCloudInitialData(showMessage = false) {
   const user = requireUser();
@@ -1046,6 +1196,7 @@ function renderUploadedImage() {
   }
 }
 
+
 function bindOcrEvents() {
   const ids = ['ocrNamesInput', 'ocrXInput', 'ocrYInput', 'ocrWInput', 'ocrHInput'];
   ids.forEach((id) => {
@@ -1309,6 +1460,7 @@ function clampNumber(value, min, max) {
   if (!Number.isFinite(value)) return min;
   return Math.min(max, Math.max(min, value));
 }
+
 
 function bindDataInputEvents() {
   const copyButtons = [el('copyExtractionPromptButton'), el('copyExtractionPromptButton2')].filter(Boolean);
@@ -1655,6 +1807,7 @@ function switchPage(page, shouldSave = true) {
   if (shouldSave) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+
 function getCurrentDisplayDay() {
   const today = new Date();
   if (today.getFullYear() === state.year && today.getMonth() + 1 === state.month) {
@@ -1792,6 +1945,7 @@ function renderShare() {
     </div>
   `;
 }
+
 
 function renderArchive() {
   const records = state.archiveMeta || [];
@@ -2020,6 +2174,7 @@ function escapeHtml(value) { return String(value ?? '').replace(/[&<>"]/g, (m) =
 function getPersistableState() {
   saveCurrentMonthToStore();
   const persistable = { ...state };
+  // 이미지 원본/base64는 IndexedDB에 월별로 저장하고, localStorage에는 스케줄 데이터만 저장합니다.
   persistable.imageData = '';
   persistable.archiveMeta = (state.archiveMeta || []).map((record) => ({
     key: record.key,
