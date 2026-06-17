@@ -616,3 +616,425 @@ textarea.share-box { min-height: 250px; line-height: 1.7; resize: vertical; }
 @media (max-width: 560px) {
   .week-grid { grid-template-columns: 1fr; }
 }
+
+/************************************************************
+ * v2.2 UX 안정화 패치
+ * - 주간 이전/다음 이동
+ * - 월간 코드 중앙 정렬
+ * - 휴무일 탭 활용도 개선
+ * - 코드 설정 카드형 정리
+ * - 모바일 데이터 확인/월간 잘림 보정
+ ************************************************************/
+.week-title-with-nav {
+  align-items: flex-start;
+}
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.week-nav span {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #f7fbfe;
+  border: 1px solid #e5f2fa;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.week-nav-btn {
+  min-width: 92px;
+  white-space: nowrap;
+}
+.improved-week-grid .week-day-card {
+  position: relative;
+}
+.week-day-card.selected-week-day {
+  outline: 3px solid var(--sky-strong);
+  background: linear-gradient(180deg, #fff, #f3fbff);
+}
+.week-day-card.other-month {
+  opacity: .48;
+  cursor: default;
+}
+.weekly-stat-row .mini-stat {
+  min-height: 92px;
+}
+
+.month-legend {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: -6px 0 14px;
+}
+.month-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #eef2f7;
+}
+.legend-dot.work { background: var(--sky-strong); }
+.legend-dot.off { background: #cfd7e2; }
+.legend-dot.leave { background: #f6d97b; }
+.legend-dot.empty { background: #e9edf3; }
+.monthly-calendar-wrap {
+  width: 100%;
+  overflow: visible;
+}
+.improved-month-calendar {
+  width: 100%;
+}
+.improved-month-calendar .day-cell {
+  min-width: 0;
+  align-items: stretch;
+  justify-content: space-between;
+  text-align: center;
+}
+.improved-month-calendar .day-number {
+  align-self: flex-start;
+}
+.month-day-main {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  width: 100%;
+  min-width: 0;
+}
+.improved-month-calendar .day-code {
+  width: min(72px, 100%);
+  margin: 0 auto;
+  justify-self: center;
+  min-width: 0;
+  padding-inline: 8px;
+}
+.improved-month-calendar small {
+  display: block;
+  max-width: 100%;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.offday-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.offday-summary-card {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: linear-gradient(180deg, #fff, #f8fbfd);
+  padding: 16px;
+  text-align: left;
+  display: grid;
+  gap: 7px;
+}
+button.offday-summary-card { cursor: pointer; }
+.offday-summary-card.next {
+  background: linear-gradient(180deg, #fff, #f3fbff);
+  border-color: #cfe8f7;
+}
+.offday-summary-card.leave {
+  background: linear-gradient(180deg, #fff, #fffaf0);
+}
+.offday-summary-card span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+.offday-summary-card strong {
+  font-size: 22px;
+  letter-spacing: -0.04em;
+}
+.offday-summary-card em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 800;
+}
+.offday-planner-card {
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background: #fff;
+  padding: 18px;
+  margin-bottom: 14px;
+}
+.offday-planner-card h4 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+.offday-streak-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.offday-streak {
+  border: 1px solid #e5f2fa;
+  border-radius: 20px;
+  background: #f7fbfe;
+  padding: 13px;
+  text-align: left;
+  display: grid;
+  gap: 5px;
+}
+.offday-streak strong { font-size: 14px; }
+.offday-streak span { color: var(--muted); font-size: 12px; line-height: 1.4; }
+.offday-empty-note {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.improved-offday-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.offday-chip-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.offday-chip {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fafc;
+  padding: 9px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+}
+.offday-chip.leave { background: #fffaf0; }
+.offday-chip.off { background: #f7f9fc; }
+.offday-chip span { color: var(--muted); }
+
+.settings-title {
+  align-items: flex-start;
+}
+.code-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.code-editor-row.compact-code-card {
+  display: grid;
+  grid-template-columns: 76px 1fr 1fr;
+  gap: 8px;
+  align-items: end;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: #fff;
+}
+.compact-code-card label {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.compact-code-card label span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+.compact-code-card input {
+  min-height: 42px;
+  padding: 10px 11px;
+  border-radius: 14px;
+}
+.compact-code-card .delete-code {
+  grid-column: 1 / -1;
+  padding: 10px 12px;
+}
+
+/* 데이터 확인 테이블: 모바일에서 이름 열을 고정해 내용이 사라져 보이지 않게 보정 */
+.table-scroll {
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+.schedule-table th:first-child,
+.schedule-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: #fff;
+  box-shadow: 1px 0 0 var(--line);
+}
+.schedule-table th:first-child {
+  z-index: 4;
+  background: #f5f8fb;
+}
+
+@media (max-width: 1100px) {
+  .code-editor-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .offday-summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 780px) {
+  .app-shell {
+    width: 100%;
+    padding: 12px 10px 72px;
+    overflow-x: hidden;
+  }
+  .hero {
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .hero-card, .panel {
+    border-radius: 22px;
+  }
+  .hero-card { padding: 18px; min-height: auto; gap: 12px; }
+  .panel { padding: 14px; }
+  .section-title,
+  .view-title,
+  .week-title-with-nav,
+  .settings-title,
+  .offday-title {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .view-title h3,
+  .section-title h2 { font-size: 21px; }
+  .sheet-nav {
+    margin-left: -10px;
+    margin-right: -10px;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+  }
+  .sheet-tab { padding: 10px 13px; font-size: 13px; }
+  .page-area, .page-content, .view-panel { min-height: auto; }
+
+  .table-scroll {
+    border-radius: 18px;
+    overflow-x: auto;
+    width: 100%;
+  }
+  .schedule-table {
+    min-width: 880px;
+    font-size: 12px;
+  }
+  .schedule-table th,
+  .schedule-table td {
+    padding: 4px;
+  }
+  .schedule-table input {
+    padding: 7px 4px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+  .schedule-table input.name-input {
+    width: 78px;
+    min-width: 78px;
+    font-size: 12px;
+  }
+
+  .monthly-calendar-wrap {
+    overflow: visible;
+    width: 100%;
+  }
+  .calendar.improved-month-calendar {
+    gap: 4px;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    width: 100%;
+  }
+  .improved-month-calendar .calendar-head {
+    padding: 5px 2px;
+    font-size: 11px;
+  }
+  .improved-month-calendar .day-cell {
+    min-width: 0;
+    min-height: 72px;
+    padding: 6px 3px;
+    border-radius: 13px;
+    gap: 4px;
+  }
+  .improved-month-calendar .day-number {
+    font-size: 12px;
+  }
+  .improved-month-calendar .day-code {
+    width: 100%;
+    min-width: 0;
+    padding: 4px 2px;
+    font-size: 10px;
+    line-height: 1;
+  }
+  .improved-month-calendar small {
+    font-size: 9px;
+    white-space: normal;
+    line-height: 1.15;
+  }
+  .month-legend { gap: 5px; }
+  .month-legend span { padding: 6px 8px; font-size: 11px; }
+
+  .week-nav {
+    justify-content: stretch;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .week-nav span {
+    grid-column: 1 / -1;
+    text-align: center;
+    order: -1;
+  }
+  .week-grid.improved-week-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .week-day-card {
+    min-height: 124px;
+    padding: 12px;
+    border-radius: 20px;
+  }
+  .mini-stat-row.weekly-stat-row {
+    grid-template-columns: 1fr;
+  }
+
+  .offday-summary-grid,
+  .improved-offday-grid,
+  .offday-streak-list,
+  .share-layout,
+  .code-editor-grid {
+    grid-template-columns: 1fr;
+  }
+  .offday-summary-card strong { font-size: 19px; }
+  .offday-chip-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .offday-chip { justify-content: space-between; border-radius: 16px; }
+
+  .code-editor-row.compact-code-card {
+    grid-template-columns: 78px 1fr 1fr;
+    padding: 12px;
+    border-radius: 18px;
+  }
+  .compact-code-card input {
+    min-height: 40px;
+    padding: 9px 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .week-grid.improved-week-grid { grid-template-columns: 1fr; }
+  .offday-chip-list { grid-template-columns: 1fr; }
+  .code-editor-row.compact-code-card { grid-template-columns: 1fr 1fr; }
+  .compact-code-card label:first-child { grid-column: 1 / -1; }
+  .schedule-table { min-width: 820px; }
+  .improved-month-calendar .day-cell { min-height: 66px; }
+  .improved-month-calendar .day-code { font-size: 9.5px; }
+}

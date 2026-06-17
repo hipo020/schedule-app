@@ -177,7 +177,7 @@ function getDefaultCodes() {
 
 function getDefaultOcrState() {
   return {
-    names: ['이준호', '류선협', '이상민', '김도영', '이승호', '곽병우', '이미현', '이다연', '김성민', '정세환'].join('\n'),
+    names: ['이준호', '류선협', '이상민', '김도영', '이승호', '곽병우', '이미현', '이다연', '김성민', '정세환'].join(' '),
     rect: { x: 18.3, y: 12.1, w: 49.6, h: 25.5 },
     results: [],
   };
@@ -1172,7 +1172,7 @@ async function drawOcrPreview() {
 
 function getOcrNames() {
   const raw = state.ocr?.names || '';
-  return raw.split('\n').map((name) => name.trim()).filter(Boolean);
+  return raw.split(/[\s,]+/).map((name) => name.trim()).filter(Boolean);
 }
 
 async function runOcrExtraction() {
@@ -1649,38 +1649,64 @@ function getSelectedRosterDay() {
 
 function renderWeekly() {
   const person = getMyPerson();
-  const selected = new Date(state.selectedDate || Date.now());
+  const selected = new Date(state.selectedDate || `${state.year}-${String(state.month).padStart(2, '0')}-01`);
   const baseDay = isSameMonth(selected) ? selected.getDate() : 1;
-  const date = getDateObj(baseDay);
-  const mondayOffset = (date.getDay() + 6) % 7;
-  const monday = baseDay - mondayOffset;
-  const rows = [];
-  for (let i = 0; i < 7; i++) {
-    const day = monday + i;
-    if (day < 1 || day > daysInMonth(state.year, state.month)) continue;
-    const code = person?.schedules[day - 1] || '';
-    const info = getCodeInfo(code);
-    rows.push({ day, code, info });
-  }
-  const workCount = rows.filter((r) => r.info.type === 'work').length;
-  const offCount = rows.filter((r) => ['off', 'leave'].includes(r.info.type)).length;
-  const earliest = rows.filter((r) => r.info.type === 'work' && r.info.start).map((r) => r.info.start).sort()[0] || '-';
+  const baseDate = getDateObj(baseDay);
+  const mondayOffset = (baseDate.getDay() + 6) % 7;
+  const mondayDate = new Date(baseDate);
+  mondayDate.setDate(baseDate.getDate() - mondayOffset);
+
+  const rows = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(mondayDate);
+    date.setDate(mondayDate.getDate() + i);
+    const inMonth = date.getFullYear() === state.year && date.getMonth() + 1 === state.month;
+    const day = date.getDate();
+    const code = inMonth ? (person?.schedules[day - 1] || '') : '';
+    const info = inMonth ? getCodeInfo(code) : { label: '다른 달', start: '', end: '', type: 'empty' };
+    return { day, date, inMonth, code, info };
+  });
+
+  const inMonthRows = rows.filter((r) => r.inMonth);
+  const workCount = inMonthRows.filter((r) => r.info.type === 'work').length;
+  const offCount = inMonthRows.filter((r) => ['off', 'leave'].includes(r.info.type)).length;
+  const earliest = inMonthRows.filter((r) => r.info.type === 'work' && r.info.start).map((r) => r.info.start).sort()[0] || '-';
+  const startLabel = `${mondayDate.getMonth() + 1}/${mondayDate.getDate()}`;
+  const sundayDate = new Date(mondayDate);
+  sundayDate.setDate(mondayDate.getDate() + 6);
+  const endLabel = `${sundayDate.getMonth() + 1}/${sundayDate.getDate()}`;
+
   return `
-    <div class="view-title week-title"><div><h3>주간 보기</h3><p>${state.month}/${rows[0]?.day || baseDay} ~ ${state.month}/${rows[rows.length - 1]?.day || baseDay} 기준</p></div><span>근무 ${workCount}일 · 휴무/연차 ${offCount}일</span></div>
-    <div class="mini-stat-row">
+    <div class="view-title week-title week-title-with-nav">
+      <div>
+        <h3>주간 보기</h3>
+        <p>${startLabel} ~ ${endLabel} 기준 · 선택일 ${state.month}/${baseDay}</p>
+      </div>
+      <div class="week-nav">
+        <button class="ghost-btn week-nav-btn" data-week-shift="-1" type="button">‹ 저번주</button>
+        <span>근무 ${workCount}일 · 휴무/연차 ${offCount}일</span>
+        <button class="ghost-btn week-nav-btn" data-week-shift="1" type="button">다음주 ›</button>
+      </div>
+    </div>
+    <div class="mini-stat-row weekly-stat-row">
       <div class="mini-stat"><span>근무</span><strong>${workCount}일</strong></div>
       <div class="mini-stat"><span>휴무/연차</span><strong>${offCount}일</strong></div>
       <div class="mini-stat"><span>가장 이른 출근</span><strong>${earliest}</strong></div>
     </div>
-    <div class="week-grid">
-      ${rows.map(({ day, code, info }) => `
-        <button class="week-day-card ${badgeClass(info.type)}" data-pick-day="${day}">
-          <span>${dayNames[getDateObj(day).getDay()]}</span>
-          <strong>${state.month}/${day}</strong>
-          <em class="badge ${badgeClass(info.type)}">${code || '-'}</em>
-          <small>${formatTime(info) || info.label}</small>
-        </button>
-      `).join('')}
+    <div class="week-grid improved-week-grid">
+      ${rows.map(({ day, date, inMonth, code, info }) => {
+        const dayLabel = `${date.getMonth() + 1}/${day}`;
+        const selectedClass = inMonth && day === baseDay ? 'selected-week-day' : '';
+        const disabled = inMonth ? '' : 'disabled';
+        const dataAttr = inMonth ? `data-pick-day="${day}"` : '';
+        return `
+          <button class="week-day-card ${badgeClass(info.type)} ${selectedClass} ${inMonth ? '' : 'other-month'}" ${dataAttr} ${disabled}>
+            <span>${dayNames[date.getDay()]}</span>
+            <strong>${dayLabel}</strong>
+            <em class="badge ${badgeClass(info.type)}">${inMonth ? (code || '-') : '-'}</em>
+            <small>${inMonth ? (formatTime(info) || info.label) : '이번 달 외'}</small>
+          </button>
+        `;
+      }).join('')}
     </div>
   `;
 }
@@ -1691,11 +1717,26 @@ function renderMonthly() {
   const first = new Date(state.year, state.month - 1, 1).getDay();
   const selected = new Date(state.selectedDate || Date.now());
   const selectedDay = isSameMonth(selected) ? selected.getDate() : 0;
-  const workCount = person ? getScheduleRowsForPerson(person).filter((row) => row.type === 'work').length : 0;
-  const offCount = person ? getScheduleRowsForPerson(person).filter((row) => ['off', 'leave'].includes(row.type)).length : 0;
+  const rows = person ? getScheduleRowsForPerson(person) : [];
+  const workCount = rows.filter((row) => row.type === 'work').length;
+  const offCount = rows.filter((row) => ['off', 'leave'].includes(row.type)).length;
+  const leaveCount = rows.filter((row) => row.type === 'leave').length;
   let html = `
-    <div class="view-title month-title"><div><h3>${state.year}년 ${state.month}월 월간</h3><p>날짜를 누르면 선택일 기준으로 일간·공유 정보가 바뀝니다.</p></div><span>근무 ${workCount}일 · 휴무/연차 ${offCount}일</span></div>
-    <div class="calendar refined-calendar">`;
+    <div class="view-title month-title">
+      <div>
+        <h3>${state.year}년 ${state.month}월 월간</h3>
+        <p>날짜를 누르면 선택일 기준으로 일간·공유 정보가 바뀝니다.</p>
+      </div>
+      <span>근무 ${workCount}일 · 휴무 ${offCount - leaveCount}일 · 연차 ${leaveCount}일</span>
+    </div>
+    <div class="month-legend">
+      <span><i class="legend-dot work"></i>근무</span>
+      <span><i class="legend-dot off"></i>휴무</span>
+      <span><i class="legend-dot leave"></i>연차</span>
+      <span><i class="legend-dot empty"></i>미입력</span>
+    </div>
+    <div class="monthly-calendar-wrap">
+      <div class="calendar refined-calendar improved-month-calendar">`;
   dayNames.forEach((name, index) => html += `<div class="calendar-head ${index === 0 ? 'sun' : index === 6 ? 'sat' : ''}">${name}</div>`);
   for (let i = 0; i < first; i++) html += `<div class="day-cell empty"></div>`;
   for (let day = 1; day <= days; day++) {
@@ -1705,9 +1746,16 @@ function renderMonthly() {
     const todayClass = day === selectedDay ? 'today' : '';
     const dow = getDateObj(day).getDay();
     const weekendClass = dow === 0 ? 'sun' : dow === 6 ? 'sat' : '';
-    html += `<button class="day-cell ${typeClass} ${todayClass} ${weekendClass}" data-pick-day="${day}"><span class="day-number">${day}</span><span class="badge day-code ${typeClass}">${code || '-'}</span><small>${formatTime(info) || info.label}</small></button>`;
+    html += `
+      <button class="day-cell ${typeClass} ${todayClass} ${weekendClass}" data-pick-day="${day}">
+        <span class="day-number">${day}</span>
+        <span class="month-day-main">
+          <span class="badge day-code ${typeClass}">${code || '-'}</span>
+          <small>${formatTime(info) || info.label}</small>
+        </span>
+      </button>`;
   }
-  html += '</div>';
+  html += '</div></div>';
   return html;
 }
 
@@ -1728,22 +1776,78 @@ function renderRosterBlocks(day) {
 function renderOffDays() {
   const person = getMyPerson();
   const rows = person ? getScheduleRowsForPerson(person).filter((row) => ['off', 'leave'].includes(row.type)) : [];
+  if (!rows.length) {
+    return `<div class="empty-archive"><h3>휴무일 데이터가 없어요.</h3><p>내 이름을 선택하고 스케줄 데이터를 입력하면 휴무와 연차만 따로 모아 보여줘요.</p></div>`;
+  }
+
+  const today = new Date();
+  const currentDay = today.getFullYear() === state.year && today.getMonth() + 1 === state.month ? today.getDate() : 1;
+  const nextOff = rows.find((row) => row.day >= currentDay) || rows[0];
+  const leaveRows = rows.filter((row) => row.type === 'leave');
+  const pureOffRows = rows.filter((row) => row.type === 'off');
+
+  const streaks = [];
+  rows.forEach((row) => {
+    const last = streaks[streaks.length - 1];
+    if (last && row.day === last.end.day + 1) {
+      last.end = row;
+      last.items.push(row);
+    } else {
+      streaks.push({ start: row, end: row, items: [row] });
+    }
+  });
+  const usefulStreaks = streaks.filter((streak) => streak.items.length >= 2).slice(0, 4);
+
   const grouped = rows.reduce((acc, row) => {
     const key = row.type === 'leave' ? '연차' : '휴무';
     if (!acc[key]) acc[key] = [];
     acc[key].push(row);
     return acc;
   }, {});
-  if (!rows.length) {
-    return `<div class="empty-archive"><h3>휴무일 데이터가 없어요.</h3><p>내 이름을 선택하고 스케줄 데이터를 입력하면 휴무와 연차만 따로 모아 보여줘요.</p></div>`;
-  }
+
   return `
-    <div class="view-title"><div><h3>휴무일 모아보기</h3><p>${state.myName || '내 이름 미입력'} 기준</p></div><span>총 ${rows.length}일</span></div>
-    <div class="offday-grid">
+    <div class="view-title offday-title">
+      <div>
+        <h3>휴무일 모아보기</h3>
+        <p>${state.myName || '내 이름 미입력'} 기준 · 이번 달 쉬는 날을 계획용으로 다시 정리합니다.</p>
+      </div>
+      <span>총 ${rows.length}일</span>
+    </div>
+    <div class="offday-summary-grid">
+      <button class="offday-summary-card next" data-pick-day="${nextOff.day}">
+        <span>다음 휴무</span>
+        <strong>${nextOff.dateText}</strong>
+        <em>${nextOff.code} · ${nextOff.label}</em>
+      </button>
+      <div class="offday-summary-card">
+        <span>휴무</span>
+        <strong>${pureOffRows.length}일</strong>
+        <em>DO/PH/SD/RT 등</em>
+      </div>
+      <div class="offday-summary-card leave">
+        <span>연차</span>
+        <strong>${leaveRows.length}일</strong>
+        <em>AL 기준</em>
+      </div>
+    </div>
+    <section class="offday-planner-card">
+      <h4>연속으로 쉬는 구간</h4>
+      ${usefulStreaks.length ? `
+        <div class="offday-streak-list">
+          ${usefulStreaks.map((streak) => `
+            <button class="offday-streak" data-pick-day="${streak.start.day}">
+              <strong>${streak.start.dateText} ~ ${streak.end.dateText}</strong>
+              <span>${streak.items.length}일 연속 · ${streak.items.map((item) => item.code).join(' / ')}</span>
+            </button>
+          `).join('')}
+        </div>
+      ` : `<p class="offday-empty-note">2일 이상 이어지는 휴무/연차 구간은 없어요. 여행이나 긴 휴식 계획이 필요할 때 이 영역에서 바로 확인할 수 있어요.</p>`}
+    </section>
+    <div class="offday-grid improved-offday-grid">
       ${Object.entries(grouped).map(([group, items]) => `
         <section class="offday-group">
           <h4>${group} <span>${items.length}일</span></h4>
-          <div class="list">${items.map((row) => `<button class="list-row offday-row" data-pick-day="${row.day}"><strong>${row.dateText}</strong><span>${row.label}</span><span class="badge ${badgeClass(row.type)}">${row.code}</span></button>`).join('')}</div>
+          <div class="offday-chip-list">${items.map((row) => `<button class="offday-chip ${badgeClass(row.type)}" data-pick-day="${row.day}"><strong>${row.dateText}</strong><span>${row.code}</span></button>`).join('')}</div>
         </section>
       `).join('')}
     </div>
@@ -1841,19 +1945,37 @@ function formatSavedDate(value) {
 
 function renderSettings() {
   const rows = Object.entries(state.codes).map(([code, info]) => `
-    <div class="code-editor-row">
-      <input data-code-key="${code}" value="${escapeHtml(code)}" />
-      <input data-code-prop="label" data-code="${code}" value="${escapeHtml(info.label)}" placeholder="의미" />
-      <input data-code-prop="start" data-code="${code}" value="${escapeHtml(info.start)}" placeholder="출근" />
-      <input data-code-prop="end" data-code="${code}" value="${escapeHtml(info.end)}" placeholder="퇴근" />
-      <button class="ghost-btn delete-code" data-code="${code}">×</button>
+    <div class="code-editor-row compact-code-card">
+      <label><span>코드</span><input data-code-key="${code}" value="${escapeHtml(code)}" /></label>
+      <label><span>의미</span><input data-code-prop="label" data-code="${code}" value="${escapeHtml(info.label)}" placeholder="의미" /></label>
+      <label><span>출근</span><input data-code-prop="start" data-code="${code}" value="${escapeHtml(info.start)}" placeholder="출근" /></label>
+      <label><span>퇴근</span><input data-code-prop="end" data-code="${code}" value="${escapeHtml(info.end)}" placeholder="퇴근" /></label>
+      <button class="ghost-btn delete-code" data-code="${code}" type="button">삭제</button>
     </div>
   `).join('');
   return `
-    <div class="view-title"><h3>근무 코드 설정</h3><button id="addCodeButton" class="secondary-btn">코드 추가</button></div>
+    <div class="view-title settings-title"><div><h3>근무 코드 설정</h3><p>코드별 의미와 시간을 카드 형태로 빠르게 확인·수정합니다.</p></div><button id="addCodeButton" class="secondary-btn">코드 추가</button></div>
     <div class="notice"><strong>유형 규칙</strong><span>시간이 있으면 근무, 시간이 없고 AL이면 연차, DO/PH/SD/RT/CC는 휴무로 처리됩니다.</span></div>
-    <div id="codeEditor">${rows}</div>
+    <div id="codeEditor" class="code-editor-grid">${rows}</div>
   `;
+}
+
+async function moveSelectedWeek(direction) {
+  const base = new Date(state.selectedDate || `${state.year}-${String(state.month).padStart(2, '0')}-01`);
+  if (Number.isNaN(base.getTime())) return;
+  const target = new Date(base);
+  target.setDate(base.getDate() + Number(direction) * 7);
+  const targetValue = toDateInputValue(target);
+  const targetYear = target.getFullYear();
+  const targetMonth = target.getMonth() + 1;
+
+  if (targetYear !== state.year || targetMonth !== state.month) {
+    await changeActiveMonth(targetYear, targetMonth);
+  }
+  state.selectedDate = targetValue;
+  syncInputs();
+  renderAll();
+  saveState(false);
 }
 
 function bindViewEvents() {
@@ -1865,6 +1987,11 @@ function bindViewEvents() {
       syncInputs();
       renderAll();
       saveState(false);
+    });
+  });
+  document.querySelectorAll('[data-week-shift]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      await moveSelectedWeek(Number(button.dataset.weekShift));
     });
   });
   el('copyShareButton')?.addEventListener('click', async () => {
