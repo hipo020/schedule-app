@@ -348,7 +348,7 @@ async function initAuth() {
 
 async function signInWithGoogle() {
   if (!supabaseClient) {
-    setAuthMessage('Supabase 연결 정보를 확인하지 못했어요. app.js의 URL과 Publishable key를 확인해 주세요.', 'error');
+    setAuthMessage('로그인 연결 정보를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.', 'error');
     return;
   }
 
@@ -394,7 +394,7 @@ function showAppShell() {
   el('authGate')?.classList.add('is-hidden');
   el('appShell')?.classList.remove('is-hidden');
   if (el('userEmailText')) el('userEmailText').textContent = currentUser?.email || '로그인됨';
-  showCloudStatus('Supabase에 연결됐어요. 저장 버튼을 누르면 현재 월 데이터가 클라우드에 저장됩니다.', 'ok');
+  showCloudStatus('로그인 완료. 저장 버튼을 누르면 현재 월 데이터가 저장됩니다.', 'ok');
 }
 
 function showCloudStatus(message, type = '') {
@@ -605,7 +605,7 @@ async function saveCurrentMonthToCloud(showAlert = false) {
   if (!user || !supabaseClient || isCloudBusy) return;
   isCloudBusy = true;
   try {
-    showCloudStatus('현재 월 데이터를 클라우드에 저장하는 중이에요.', 'warn');
+    showCloudStatus('현재 월 데이터를 저장하는 중이에요.', 'warn');
     saveCurrentMonthToStore();
     await ensureProfile();
     await saveWorkCodesToCloud(true);
@@ -635,12 +635,12 @@ async function saveCurrentMonthToCloud(showAlert = false) {
       if (insertError) throw insertError;
     }
     await refreshArchiveMeta();
-    showCloudStatus('클라우드 저장 완료. 다른 기기에서도 로그인하면 불러올 수 있어요.', 'ok');
+    showCloudStatus('저장 완료. 다른 기기에서도 로그인하면 불러올 수 있어요.', 'ok');
     if (showAlert) alert('클라우드에 저장했어요.');
   } catch (error) {
-    console.error('클라우드 저장 실패', error);
-    showCloudStatus(`클라우드 저장 실패: ${error.message || error}`, 'error');
-    if (showAlert) alert(`클라우드 저장 실패: ${error.message || error}`);
+    console.error('저장 실패', error);
+    showCloudStatus(`저장 실패: ${error.message || error}`, 'error');
+    if (showAlert) alert(`저장 실패: ${error.message || error}`);
   } finally {
     isCloudBusy = false;
   }
@@ -1039,7 +1039,7 @@ async function handleImageUpload(e) {
     });
     saveCurrentMonthToStore();
     if (currentUser) {
-      showCloudStatus('이미지를 Supabase Storage에 업로드하는 중이에요.', 'warn');
+      showCloudStatus('이미지를 저장하는 중이에요.', 'warn');
       await uploadImageDataToCloud(compressedDataUrl, file.name);
       showCloudStatus('이미지 업로드 완료. 스케줄 검수 후 저장 버튼을 눌러 주세요.', 'ok');
     }
@@ -1094,7 +1094,7 @@ function renderUploadedImage() {
     image.style.display = 'block';
     emptyPreview.style.display = 'none';
     if (status) {
-      status.innerHTML = `<strong>${state.year}년 ${state.month}월 근무표 저장됨</strong><span>${escapeHtml(state.imageName || '스케줄표 이미지')}</span><small>로그인 상태에서는 Supabase에도 저장되어 다른 기기에서 불러올 수 있어요.</small>`;
+      status.innerHTML = `<strong>${state.year}년 ${state.month}월 근무표 저장됨</strong><span>${escapeHtml(state.imageName || '스케줄표 이미지')}</span><small>로그인 상태에서는 다른 기기에서도 불러올 수 있어요.</small>`;
       status.classList.add('uploaded');
     }
     if (actions) actions.classList.add('show');
