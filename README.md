@@ -23,3 +23,9 @@ GitHub 저장소 최상단에 아래 4개 파일만 업로드하세요.
 ## 참고
 
 Google 로그인 버튼은 Supabase `signInWithOAuth({ provider: 'google' })` 방식으로 동작합니다.
+
+
+## v2 Google 로그인 버튼 수정
+- 로그인 없이 임시로 사용하기 버튼 제거
+- Google 로그인 버튼 직접 연결 보강
+- Supabase SDK 로딩이 늦어도 클릭 이벤트가 동작하도록 fallback 추가

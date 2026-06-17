@@ -7,6 +7,10 @@ let supabaseClient = null;
 
 function getSupabaseClient() {
   if (supabaseClient) return supabaseClient;
+  if (window.__scheduleSupabaseClient) {
+    supabaseClient = window.__scheduleSupabaseClient;
+    return supabaseClient;
+  }
   if (!window.supabase?.createClient) {
     console.warn('Supabase SDK가 아직 로드되지 않았어요.', window.supabase);
     return null;
@@ -16,9 +20,10 @@ function getSupabaseClient() {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
-      flowType: 'implicit',
+      flowType: 'pkce',
     },
   });
+  window.__scheduleSupabaseClient = supabaseClient;
   return supabaseClient;
 }
 
@@ -294,28 +299,10 @@ function parseMonthKey(key) {
 
 function bindAuthEvents() {
   const googleButton = el('googleLoginButton');
-  if (googleButton && !googleButton.dataset.bound) {
-    googleButton.dataset.bound = 'true';
-    googleButton.addEventListener('click', (event) => {
-      event.preventDefault();
-      signInWithGoogle();
-    });
+  if (googleButton) {
     window.__scheduleAppAuthBound = true;
   }
 
-  el('guestModeButton')?.addEventListener('click', () => {
-    isGuestMode = true;
-    currentSession = null;
-    currentUser = null;
-    showAppShell();
-    showCloudStatus('로그인 없이 임시 사용 중이에요. 이 모드에서는 클라우드 저장/불러오기는 사용할 수 없어요.', 'warn');
-    ensurePeople();
-    normalizePeopleDays();
-    syncInputs();
-    renderScheduleTable();
-    renderUploadedImage();
-    renderAll();
-  });
   el('logoutButton')?.addEventListener('click', async () => {
     const client = getSupabaseClient();
     if (client && currentUser) await client.auth.signOut();
@@ -422,6 +409,10 @@ function cleanupAuthUrl() {
 }
 
 async function signInWithGoogle() {
+  if (typeof window.startGoogleLoginDirect === 'function') {
+    await window.startGoogleLoginDirect();
+    return;
+  }
   setAuthMessage('Google 로그인으로 이동하고 있어요.', '');
   const button = el('googleLoginButton');
   const originalText = button?.textContent || 'Google로 로그인';
@@ -431,18 +422,14 @@ async function signInWithGoogle() {
       setAuthMessage('Supabase 연결을 초기화하지 못했어요. 인터넷 연결 또는 CDN 로딩 상태를 확인해 주세요.', 'error');
       return;
     }
-
     if (button) {
       button.disabled = true;
       button.textContent = 'Google 로그인으로 이동 중...';
     }
-
     const redirectTo = `${window.location.origin}${window.location.pathname}`;
     const { error } = await client.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo,
-      },
+      options: { redirectTo },
     });
     if (error) {
       setAuthMessage(`Google 로그인 시작 실패: ${error.message}`, 'error');
@@ -450,7 +437,6 @@ async function signInWithGoogle() {
         button.disabled = false;
         button.textContent = originalText;
       }
-      return;
     }
   } catch (error) {
     console.error('Google 로그인 시작 오류', error);
@@ -461,6 +447,7 @@ async function signInWithGoogle() {
     }
   }
 }
+
 
 function setAuthMessage(message, type = '') {
   const node = el('authMessage');

@@ -12,7 +12,68 @@
     window.SCHEDULE_SUPABASE_URL = "https://fergbabqmwnbkkxjvgkj.supabase.co";
     window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv";
   </script>
-  <script defer src="./app.js?v=google-auth-fix-3"></script>
+  <script>
+    window.startGoogleLoginDirect = async function startGoogleLoginDirect() {
+      const message = document.getElementById('authMessage');
+      const button = document.getElementById('googleLoginButton');
+      const setMessage = (text, type = '') => {
+        if (!message) return;
+        message.textContent = text;
+        message.className = `auth-message ${type}`;
+      };
+      try {
+        setMessage('Google 로그인으로 이동하고 있어요.', '');
+        if (!window.supabase?.createClient) {
+          setMessage('Supabase 로그인 모듈을 아직 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.', 'error');
+          return;
+        }
+        const url = window.SCHEDULE_SUPABASE_URL || 'https://fergbabqmwnbkkxjvgkj.supabase.co';
+        const key = window.SCHEDULE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_4kIgpTwod32qPE4gfzT_mg_d7MWHshv';
+        const client = window.__scheduleSupabaseClient || window.supabase.createClient(url, key, {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            flowType: 'pkce'
+          }
+        });
+        window.__scheduleSupabaseClient = client;
+        if (button) {
+          button.disabled = true;
+          button.textContent = 'Google 로그인으로 이동 중...';
+        }
+        const redirectTo = `${window.location.origin}${window.location.pathname}`;
+        const { error } = await client.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo }
+        });
+        if (error) {
+          setMessage(`Google 로그인 시작 실패: ${error.message}`, 'error');
+          if (button) {
+            button.disabled = false;
+            button.textContent = 'Google로 로그인';
+          }
+        }
+      } catch (error) {
+        setMessage(`Google 로그인 처리 중 오류가 발생했어요: ${error?.message || error}`, 'error');
+        if (button) {
+          button.disabled = false;
+          button.textContent = 'Google로 로그인';
+        }
+      }
+    };
+    document.addEventListener('DOMContentLoaded', () => {
+      const button = document.getElementById('googleLoginButton');
+      if (button && !button.dataset.directAuthBound) {
+        button.dataset.directAuthBound = 'true';
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          window.startGoogleLoginDirect();
+        });
+      }
+    });
+  </script>
+  <script defer src="./app.js?v=google-click-fix-1"></script>
 </head>
 <body>
   <section id="authGate" class="auth-gate">
@@ -20,8 +81,7 @@
       <p class="eyebrow">Monthly Shift Organizer</p>
       <h1>근무표 정리함</h1>
       <p>Google 계정으로 로그인하면 월별 근무표 이미지와 스케줄 데이터를 Supabase에 저장하고, 다른 기기에서도 다시 불러올 수 있어요.</p>
-      <button id="googleLoginButton" class="primary-btn auth-main-btn google-login-btn" type="button">Google로 로그인</button>
-      <button id="guestModeButton" class="ghost-btn auth-sub-btn" type="button">로그인 없이 임시로 사용하기</button>
+      <button id="googleLoginButton" class="primary-btn auth-main-btn google-login-btn" type="button" onclick="window.startGoogleLoginDirect && window.startGoogleLoginDirect()">Google로 로그인</button>
       <div id="authMessage" class="auth-message">Google 로그인 버튼을 눌러 시작해 주세요.</div>
       <small class="auth-help">Google 로그인 후 이 앱으로 자동으로 돌아와요. 로그인 후에도 이 화면이 보이면 Google/Supabase 리디렉션 주소를 확인해 주세요.</small>
     </div>
