@@ -37,6 +37,7 @@ const MAX_STORED_IMAGE_WIDTH = 2400;
 const MAX_STORED_IMAGE_HEIGHT = 1600;
 const THUMB_WIDTH = 360;
 const THUMB_HEIGHT = 240;
+const DEFAULT_CULINARY_NAMES = ['이준호', '류선협', '이상민', '김도영', '이승호', '곽병우', '이미현', '이다연', '김성민', '정세환'];
 
 function getExtractionPrompt() {
   return `당신은 근무표 이미지에서 데이터를 정확히 추출하는 데이터 변환 담당자입니다.
@@ -171,7 +172,7 @@ function getDefaultCodes() {
 
 function getDefaultOcrState() {
   return {
-    names: ['곽병우', '이준호', '유희수', '김도영', '이다운', '이상민', '정세완'].join('\n'),
+    names: DEFAULT_CULINARY_NAMES.join('\n'),
     rect: { x: 18.3, y: 12.1, w: 49.6, h: 25.5 },
     results: [],
   };
@@ -1067,7 +1068,7 @@ function bindOcrEvents() {
     });
   });
   el('loadDefaultNamesButton')?.addEventListener('click', () => {
-    state.ocr.names = getDefaultOcrState().names;
+    state.ocr.names = DEFAULT_CULINARY_NAMES.join('\n');
     syncOcrInputs();
     saveState(false);
   });
@@ -1479,9 +1480,10 @@ function importCsvFromInput(showAlert = true) {
     renderScheduleTable();
     renderAll();
     saveState(false);
-    setCsvInputStatus(`${state.year}년 ${state.month}월 데이터 ${parsed.people.length}명을 검수표에 반영했어요.`, 'ok');
+    setCsvInputStatus(`${state.year}년 ${state.month}월 데이터 ${parsed.people.length}명을 불러왔어요. 데이터 확인 탭에서 검토해 주세요.`, 'ok');
     renderCsvPreview();
-    if (showAlert) alert('CSV 데이터를 검수표에 반영했어요. 확인 후 저장해 주세요.');
+    switchPage('dataReview', true);
+    if (showAlert) alert('CSV 데이터를 불러왔어요. 데이터 확인 탭에서 먼저 확인해 주세요.');
     return true;
   } catch (error) {
     setCsvInputStatus(error.message || String(error), 'error');
@@ -1518,6 +1520,65 @@ function renderDataInput() {
   return '';
 }
 
+function renderDataReview() {
+  const people = state.people.filter((p) => p.name);
+  const days = daysInMonth(state.year, state.month);
+  if (!people.length) {
+    return `
+      <div class="view-title"><h3>입력 데이터 확인</h3><span>아직 불러온 데이터가 없어요</span></div>
+      <div class="empty-archive">
+        <h3>CSV 데이터를 먼저 불러와 주세요.</h3>
+        <p>데이터 입력 탭에서 ChatGPT/Gemini가 추출한 CSV를 붙여넣고 CSV 불러오기를 누르면 여기에서 결과를 확인할 수 있어요.</p>
+        <button class="primary-btn" data-go-page="dataInput">데이터 입력으로 이동</button>
+      </div>
+    `;
+  }
+  const codeCount = {};
+  people.forEach((person) => {
+    person.schedules.forEach((code) => {
+      if (!code) return;
+      codeCount[code] = (codeCount[code] || 0) + 1;
+    });
+  });
+  const topCodes = Object.entries(codeCount)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 8)
+    .map(([code, count]) => `<span class="stat-pill"><b>${escapeHtml(code)}</b>${count}</span>`)
+    .join('');
+  const header = Array.from({ length: days }, (_, i) => `<th>${i + 1}</th>`).join('');
+  const rows = people.map((person) => `
+    <tr>
+      <td><strong>${escapeHtml(person.name)}</strong></td>
+      ${person.schedules.slice(0, days).map((code) => {
+        const info = getCodeInfo(code);
+        return `<td><span class="badge ${badgeClass(info.type)}">${escapeHtml(code || '-')}</span></td>`;
+      }).join('')}
+    </tr>
+  `).join('');
+  return `
+    <div class="view-title"><h3>입력 데이터 확인</h3><span>${state.year}년 ${state.month}월 · ${people.length}명</span></div>
+    <div class="review-summary-grid">
+      <div class="summary-card"><p>입력 인원</p><strong>${people.length}명</strong><span>검수표에 반영된 사람 수</span></div>
+      <div class="summary-card"><p>날짜 범위</p><strong>1~${days}일</strong><span>d01~d${String(days).padStart(2, '0')} 사용</span></div>
+      <div class="summary-card"><p>내 이름</p><strong>${escapeHtml(state.myName || '-')}</strong><span>홈/주간/월간 기준</span></div>
+      <div class="summary-card"><p>주요 코드</p><div class="stat-pill-wrap">${topCodes || '<span class="stat-pill">없음</span>'}</div></div>
+    </div>
+    <div class="action-row review-actions">
+      <button class="primary-btn" data-go-page="editor">검수표에서 수정하기</button>
+      <button class="secondary-btn" data-go-page="daily">일간 보기</button>
+      <button class="secondary-btn" data-go-page="weekly">주간 보기</button>
+      <button class="secondary-btn" data-go-page="monthly">월간 보기</button>
+      <button class="secondary-btn" data-go-page="dayRoster">출근 현황 보기</button>
+    </div>
+    <div class="table-scroll review-table-wrap">
+      <table class="schedule-table review-table">
+        <thead><tr><th>이름</th>${header}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
 function renderAll() {
   renderSummary();
   renderViews();
@@ -1551,8 +1612,7 @@ function getScheduleRowsForPerson(person) {
 
 function renderSummary() {
   const person = getMyPerson();
-  const selected = new Date(state.selectedDate || Date.now());
-  const selectedDay = isSameMonth(selected) ? selected.getDate() : 1;
+  const selectedDay = getCurrentDisplayDay();
   const todayCode = person?.schedules[selectedDay - 1] || '';
   const todayInfo = getCodeInfo(todayCode);
   const rows = person ? getScheduleRowsForPerson(person) : [];
@@ -1580,6 +1640,7 @@ function renderViews() {
     archive: renderArchive,
     settings: renderSettings,
     dataInput: renderDataInput,
+    dataReview: renderDataReview,
   };
   Object.entries(map).forEach(([page, renderer]) => {
     const target = el(`${page}Content`);
@@ -1600,14 +1661,32 @@ function switchPage(page, shouldSave = true) {
   });
   if (page === 'extract') setTimeout(drawOcrPreview, 0);
   if (page === 'dataInput') renderCsvPreview();
+  if (page === 'dataReview') renderViews();
   if (shouldSave) saveState(false);
   if (shouldSave) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+
+function getCurrentDisplayDay() {
+  const today = new Date();
+  if (today.getFullYear() === state.year && today.getMonth() + 1 === state.month) {
+    return today.getDate();
+  }
+  const selected = new Date(state.selectedDate || Date.now());
+  return isSameMonth(selected) ? selected.getDate() : 1;
+}
+
+function getDisplayDayLabel(day) {
+  const today = new Date();
+  if (today.getFullYear() === state.year && today.getMonth() + 1 === state.month && today.getDate() === day) {
+    return '오늘';
+  }
+  return '선택일';
+}
+
 function renderDaily() {
   const person = getMyPerson();
-  const selected = new Date(state.selectedDate || Date.now());
-  const day = isSameMonth(selected) ? selected.getDate() : 1;
+  const day = getCurrentDisplayDay();
   const code = person?.schedules[day - 1] || '';
   const info = getCodeInfo(code);
   const roster = getDayRoster(day);
@@ -1624,7 +1703,7 @@ function renderDaily() {
 function renderWeekly() {
   const person = getMyPerson();
   const selected = new Date(state.selectedDate || Date.now());
-  const baseDay = isSameMonth(selected) ? selected.getDate() : 1;
+  const baseDay = isSameMonth(selected) ? selected.getDate() : getCurrentDisplayDay();
   const date = getDateObj(baseDay);
   const mondayOffset = (date.getDay() + 6) % 7;
   const monday = baseDay - mondayOffset;
@@ -1638,10 +1717,16 @@ function renderWeekly() {
   }
   const workCount = rows.filter((r) => r.info.type === 'work').length;
   const offCount = rows.filter((r) => ['off', 'leave'].includes(r.info.type)).length;
+  const earlyTimes = rows.map((r) => r.info.start).filter(Boolean).sort();
   return `
-    <div class="view-title"><h3>주간 보기</h3><span>근무 ${workCount}일 · 휴무/연차 ${offCount}일</span></div>
-    <div class="list">
-      ${rows.map(({ day, code, info }) => `<div class="list-row"><strong>${state.month}/${day}(${dayNames[getDateObj(day).getDay()]})</strong><span>${formatTime(info) || info.label}</span><span class="badge ${badgeClass(info.type)}">${code || '-'}</span></div>`).join('')}
+    <div class="view-title"><h3>주간 보기</h3><span>${state.month}/${rows[0]?.day || baseDay}~${state.month}/${rows[rows.length - 1]?.day || baseDay} · 근무 ${workCount}일 · 휴무/연차 ${offCount}일</span></div>
+    <div class="week-summary-grid">
+      <div class="summary-card"><p>이번 주 근무</p><strong>${workCount}일</strong><span>내 이름 기준</span></div>
+      <div class="summary-card"><p>이번 주 휴무/연차</p><strong>${offCount}일</strong><span>DO/PH/SD/AL 등</span></div>
+      <div class="summary-card"><p>가장 이른 출근</p><strong>${earlyTimes[0] || '-'}</strong><span>${earlyTimes[0] ? '이번 주 기준' : '시간 정보 없음'}</span></div>
+    </div>
+    <div class="week-strip">
+      ${rows.map(({ day, code, info }) => `<button class="week-day-card ${badgeClass(info.type)}" data-pick-day="${day}"><b>${dayNames[getDateObj(day).getDay()]}</b><strong>${state.month}/${day}</strong><span class="badge ${badgeClass(info.type)}">${code || '-'}</span><small>${formatTime(info) || info.label}</small></button>`).join('')}
     </div>
   `;
 }
@@ -1650,24 +1735,24 @@ function renderMonthly() {
   const person = getMyPerson();
   const days = daysInMonth(state.year, state.month);
   const first = new Date(state.year, state.month - 1, 1).getDay();
-  const selectedDay = new Date(state.selectedDate || Date.now()).getDate();
-  let html = `<div class="view-title"><h3>${state.year}년 ${state.month}월 월간 캘린더</h3></div><div class="calendar">`;
-  dayNames.forEach((name) => html += `<div class="calendar-head">${name}</div>`);
+  const displayDay = getCurrentDisplayDay();
+  let html = `<div class="view-title"><h3>${state.year}년 ${state.month}월 월간 캘린더</h3><span>날짜를 누르면 일간 보기로 이동합니다</span></div><div class="calendar enhanced-calendar">`;
+  dayNames.forEach((name, idx) => html += `<div class="calendar-head ${idx === 0 ? 'sun' : idx === 6 ? 'sat' : ''}">${name}</div>`);
   for (let i = 0; i < first; i++) html += `<div class="day-cell empty"></div>`;
   for (let day = 1; day <= days; day++) {
     const code = person?.schedules[day - 1] || '';
     const info = getCodeInfo(code);
-    const todayClass = day === selectedDay && isSameMonth(new Date(state.selectedDate || Date.now())) ? 'today' : '';
-    html += `<button class="day-cell ${todayClass}" data-pick-day="${day}"><span class="day-number">${day}</span><span class="badge day-code ${badgeClass(info.type)}">${code || '-'}</span><small>${formatTime(info) || info.label}</small></button>`;
+    const selectedClass = day === displayDay ? 'today' : '';
+    html += `<button class="day-cell ${selectedClass} ${badgeClass(info.type)}" data-pick-day="${day}"><span class="day-number">${day}</span><span class="badge day-code ${badgeClass(info.type)}">${code || '-'}</span><small>${formatTime(info) || info.label}</small></button>`;
   }
   html += '</div>';
   return html;
 }
 
 function renderDayRoster() {
-  const selected = new Date(state.selectedDate || Date.now());
-  const day = isSameMonth(selected) ? selected.getDate() : 1;
-  return `<div class="view-title"><h3>${state.month}/${day} 오늘 출근 현황</h3></div>${renderRosterBlocks(day)}`;
+  const day = getCurrentDisplayDay();
+  const label = getDisplayDayLabel(day);
+  return `<div class="view-title"><h3>${state.month}/${day} ${label} 출근 현황</h3><span>기준 날짜가 바뀌면 이 내용도 함께 바뀝니다</span></div>${renderRosterBlocks(day)}`;
 }
 
 function renderRosterBlocks(day) {
@@ -1682,16 +1767,36 @@ function renderRosterBlocks(day) {
 function renderOffDays() {
   const person = getMyPerson();
   const rows = person ? getScheduleRowsForPerson(person).filter((row) => ['off', 'leave'].includes(row.type)) : [];
+  const grouped = rows.reduce((acc, row) => {
+    const key = row.code || '기타';
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(row);
+    return acc;
+  }, {});
+  const groupHtml = Object.entries(grouped).map(([code, items]) => `
+    <div class="off-group-card">
+      <div class="off-group-head"><strong>${escapeHtml(code)}</strong><span>${items.length}일</span></div>
+      <div class="roster-pill-wrap">${items.map((row) => `<span class="person-pill">${row.dateText}</span>`).join('')}</div>
+    </div>
+  `).join('');
   return `
-    <div class="view-title"><h3>휴무일만 보기</h3><span>총 ${rows.length}일</span></div>
-    <div class="list">${rows.map((row) => `<div class="list-row"><strong>${row.dateText}</strong><span>${row.label}</span><span class="badge ${badgeClass(row.type)}">${row.code}</span></div>`).join('') || '<p>휴무일이 없거나 내 이름이 선택되지 않았습니다.</p>'}</div>
+    <div class="view-title"><h3>휴무일 보기</h3><span>${state.myName || '내 이름'} 기준 · 총 ${rows.length}일</span></div>
+    <div class="review-summary-grid">
+      <div class="summary-card"><p>전체 휴무/연차</p><strong>${rows.length}일</strong><span>이번 달 내 일정 기준</span></div>
+      <div class="summary-card"><p>연차</p><strong>${rows.filter((r) => r.type === 'leave').length}일</strong><span>AL 코드</span></div>
+      <div class="summary-card"><p>휴무</p><strong>${rows.filter((r) => r.type === 'off').length}일</strong><span>DO/PH/SD 등</span></div>
+    </div>
+    <div class="off-group-grid">${groupHtml || '<p>휴무일이 없거나 내 이름이 선택되지 않았습니다.</p>'}</div>
+    <div class="list off-list-detail">${rows.map((row) => `<div class="list-row"><strong>${row.dateText}</strong><span>${row.label}</span><span class="badge ${badgeClass(row.type)}">${row.code}</span></div>`).join('')}</div>
   `;
 }
 
 function renderShare() {
   const text = makeShareText();
+  const day = getCurrentDisplayDay();
   return `
-    <div class="view-title"><h3>카톡 공유 / 엑셀 저장</h3></div>
+    <div class="view-title"><h3>공유 / 엑셀</h3><span>${state.month}/${day} 출근 현황은 기준 날짜에 맞춰 자동 생성됩니다</span></div>
+    <div class="notice"><strong>카톡용 텍스트</strong><span>아래 내용은 현재 선택된 날짜 또는 실제 오늘 날짜를 기준으로 매번 다시 만들어집니다. 날짜를 바꾸려면 설정·이미지의 날짜 선택 또는 월간 캘린더에서 날짜를 눌러 주세요.</span></div>
     <textarea id="shareText" class="share-box" readonly>${escapeHtml(text)}</textarea>
     <div class="action-row" style="margin-top:12px;">
       <button id="copyShareButton" class="primary-btn">카톡용 텍스트 복사</button>
@@ -1761,6 +1866,9 @@ function renderSettings() {
 }
 
 function bindViewEvents() {
+  document.querySelectorAll('[data-go-page]').forEach((button) => {
+    button.onclick = () => switchPage(button.dataset.goPage, true);
+  });
   document.querySelectorAll('[data-pick-day]').forEach((button) => {
     button.addEventListener('click', () => {
       const day = String(button.dataset.pickDay).padStart(2, '0');
@@ -1869,13 +1977,12 @@ function makeShareText() {
   if (!person) return '내 이름을 입력하고, 해당 이름의 스케줄을 먼저 입력해 주세요.';
   const rows = getScheduleRowsForPerson(person);
   const offRows = rows.filter((row) => ['off', 'leave'].includes(row.type));
-  const selected = new Date(state.selectedDate || Date.now());
-  const day = isSameMonth(selected) ? selected.getDate() : 1;
+  const day = getCurrentDisplayDay();
   const roster = getDayRoster(day);
   const main = rows.map((row) => `${row.dateText} ${row.code || '-'} ${formatTime(row) || row.label}`).join('\n');
   const off = offRows.map((row) => row.dateText).join(', ') || '없음';
   const rosterText = Object.entries(roster.byStart).sort(([a], [b]) => a.localeCompare(b)).map(([time, people]) => `${time} 출근: ${people.map((p) => p.name).join(', ')}`).join('\n');
-  return `[${state.year}년 ${state.month}월 ${state.myName} 스케줄]\n\n${main}\n\n[휴무일]\n${off}\n\n[${state.month}/${day} 출근 현황]\n${rosterText || '출근자 없음'}\n휴무/연차: ${roster.offPeople.map((p) => p.name).join(', ') || '없음'}`;
+  return `[${state.month}/${day} 출근 현황]\n${rosterText || '출근자 없음'}\n휴무/연차: ${roster.offPeople.map((p) => p.name).join(', ') || '없음'}\n\n[${state.year}년 ${state.month}월 ${state.myName} 스케줄]\n${main}\n\n[휴무일]\n${off}`;
 }
 
 function downloadExcel() {
