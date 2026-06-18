@@ -235,6 +235,8 @@ function getDefaultCodes() {
     PH: { label: '연휴', start: '', end: '', type: 'off' },
     SD: { label: '남은휴무', start: '', end: '', type: 'off' },
     RT: { label: '예비군', start: '', end: '', type: 'off' },
+    OC: { label: '사내행사', start: '', end: '', type: 'off' },
+    MH: { label: '병가', start: '', end: '', type: 'off' },
     CC: { label: '경조휴가', start: '', end: '', type: 'off' },
   };
 }
@@ -250,6 +252,78 @@ function getDefaultNamesText() {
 
 function parseDefaultNames(value) {
   return String(value || '').split(/[\n,\s]+/).map((name) => name.trim()).filter(Boolean);
+}
+
+function getCodeSetGaps(sourceCodes = state.codes) {
+  const defaults = getDefaultCodes();
+  const current = sourceCodes || {};
+  const missing = Object.keys(defaults).filter((code) => !current[code]);
+  const extra = Object.keys(current).filter((code) => !defaults[code]).sort();
+  const different = Object.entries(defaults).filter(([code, info]) => {
+    const currentInfo = current[code];
+    if (!currentInfo) return false;
+    return (currentInfo.label || '') !== (info.label || '') ||
+      (currentInfo.start || '') !== (info.start || '') ||
+      (currentInfo.end || '') !== (info.end || '') ||
+      deriveCodeType(code, currentInfo) !== deriveCodeType(code, info);
+  }).map(([code]) => code);
+  return { missing, extra, different };
+}
+
+function mergeMissingDefaultCodes(announce = false) {
+  const defaults = getDefaultCodes();
+  if (!state.codes || typeof state.codes !== 'object') state.codes = {};
+  const added = [];
+  Object.entries(defaults).forEach(([code, info]) => {
+    if (!state.codes[code]) {
+      state.codes[code] = { ...info };
+      added.push(code);
+    }
+  });
+  if (added.length && announce) {
+    showCloudStatus(`기본 코드 ${added.length}개를 보정했어요. 저장하면 Supabase 코드표에도 반영됩니다.`, 'warn');
+  }
+  return added;
+}
+
+function resetCodesToDefaultTable() {
+  state.codes = getDefaultCodes();
+  renderViews();
+  renderScheduleTable();
+  renderAll();
+  markUnsavedChanges('근무 코드표를 이미지 하단 기본 코드 기준으로 초기화했어요. 저장 버튼을 눌러 반영해 주세요.');
+  saveState(false);
+}
+
+function formatCodeGapSummary(gaps, sourceName = '현재 코드표') {
+  const missing = gaps?.missing || [];
+  const extra = gaps?.extra || [];
+  const different = gaps?.different || [];
+  const part = [
+    `누락 ${missing.length}개`,
+    `수정됨 ${different.length}개`,
+    `추가 코드 ${extra.length}개`,
+  ].join(' · ');
+  const missingText = missing.length ? `<p><strong>누락 코드</strong><span>${missing.join(', ')}</span></p>` : '<p><strong>누락 코드</strong><span>없음</span></p>';
+  const differentText = different.length ? `<p><strong>기본값과 다른 코드</strong><span>${different.join(', ')}</span></p>` : '<p><strong>기본값과 다른 코드</strong><span>없음</span></p>';
+  const extraText = extra.length ? `<p><strong>사용자 추가 코드</strong><span>${extra.join(', ')}</span></p>` : '<p><strong>사용자 추가 코드</strong><span>없음</span></p>';
+  return `
+    <div class="code-check-result">
+      <h4>${sourceName} 확인 결과</h4>
+      <div class="code-check-count">${part}</div>
+      ${missingText}
+      ${differentText}
+      ${extraText}
+      <small>누락 코드는 “기본 코드 보정”을 누른 뒤 저장하면 Supabase 코드표에도 다시 들어갑니다.</small>
+    </div>
+  `;
+}
+
+function setCodeCheckStatus(html, type = '') {
+  const node = el('codeCheckStatus');
+  if (!node) return;
+  node.className = `code-check-status ${type}`;
+  node.innerHTML = html;
 }
 
 function getDefaultOcrState() {
@@ -619,6 +693,7 @@ async function loadWorkCodesFromCloud() {
     };
   });
   state.codes = codes;
+  mergeMissingDefaultCodes(true);
 }
 
 async function saveWorkCodesToCloud(throwOnError = true) {
@@ -2321,7 +2396,20 @@ function renderSettings() {
         <textarea id="defaultNamesInput" class="share-box" rows="4">${escapeHtml(getDefaultNamesText())}</textarea>
         <button id="saveDefaultNamesButton" class="secondary-btn" type="button">기본 이름 저장</button>
       </section>
-      <div class="notice"><strong>유형 규칙</strong><span>근무/휴무/연차를 직접 지정할 수 있어요. 출근·퇴근 시간이 있는 코드는 기본적으로 근무로 인식됩니다.</span></div>
+      <section class="data-guide-card code-table-card">
+        <h3>기본 코드표 점검</h3>
+        <p>이미지 하단 코드표 기준으로 누락된 코드가 있는지 확인하고, Supabase에 저장된 코드표도 비교할 수 있어요.</p>
+        <div class="action-row code-table-actions">
+          <button id="checkLocalCodesButton" class="secondary-btn" type="button">현재 코드표 확인</button>
+          <button id="checkCloudCodesButton" class="secondary-btn" type="button">Supabase 코드표 확인</button>
+          <button id="repairDefaultCodesButton" class="secondary-btn" type="button">기본 코드 보정</button>
+          <button id="resetDefaultCodesButton" class="ghost-btn" type="button">기본 코드로 초기화</button>
+        </div>
+        <div id="codeCheckStatus" class="code-check-status">
+          <span>미등록 코드가 많이 뜨면 먼저 Supabase 코드표 확인 → 기본 코드 보정을 눌러 주세요.</span>
+        </div>
+      </section>
+      <div class="notice"><strong>유형 규칙</strong><span>근무/휴무/연차를 직접 지정할 수 있어요. 출근·퇴근 시간이 있는 코드는 기본적으로 근무로 인식됩니다. OC는 사내행사, MH는 병가로 기본 등록됩니다.</span></div>
     </div>
     <div id="codeEditor" class="code-editor-grid">${rows}</div>
   `;
@@ -2343,6 +2431,42 @@ async function moveSelectedWeek(direction) {
   syncInputs();
   renderAll();
   saveState(false);
+}
+
+async function checkCloudWorkCodes() {
+  const user = requireUser();
+  if (!user || !supabaseClient) {
+    setCodeCheckStatus('<span>로그인 후 Supabase 코드표를 확인할 수 있어요.</span>', 'warn');
+    return;
+  }
+  setCodeCheckStatus('<span>Supabase 코드표를 확인하는 중이에요...</span>', 'warn');
+  const { data, error } = await supabaseClient
+    .from('work_codes')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('code', { ascending: true });
+
+  if (error) {
+    setCodeCheckStatus(`<span>Supabase 코드표 확인 실패: ${escapeHtml(error.message || error)}</span>`, 'error');
+    return;
+  }
+
+  const cloudCodes = {};
+  (data || []).forEach((row) => {
+    cloudCodes[row.code] = {
+      label: row.label || '',
+      start: row.start_time || '',
+      end: row.end_time || '',
+      type: row.is_off ? (row.code === 'AL' ? 'leave' : 'off') : deriveCodeType(row.code, { start: row.start_time || '', end: row.end_time || '' }),
+    };
+  });
+
+  if (!data?.length) {
+    setCodeCheckStatus('<span>Supabase에 저장된 코드표가 아직 없어요. 기본 코드 보정 후 저장하면 기본 코드표가 저장됩니다.</span>', 'warn');
+    return;
+  }
+
+  setCodeCheckStatus(formatCodeGapSummary(getCodeSetGaps(cloudCodes), `Supabase 코드표 ${data.length}개`));
 }
 
 function bindViewEvents() {
@@ -2445,6 +2569,28 @@ function bindViewEvents() {
       saveState(false);
     });
   });
+  el('checkLocalCodesButton')?.addEventListener('click', () => {
+    setCodeCheckStatus(formatCodeGapSummary(getCodeSetGaps(state.codes), `현재 앱 코드표 ${Object.keys(state.codes || {}).length}개`));
+  });
+  el('checkCloudCodesButton')?.addEventListener('click', checkCloudWorkCodes);
+  el('repairDefaultCodesButton')?.addEventListener('click', () => {
+    const added = mergeMissingDefaultCodes(false);
+    renderViews();
+    renderScheduleTable();
+    renderAll();
+    if (added.length) {
+      markUnsavedChanges(`기본 코드 ${added.length}개를 보정했어요. 저장 버튼을 눌러 Supabase에도 반영해 주세요.`);
+      setCodeCheckStatus(`<span>기본 코드 ${added.length}개를 추가했어요: ${escapeHtml(added.join(', '))}<br>상단 저장 버튼 또는 코드 설정의 저장 버튼을 눌러 Supabase에 반영해 주세요.</span>`, 'ok');
+    } else {
+      setCodeCheckStatus('<span>누락된 기본 코드가 없어요. 현재 코드표가 기본 코드표를 모두 포함하고 있습니다.</span>', 'ok');
+    }
+    saveState(false);
+  });
+  el('resetDefaultCodesButton')?.addEventListener('click', () => {
+    if (!confirm('현재 코드 설정을 이미지 하단 기본 코드표 기준으로 초기화할까요? 직접 추가한 코드나 수정한 시간은 사라질 수 있어요.')) return;
+    resetCodesToDefaultTable();
+    setCodeCheckStatus(formatCodeGapSummary(getCodeSetGaps(state.codes), `초기화된 기본 코드표 ${Object.keys(state.codes || {}).length}개`), 'ok');
+  });
   el('addCodeButton')?.addEventListener('click', () => {
     let key = prompt('추가할 코드를 입력하세요. 예: AQ');
     if (!key) return;
@@ -2529,7 +2675,7 @@ function deriveCodeType(code, info = {}) {
   if (['work', 'off', 'leave', 'unknown'].includes(info.type)) return info.type;
   if (info.start || info.end) return 'work';
   if (code === 'AL') return 'leave';
-  if (['DO', 'PH', 'SD', 'RT', 'CC'].includes(code)) return 'off';
+  if (['DO', 'PH', 'SD', 'RT', 'OC', 'MH', 'CC'].includes(code)) return 'off';
   return 'unknown';
 }
 

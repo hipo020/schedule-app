@@ -4856,3 +4856,112 @@ body::after,
 .csv-issue-list span {
   word-break: keep-all;
 }
+
+
+
+/* v3.1 코드표 점검 / 기본 코드 보정 */
+.code-table-card {
+  gap: 14px;
+}
+
+.code-table-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.code-table-actions .secondary-btn,
+.code-table-actions .ghost-btn {
+  min-height: 40px;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.code-check-status {
+  width: 100%;
+  min-height: 48px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background: #FAFAF2;
+  border: 1px solid rgba(11, 11, 20, 0.06);
+  color: #7A7A7A;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.code-check-status.ok {
+  background: #F4F8D8;
+  color: #4E5B2B;
+}
+
+.code-check-status.warn {
+  background: #FFF8DD;
+  color: #7A5B19;
+}
+
+.code-check-status.error {
+  background: #FBEADC;
+  color: #A1463D;
+}
+
+.code-check-result {
+  display: grid;
+  gap: 10px;
+}
+
+.code-check-result h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #0B0B14;
+}
+
+.code-check-count {
+  display: inline-flex;
+  width: fit-content;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #FFFFFF;
+  border: 1px solid rgba(11, 11, 20, 0.06);
+  font-weight: 800;
+  color: #0B0B14;
+}
+
+.code-check-result p {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 10px;
+  margin: 0;
+  align-items: start;
+}
+
+.code-check-result p strong {
+  color: #0B0B14;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.code-check-result p span {
+  color: #707070;
+  word-break: keep-all;
+}
+
+.code-check-result small {
+  color: #8C8C8C;
+}
+
+@media (max-width: 780px) {
+  .code-table-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .code-table-actions .secondary-btn,
+  .code-table-actions .ghost-btn {
+    width: 100%;
+  }
+
+  .code-check-result p {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
