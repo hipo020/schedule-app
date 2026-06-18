@@ -311,13 +311,22 @@
       <div id="imageViewerModal" class="image-modal is-hidden">
         <div class="image-modal-backdrop"></div>
         <div class="image-modal-content">
-          <div class="image-modal-header">
-            <h3>원본 근무표 이미지</h3>
-            <button id="closeImageModalBtn" class="ghost-btn" type="button">닫기 ✕</button>
+          <div class="image-modal-header image-modal-header-enhanced">
+            <div class="image-modal-title-group">
+              <h3>원본 근무표 이미지</h3>
+              <p id="modalImageInfo">저장된 월별 근무표 이미지를 선택해서 볼 수 있어요.</p>
+            </div>
+            <div class="image-modal-actions">
+              <label class="image-month-picker">
+                <span>월 선택</span>
+                <select id="modalImageMonthSelect" aria-label="원본 근무표 월 선택"></select>
+              </label>
+              <button id="closeImageModalBtn" class="ghost-btn" type="button">닫기 ✕</button>
+            </div>
           </div>
           <div class="image-modal-body">
             <img id="modalImagePreview" alt="근무표 원본" />
-            <div id="modalImageEmpty" class="empty-preview">아직 업로드된 이미지가 없어요.</div>
+            <div id="modalImageEmpty" class="empty-preview">저장된 근무표 이미지를 불러오는 중이에요.</div>
           </div>
         </div>
       </div>

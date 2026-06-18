@@ -1221,3 +1221,86 @@ button { cursor: pointer; }
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* =========================================
+   월별 원본 근무표 이미지 뷰어
+========================================= */
+.image-modal-header-enhanced {
+  gap: 18px;
+  align-items: flex-start;
+}
+.image-modal-title-group {
+  min-width: 0;
+}
+.image-modal-title-group p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.image-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.image-month-picker {
+  display: inline-grid;
+  grid-template-columns: auto minmax(190px, 260px);
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--soft);
+}
+.image-month-picker span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.image-month-picker select {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--navy);
+  font-weight: 800;
+  font-size: 14px;
+}
+.image-modal-body .empty-preview {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.55;
+}
+
+@media (max-width: 720px) {
+  .image-modal-content {
+    width: calc(100vw - 18px);
+    height: calc(100dvh - 18px);
+    border-radius: 18px;
+  }
+  .image-modal-header-enhanced {
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+  }
+  .image-modal-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .image-month-picker {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .image-modal-body {
+    padding: 14px;
+  }
+}
