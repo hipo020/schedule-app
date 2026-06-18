@@ -5554,3 +5554,124 @@ body::after,
     letter-spacing: -0.06em;
   }
 }
+
+
+/* v2.17 모바일 일간 타임라인 포스트잇 라벨 */
+@media (max-width: 720px) {
+  .mobile-vertical-timeline {
+    grid-template-columns: 14px minmax(0, 1fr);
+    gap: 3px;
+  }
+
+  .mobile-vertical-time-scale {
+    font-size: 7px;
+    border-right-color: rgba(22, 48, 53, 0.09);
+  }
+
+  .mobile-vertical-time-scale span {
+    right: 3px;
+    letter-spacing: -0.08em;
+  }
+
+  .mobile-vertical-time-scale::before,
+  .mobile-vertical-time-scale::after {
+    right: -2px;
+    width: 4px;
+    height: 4px;
+  }
+
+  .mobile-vertical-scroll {
+    padding-left: 0;
+    padding-right: 18px;
+  }
+
+  .mobile-vertical-lanes {
+    gap: 18px;
+  }
+
+  .mobile-vertical-lane {
+    border-color: transparent;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .mobile-vertical-lane::before {
+    opacity: 0.55;
+  }
+
+  .mobile-vertical-bar {
+    left: 9px;
+    right: auto;
+    width: 8px;
+    min-width: 8px;
+    padding: 0;
+    overflow: visible;
+    border-radius: 999px;
+  }
+
+  .mobile-vertical-label {
+    position: absolute;
+    top: 7px;
+    left: 11px;
+    z-index: 4;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-width: 38px;
+    max-width: 56px;
+    padding: 3px 6px 3px 7px;
+    border-radius: 10px 10px 10px 3px;
+    background: #fff3c7;
+    border: 1px solid rgba(197, 150, 56, 0.22);
+    box-shadow: 0 5px 10px rgba(76, 60, 22, 0.10);
+    transform: rotate(-1deg);
+    pointer-events: none;
+  }
+
+  .mobile-vertical-label::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 7px;
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: inherit;
+    border-left: 1px solid rgba(197, 150, 56, 0.18);
+    border-bottom: 1px solid rgba(197, 150, 56, 0.18);
+    transform: rotate(45deg);
+  }
+
+  .mobile-vertical-bar .mobile-vertical-label strong,
+  .mobile-vertical-bar .mobile-vertical-label small {
+    position: static;
+    left: auto;
+    z-index: auto;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: none;
+    letter-spacing: -0.08em;
+  }
+
+  .mobile-vertical-bar .mobile-vertical-label strong {
+    font-size: 7px;
+    line-height: 1.05;
+    color: #2d2617;
+  }
+
+  .mobile-vertical-bar .mobile-vertical-label small {
+    margin-top: 1px;
+    font-size: 6px;
+    line-height: 1;
+    color: rgba(45, 38, 23, 0.68);
+  }
+
+  .mobile-vertical-bar.uncertain .mobile-vertical-label,
+  .mobile-vertical-lane.uncertain .mobile-vertical-label {
+    background: #fff4cf;
+    border-style: dashed;
+  }
+}
