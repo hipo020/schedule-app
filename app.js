@@ -1650,7 +1650,10 @@ function switchPage(page, shouldSave = true) {
     section.classList.toggle('active', section.dataset.page === page);
   });
   document.querySelectorAll('.sheet-tab').forEach((button) => {
-    button.classList.toggle('active', button.dataset.page === page);
+    const belongsToActiveCategory = !button.dataset.category || button.dataset.category === activeCategory;
+    button.hidden = !belongsToActiveCategory;
+    button.setAttribute('aria-hidden', String(!belongsToActiveCategory));
+    button.classList.toggle('active', belongsToActiveCategory && button.dataset.page === page);
   });
   if (page === 'extract') setTimeout(drawOcrPreview, 0);
   if (page === 'dataInput') renderCsvPreview();

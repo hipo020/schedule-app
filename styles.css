@@ -850,3 +850,173 @@ button { cursor: pointer; }
   border-radius: 8px;
   box-shadow: var(--shadow);
 }
+
+/* =========================================
+   카테고리 내비게이션 정리 패치
+   - 상위 카테고리 선택 시 해당 하위 탭만 표시
+   - Gemini 수정 중 전체 탭이 보이던 문제 보정
+========================================= */
+.category-shell {
+  margin-bottom: 24px;
+}
+
+.category-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0 0 14px;
+}
+
+.category-tab {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 82px;
+  padding: 16px 18px !important;
+  margin: 0 !important;
+  border: 1px solid rgba(232, 237, 243, 0.96) !important;
+  border-radius: 26px !important;
+  background: rgba(255, 255, 255, 0.82) !important;
+  color: #6b7280 !important;
+  text-align: left;
+  box-shadow: 0 14px 34px rgba(23, 38, 66, 0.06);
+}
+
+.category-tab:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1 !important;
+  color: var(--navy) !important;
+}
+
+.category-tab.active {
+  background: var(--navy) !important;
+  border-color: var(--navy) !important;
+  color: #fff !important;
+  box-shadow: 0 18px 42px rgba(23, 38, 66, 0.18);
+}
+
+.category-tab .category-icon {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: #f4f8fb;
+  font-size: 20px;
+}
+
+.category-tab.active .category-icon {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.category-tab span:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.category-tab strong {
+  font-size: 15px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.category-tab small {
+  display: block;
+  color: currentColor;
+  opacity: 0.62;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 8px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 14px 36px rgba(23, 38, 66, 0.06);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sheet-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.sheet-tab[data-category] {
+  display: none;
+}
+
+.category-shell[data-active-category="view"] .sheet-tab[data-category="view"],
+.category-shell[data-active-category="manage"] .sheet-tab[data-category="manage"],
+.category-shell[data-active-category="export"] .sheet-tab[data-category="export"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sheet-tab {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+}
+
+@media (max-width: 780px) {
+  .app-shell {
+    width: 100%;
+    padding: 18px 12px 72px;
+    overflow-x: hidden;
+  }
+
+  .category-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .category-tab {
+    min-height: 74px;
+    padding: 12px 9px !important;
+    border-radius: 22px !important;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+  }
+
+  .category-tab .category-icon {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    border-radius: 15px;
+    font-size: 17px;
+  }
+
+  .category-tab strong {
+    font-size: 12px;
+  }
+
+  .category-tab small {
+    display: none;
+  }
+
+  .sheet-nav {
+    margin: 0 -4px 20px;
+    padding: 7px;
+    border-radius: 24px;
+  }
+
+  .sheet-tab {
+    min-height: 40px;
+    padding: 0 16px;
+    font-size: 13px;
+  }
+}
