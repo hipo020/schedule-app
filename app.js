@@ -193,9 +193,24 @@ function getDefaultCodes() {
   };
 }
 
+function getDefaultOcrNames() {
+  return ['이준호', '류선협', '이상민', '김도영', '이승호', '곽병우', '이미현', '이다연', '김성민', '정세환'].join(' ');
+}
+
+function isLegacyOcrNames(value) {
+  const normalized = String(value || '').replace(/[\s,]+/g, ' ').trim();
+  return normalized === '곽병우 이준호 유희수 김도영 이다운 이상민 정세완';
+}
+
+function normalizeOcrNames(value) {
+  if (!String(value || '').trim()) return getDefaultOcrNames();
+  if (isLegacyOcrNames(value)) return getDefaultOcrNames();
+  return value;
+}
+
 function getDefaultOcrState() {
   return {
-    names: ['이준호', '류선협', '이상민', '김도영', '이승호', '곽병우', '이미현', '이다연', '김성민', '정세환'].join(' '),
+    names: getDefaultOcrNames(),
     rect: { x: 18.3, y: 12.1, w: 49.6, h: 25.5 },
     results: [],
   };
@@ -1133,6 +1148,7 @@ function bindOcrEvents() {
 
 function syncOcrInputs() {
   state.ocr = { ...getDefaultOcrState(), ...(state.ocr || {}) };
+  state.ocr.names = normalizeOcrNames(state.ocr.names);
   if (el('ocrNamesInput')) el('ocrNamesInput').value = state.ocr.names || '';
   const rect = state.ocr.rect || getDefaultOcrState().rect;
   if (el('ocrXInput')) el('ocrXInput').value = rect.x;
@@ -1143,7 +1159,7 @@ function syncOcrInputs() {
 
 function updateOcrStateFromInputs() {
   state.ocr = { ...getDefaultOcrState(), ...(state.ocr || {}) };
-  if (el('ocrNamesInput')) state.ocr.names = el('ocrNamesInput').value;
+  if (el('ocrNamesInput')) state.ocr.names = normalizeOcrNames(el('ocrNamesInput').value);
   state.ocr.rect = {
     x: clampNumber(Number(el('ocrXInput')?.value || 0), 0, 99),
     y: clampNumber(Number(el('ocrYInput')?.value || 0), 0, 99),
@@ -2241,6 +2257,7 @@ function loadState() {
     state.monthStore = parsed.monthStore || {};
     state.archiveMeta = Array.isArray(parsed.archiveMeta) ? parsed.archiveMeta : [];
     state.ocr = { ...getDefaultOcrState(), ...(parsed.ocr || {}) };
+    state.ocr.names = normalizeOcrNames(state.ocr.names);
     state.activePage = parsed.activePage || parsed.activeTab || 'home';
     ensureMonthStore();
   } catch (e) {

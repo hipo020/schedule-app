@@ -1020,3 +1020,121 @@ button { cursor: pointer; }
     font-size: 13px;
   }
 }
+
+
+/* =========================================
+   PC 기준 레이아웃 정리 패치 - 로그인 로직 영향 없음
+========================================= */
+:root {
+  --rest-bg: #fee2e2;
+  --rest-text: #dc2626;
+  --rest-line: #fca5a5;
+}
+
+/* 홈 요약 카드가 한쪽에만 길게 늘어지지 않도록 카드 그리드화 */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 18px;
+  max-width: 980px;
+}
+.home-panel .summary-card {
+  min-height: 150px;
+  justify-content: center;
+}
+.home-panel .section-title {
+  max-width: 980px;
+}
+
+/* PC 주간 보기: 7일 카드를 가로 배열 */
+.week-grid,
+.week-strip,
+.improved-week-grid {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  align-items: stretch;
+}
+.week-grid .week-day-card,
+.improved-week-grid .week-day-card {
+  min-width: 0;
+  width: 100%;
+}
+
+/* 휴무/연차 색상 일관화: 범례, 배지, 달력, 주간 카드 모두 빨간 계열 */
+.legend-dot.off,
+.legend-dot.leave {
+  background: var(--rest-bg) !important;
+  border: 1px solid var(--rest-line) !important;
+}
+.badge.off,
+.badge.leave,
+.day-code.off,
+.day-code.leave,
+.week-day-card.off .badge,
+.week-day-card.leave .badge,
+.offday-chip.off,
+.offday-chip.leave {
+  background: var(--rest-bg) !important;
+  color: var(--rest-text) !important;
+  border: 1px solid var(--rest-line) !important;
+}
+.day-cell.off,
+.day-cell.leave,
+.week-day-card.off,
+.week-day-card.leave {
+  background: #fff5f5 !important;
+}
+.month-legend span:nth-child(2),
+.month-legend span:nth-child(3) {
+  color: var(--rest-text);
+}
+
+/* 코드 설정: #codeEditor 기본 flex를 덮어써서 PC에서 카드 그리드로 표시 */
+#codeEditor.code-editor-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+  gap: 14px !important;
+}
+#codeEditor.code-editor-grid .compact-code-card,
+#codeEditor.code-editor-grid .code-editor-row {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  min-width: 0;
+}
+#codeEditor.code-editor-grid .compact-code-card label {
+  display: grid !important;
+  grid-template-columns: 44px minmax(0, 1fr) !important;
+  gap: 8px !important;
+}
+#codeEditor.code-editor-grid .compact-code-card input {
+  width: 100% !important;
+  min-width: 0;
+}
+
+.button-help-text {
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #f8fafc;
+}
+.button-help-text strong {
+  color: var(--navy);
+}
+
+@media (max-width: 980px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
+    max-width: none;
+  }
+  .week-grid,
+  .week-strip,
+  .improved-week-grid {
+    grid-template-columns: 1fr !important;
+  }
+  #codeEditor.code-editor-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
