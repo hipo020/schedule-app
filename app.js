@@ -18,6 +18,8 @@ let currentUser = null;
 let isCloudBusy = false;
 let hasUnsavedCloudChanges = false;
 let suppressDirtyFlag = false;
+let undoStack = [];
+const MAX_UNDO_STACK = 20;
 
 
 const state = {
@@ -37,6 +39,7 @@ const state = {
   editorFilter: 'all',
   shareTemplate: 'detailed',
   dailyView: 'timeline',
+  reviewCompareOpen: false,
   defaultNames: getInitialDefaultNames(),
 };
 
@@ -107,6 +110,175 @@ window.addEventListener('beforeunload', (event) => {
   event.preventDefault();
   event.returnValue = '';
 });
+
+function makeUndoSnapshot(label = '수정 전') {
+  return {
+    label,
+    savedAt: new Date().toISOString(),
+    year: state.year,
+    month: state.month,
+    myName: state.myName,
+    selectedDate: state.selectedDate,
+    people: clonePlain(state.people || []),
+    codes: clonePlain(state.codes || {}),
+  };
+}
+
+function pushUndoSnapshot(label = '수정 전') {
+  undoStack.push(makeUndoSnapshot(label));
+  if (undoStack.length > MAX_UNDO_STACK) undoStack.shift();
+  updateReviewToolbarState();
+}
+
+function restoreLastUndo() {
+  const snapshot = undoStack.pop();
+  if (!snapshot) {
+    alert('되돌릴 수정 내역이 없어요.');
+    return;
+  }
+  state.year = snapshot.year;
+  state.month = snapshot.month;
+  state.myName = snapshot.myName || '';
+  state.selectedDate = snapshot.selectedDate || `${state.year}-${String(state.month).padStart(2, '0')}-01`;
+  state.people = clonePlain(snapshot.people || []);
+  state.codes = clonePlain(snapshot.codes || getDefaultCodes());
+  ensurePeople();
+  normalizePeopleDays();
+  markReviewNeedsCheck();
+  syncInputs();
+  renderScheduleTable();
+  renderAll();
+  markUnsavedChanges(`${snapshot.label || '이전 상태'}로 되돌렸어요. 저장 버튼을 눌러 반영해 주세요.`);
+  saveState(false);
+  alert('이전 상태로 되돌렸어요.');
+}
+
+function getReviewMeta(key = monthKey()) {
+  ensureMonthStore();
+  return state.monthStore?.[key]?.review || { status: 'pending' };
+}
+
+function setReviewMeta(meta) {
+  saveCurrentMonthToStore();
+  const key = monthKey();
+  state.monthStore[key].review = { ...meta, updatedAt: new Date().toISOString() };
+}
+
+function getReviewStatusText(meta = getReviewMeta()) {
+  if (meta.status === 'done') return `검수 완료${meta.reviewedAt ? ` · ${formatSavedDate(meta.reviewedAt)}` : ''}`;
+  if (meta.status === 'needs_review') return '수정됨 · 재검수 필요';
+  return '검수 전';
+}
+
+function markReviewNeedsCheck() {
+  ensureMonthStore();
+  const key = monthKey();
+  const review = state.monthStore?.[key]?.review;
+  if (review?.status === 'done') {
+    state.monthStore[key].review = {
+      ...review,
+      status: 'needs_review',
+      changedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+}
+
+function markCurrentMonthReviewed() {
+  const issues = validatePeopleData();
+  if (issues.length && !confirm(`확인 필요 항목이 ${issues.length}개 남아 있어요. 그래도 검수 완료로 표시할까요?`)) return;
+  setReviewMeta({
+    status: 'done',
+    reviewedAt: new Date().toISOString(),
+    issueCount: issues.length,
+    reviewedBy: state.myName || currentUser?.email || '',
+  });
+  showUnsavedStatus('검수 완료 상태가 표시됐어요. 저장 버튼을 눌러 현재 월 데이터와 함께 저장해 주세요.');
+  saveState(false);
+  renderScheduleTable();
+  renderAll();
+}
+
+function reopenCurrentMonthReview() {
+  setReviewMeta({ status: 'pending', reopenedAt: new Date().toISOString() });
+  showUnsavedStatus('검수 상태를 다시 확인 중으로 바꿨어요. 필요하면 저장해 주세요.');
+  saveState(false);
+  renderScheduleTable();
+  renderAll();
+}
+
+function updateReviewToolbarState() {
+  const undoButton = el('undoScheduleButton');
+  if (undoButton) undoButton.disabled = !undoStack.length;
+  const compareButton = el('toggleReviewCompareButton');
+  if (compareButton) compareButton.textContent = state.reviewCompareOpen ? '나란히 보기 닫기' : '원본과 나란히 보기';
+  const reviewedButton = el('markReviewCompleteButton');
+  if (reviewedButton) reviewedButton.textContent = getReviewMeta().status === 'done' ? '검수 다시 하기' : '검수 완료';
+}
+
+async function getCurrentReviewImageSrc() {
+  if (state.imageData) return state.imageData;
+  try {
+    const stored = await getStoredImage(monthKey());
+    if (stored?.imageData) {
+      state.imageData = stored.imageData;
+      return stored.imageData;
+    }
+  } catch (error) {
+    console.warn('검수용 원본 이미지 로드 실패', error);
+  }
+  const record = (state.archiveMeta || []).find((item) => item.key === monthKey());
+  return record?.thumbData || '';
+}
+
+async function refreshReviewComparePane() {
+  const wrap = el('reviewCompareWrap');
+  const pane = el('reviewImagePane');
+  const img = el('reviewCompareImage');
+  const empty = el('reviewCompareEmpty');
+  const info = el('reviewCompareInfo');
+  if (!wrap || !pane || !img || !empty) return;
+
+  wrap.classList.toggle('compare-active', Boolean(state.reviewCompareOpen));
+  pane.classList.toggle('is-hidden', !state.reviewCompareOpen);
+  updateReviewToolbarState();
+  if (!state.reviewCompareOpen) return;
+
+  if (info) info.textContent = `${state.year}년 ${state.month}월 원본 이미지와 검수표를 함께 보고 있어요.`;
+  const src = await getCurrentReviewImageSrc();
+  if (src) {
+    img.src = src;
+    img.style.display = 'block';
+    empty.style.display = 'none';
+  } else {
+    img.removeAttribute('src');
+    img.style.display = 'none';
+    empty.textContent = '현재 월에 저장된 원본 이미지가 없어요.';
+    empty.style.display = 'grid';
+  }
+}
+
+function toggleReviewCompare() {
+  state.reviewCompareOpen = !state.reviewCompareOpen;
+  refreshReviewComparePane();
+  saveState(false);
+}
+
+function addMissingCodeToSettings(rawCode) {
+  const code = stripUncertaintyMarker(rawCode);
+  if (!code || code === '확인필요') return;
+  if (state.codes[code]) {
+    alert(`${code} 코드는 이미 코드 설정에 있어요.`);
+    return;
+  }
+  pushUndoSnapshot(`${code} 코드 추가 전`);
+  const defaultInfo = getDefaultCodes()[code];
+  state.codes[code] = defaultInfo ? clonePlain(defaultInfo) : { label: '근무', start: '', end: '', type: 'work' };
+  markUnsavedChanges(`${code} 코드를 임시로 추가했어요. 시간 정보가 필요하면 코드 설정에서 수정한 뒤 저장해 주세요.`);
+  renderScheduleTable();
+  renderAll();
+  saveState(false);
+}
 
 
 function getExtractionPrompt() {
@@ -405,6 +577,12 @@ function bindEvents() {
   });
   el('addPersonButton').addEventListener('click', addPerson);
   el('removeEmptyRowsButton').addEventListener('click', removeEmptyRows);
+  el('undoScheduleButton')?.addEventListener('click', restoreLastUndo);
+  el('toggleReviewCompareButton')?.addEventListener('click', toggleReviewCompare);
+  el('markReviewCompleteButton')?.addEventListener('click', () => {
+    if (getReviewMeta().status === 'done') reopenCurrentMonthReview();
+    else markCurrentMonthReviewed();
+  });
   document.querySelectorAll('.sheet-tab').forEach((button) => {
     button.addEventListener('click', () => switchPage(button.dataset.page, true));
   });
@@ -599,6 +777,7 @@ function saveCurrentMonthToStore() {
     ocr: sanitizeOcrForStorage(state.ocr),
     imageName: state.imageName || state.monthStore[key]?.imageName || '',
     imageUpdatedAt: state.imageUpdatedAt || state.monthStore[key]?.imageUpdatedAt || '',
+    review: state.monthStore[key]?.review || null,
     updatedAt: new Date().toISOString(),
   };
 }
@@ -1173,12 +1352,16 @@ function renderValidationSummary() {
         const positions = items.map((issue) => `
           <span class="validation-position-chip">${escapeHtml(issue.name)} ${issue.day}일</span>
         `).join('');
+        const addButton = className === 'unknown'
+          ? `<button class="tiny-action-btn" data-add-missing-code="${escapeHtml(code)}" type="button">코드로 추가</button>`
+          : '';
         return `
           <details class="validation-code-card ${className}">
             <summary>
               <span class="validation-code-name">${escapeHtml(code)}</span>
               <span class="validation-code-count">${items.length}건</span>
               <small>위치 보기</small>
+              ${addButton}
             </summary>
             <div class="validation-position-grid">${positions}</div>
           </details>
@@ -1201,8 +1384,20 @@ function renderValidationSummary() {
     check ? '확인필요는 판독 불가 값이라 원본을 보고 직접 입력해 주세요.' : '',
   ].filter(Boolean).join(' ');
 
+  const review = getReviewMeta();
+  const reviewStatusClass = review.status === 'done' ? 'done' : review.status === 'needs_review' ? 'warn' : 'pending';
+  const reviewButtonLabel = review.status === 'done' ? '검수 다시 하기' : '검수 완료 처리';
+
   target.innerHTML = `
     <div class="validation-card ${issues.length ? 'has-issues' : 'ok'}">
+      <div class="review-status-row">
+        <span class="review-status-pill ${reviewStatusClass}">${getReviewStatusText(review)}</span>
+        <div class="review-status-actions">
+          <button class="ghost-btn" data-undo-last type="button" ${undoStack.length ? '' : 'disabled'}>되돌리기</button>
+          <button class="ghost-btn" data-review-compare type="button">${state.reviewCompareOpen ? '나란히 보기 닫기' : '원본과 나란히 보기'}</button>
+          <button class="secondary-btn" data-mark-reviewed type="button">${reviewButtonLabel}</button>
+        </div>
+      </div>
       <div class="validation-head">
         <div>
           <strong>${issues.length ? '확인 필요 항목' : '검수 상태 좋음'}</strong>
@@ -1222,6 +1417,21 @@ function renderValidationSummary() {
       ` : ''}
     </div>
   `;
+
+  target.querySelectorAll('[data-add-missing-code]').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      addMissingCodeToSettings(button.dataset.addMissingCode || '');
+    });
+  });
+  target.querySelector('[data-mark-reviewed]')?.addEventListener('click', () => {
+    if (getReviewMeta().status === 'done') reopenCurrentMonthReview();
+    else markCurrentMonthReviewed();
+  });
+  target.querySelector('[data-review-compare]')?.addEventListener('click', toggleReviewCompare);
+  target.querySelector('[data-undo-last]')?.addEventListener('click', restoreLastUndo);
+  updateReviewToolbarState();
 }
 function renderScheduleTable() {
   normalizePeopleDays();
@@ -1242,16 +1452,26 @@ function renderScheduleTable() {
   html += '</tbody>';
   el('scheduleTable').innerHTML = html;
   renderValidationSummary();
+  refreshReviewComparePane();
+  updateReviewToolbarState();
   document.querySelectorAll('[data-editor-filter]').forEach((button) => {
     button.classList.toggle('active', (state.editorFilter || 'all') === button.dataset.editorFilter);
   });
 
   el('scheduleTable').querySelectorAll('input').forEach((input) => {
+    input.addEventListener('focus', () => {
+      if (!input.dataset.undoCaptured) {
+        pushUndoSnapshot('셀 수정 전');
+        input.dataset.undoCaptured = 'true';
+      }
+    });
     input.addEventListener('input', handleScheduleInput);
   });
   el('scheduleTable').querySelectorAll('.row-delete').forEach((button) => {
     button.addEventListener('click', () => {
+      pushUndoSnapshot('행 삭제 전');
       state.people.splice(Number(button.dataset.row), 1);
+      markReviewNeedsCheck();
       ensurePeople();
       renderScheduleTable();
       renderAll();
@@ -1271,20 +1491,25 @@ function handleScheduleInput(e) {
     state.people[row].schedules[day] = normalizedInput;
     e.target.value = normalizedInput;
   }
+  markReviewNeedsCheck();
   renderAll();
   markUnsavedChanges();
   saveState(false);
 }
 
 function addPerson() {
+  pushUndoSnapshot('사람 추가 전');
   state.people.push(makePerson(''));
+  markReviewNeedsCheck();
   renderScheduleTable();
   markUnsavedChanges();
   saveState(false);
 }
 
 function removeEmptyRows() {
+  pushUndoSnapshot('빈 행 정리 전');
   state.people = state.people.filter((p) => p.name || p.schedules.some(Boolean));
+  markReviewNeedsCheck();
   ensurePeople();
   renderScheduleTable();
   renderAll();
@@ -1294,7 +1519,9 @@ function removeEmptyRows() {
 
 function clearAll() {
   if (!confirm('입력한 스케줄 데이터를 모두 비울까요?')) return;
+  pushUndoSnapshot('전체 비우기 전');
   state.people = [makePerson(''), makePerson(''), makePerson(''), makePerson(''), makePerson('')];
+  markReviewNeedsCheck();
   renderScheduleTable();
   renderAll();
   markUnsavedChanges();
@@ -1302,6 +1529,7 @@ function clearAll() {
 }
 
 function loadSample() {
+  pushUndoSnapshot('샘플 적용 전');
   state.year = 2026;
   state.month = 6;
   state.myName = '유희수';
@@ -1317,6 +1545,7 @@ function loadSample() {
     ['DO','DO','AL','DO','AM','AM','AL','PH','DO','AM','AM','AD','AM','AQ','DO','DO','AM','AM','AM','AM','AM','DO','DO','AM','AQ','AQ','AQ','AL','DO','AM'],
   ];
   state.people = names.map((name, i) => ({ name, schedules: patterns[i] }));
+  markReviewNeedsCheck();
   syncInputs();
   renderUploadedImage();
   syncOcrInputs();
@@ -1675,7 +1904,9 @@ function applyOcrResultsToEditor() {
     alert('먼저 자동 추출을 실행해 주세요.');
     return;
   }
+  pushUndoSnapshot('OCR 반영 전');
   state.people = results.map((row) => ({ name: row.name, schedules: row.schedules || [] }));
+  markReviewNeedsCheck();
   normalizePeopleDays();
   if (!state.myName && state.people[0]?.name) state.myName = state.people[0].name;
   syncInputs();
@@ -1859,6 +2090,7 @@ function importCsvFromInput(showAlert = true) {
     const parsed = csvRowsToPeople(parseCsv(text));
     const hasExisting = state.people.some((p) => p.name || p.schedules?.some(Boolean));
     if (hasExisting && !confirm('현재 검수표 데이터를 CSV 내용으로 교체할까요?')) return false;
+    pushUndoSnapshot('CSV 반영 전');
     state.year = parsed.year;
     state.month = parsed.month;
     state.people = parsed.people;
@@ -1866,6 +2098,7 @@ function importCsvFromInput(showAlert = true) {
     const selectedDay = Math.min(Number(String(state.selectedDate || '').slice(-2)) || 1, daysInMonth(state.year, state.month));
     state.selectedDate = `${state.year}-${String(state.month).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
     normalizePeopleDays();
+    markReviewNeedsCheck();
     saveCurrentMonthToStore();
     syncInputs();
     renderScheduleTable();
@@ -2941,6 +3174,7 @@ function loadState() {
     state.editorFilter = parsed.editorFilter || 'all';
     state.shareTemplate = parsed.shareTemplate || 'detailed';
     state.dailyView = parsed.dailyView || 'timeline';
+    state.reviewCompareOpen = false;
     state.activePage = parsed.activePage || parsed.activeTab || 'home';
     ensureMonthStore();
     normalizeOcrDefaultNames();

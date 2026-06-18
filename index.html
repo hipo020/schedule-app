@@ -281,6 +281,9 @@
           <div class="toolbar editor-toolbar">
             <button id="addPersonButton" class="secondary-btn">사람 추가</button>
             <button id="removeEmptyRowsButton" class="ghost-btn">빈 행 정리</button>
+            <button id="undoScheduleButton" class="ghost-btn" type="button" disabled>되돌리기</button>
+            <button id="toggleReviewCompareButton" class="secondary-btn" type="button">원본과 나란히 보기</button>
+            <button id="markReviewCompleteButton" class="primary-btn" type="button">검수 완료</button>
           </div>
 
           <div class="editor-filter-row">
@@ -291,8 +294,20 @@
           </div>
           <div id="validationSummary" class="validation-summary"></div>
 
-          <div class="table-scroll">
-            <table id="scheduleTable" class="schedule-table"></table>
+          <div id="reviewCompareWrap" class="review-compare-wrap">
+            <aside id="reviewImagePane" class="review-image-pane is-hidden">
+              <div class="review-image-head">
+                <strong>원본 근무표</strong>
+                <small id="reviewCompareInfo">검수표와 나란히 비교할 수 있어요.</small>
+              </div>
+              <div class="review-image-frame">
+                <img id="reviewCompareImage" alt="검수용 원본 근무표" />
+                <div id="reviewCompareEmpty" class="empty-preview">원본 이미지를 불러오는 중이에요.</div>
+              </div>
+            </aside>
+            <div class="table-scroll review-table-scroll">
+              <table id="scheduleTable" class="schedule-table"></table>
+            </div>
           </div>
         </section>
       </section>
