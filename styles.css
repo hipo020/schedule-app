@@ -4779,3 +4779,80 @@ body::after,
     grid-template-columns: 1fr;
   }
 }
+
+/* v3.0 불확실 추정 코드 검수 지원 */
+.validation-card.has-issues {
+  background: #FFF7DF !important;
+}
+.validation-code-groups h4::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 7px;
+  border-radius: 999px;
+  background: #F2C94C;
+  vertical-align: 1px;
+}
+.validation-code-card.uncertain {
+  background: #FFF9E6 !important;
+  border-color: rgba(156, 122, 23, 0.12) !important;
+}
+.validation-code-card.uncertain .validation-code-count,
+.validation-all-list li .validation-type-badge.uncertain {
+  background: #FFF2C4 !important;
+  color: #8A6A12 !important;
+}
+.validation-code-card.unknown .validation-code-count,
+.validation-all-list li .validation-type-badge.unknown {
+  background: #FBEADC !important;
+  color: #7F5B43 !important;
+}
+.validation-all-list li .validation-type-badge.check {
+  background: #FFE2E2 !important;
+  color: #9F3D3D !important;
+}
+.schedule-table td.cell-uncertain {
+  background: #FFF9E6 !important;
+}
+.schedule-table td.cell-uncertain input,
+.schedule-table input.cell-uncertain {
+  background: #FFF2C4 !important;
+  color: #8A6A12 !important;
+  border: 1px dashed rgba(156, 122, 23, 0.32) !important;
+  font-weight: 900;
+}
+.schedule-table td.cell-check input,
+.schedule-table input.cell-check {
+  background: #FFE2E2 !important;
+  color: #9F3D3D !important;
+  border: 1px dashed rgba(159, 61, 61, 0.32) !important;
+  font-weight: 900;
+}
+.schedule-table td.cell-unknown input,
+.schedule-table input.cell-unknown {
+  background: #FBEADC !important;
+  color: #7F5B43 !important;
+  border: 1px solid rgba(127, 91, 67, 0.18) !important;
+  font-weight: 900;
+}
+.schedule-table td.cell-empty input,
+.schedule-table input.cell-empty {
+  background: #F4F4EF !important;
+  color: #A0A0A0 !important;
+}
+.badge.uncertain,
+.day-cell.uncertain .day-code,
+.week-day-card.uncertain .badge {
+  background: #FFF2C4 !important;
+  color: #8A6A12 !important;
+  border: 1px dashed rgba(156, 122, 23, 0.28) !important;
+}
+.day-cell.uncertain,
+.week-day-card.uncertain {
+  background: #FFF9E6 !important;
+}
+.csv-issue-list span:has(+ span),
+.csv-issue-list span {
+  word-break: keep-all;
+}

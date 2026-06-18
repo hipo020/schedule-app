@@ -162,6 +162,14 @@ year,month,department,employee_id,person_name,hire_date,d01,d02,d03,d04,d05,d06,
 - 8M처럼 보이지만 문맥상 BM이면 BM으로 보정합니다.
 - [핵심] 셀 배경에 색상이 있거나, 글자에 빨간색 취소선/밑줄이 그어져 있어 지저분해 보이더라도, 그 안에 쓰인 영문자(BM, DO 등)를 끝까지 판독하여 입력하세요. '확인필요'라는 단어는 아예 글자가 뭉개져서 도저히 읽을 수 없을 때만 최후의 수단으로 사용합니다.
 
+[불확실 데이터 표시 규칙 - 매우 중요]
+- 셀의 값이 어느 정도 읽히지만 100% 확실하지 않은 경우, 추정 코드 뒤에 물음표(?)를 붙여 입력합니다.
+  예: AO처럼 보이지만 애매하면 AO?, BM처럼 보이지만 애매하면 BM?, DO처럼 보이지만 애매하면 DO?
+- 물음표(?)가 붙은 값은 검수 대상입니다. 임의로 확정 코드처럼 바꾸지 마세요.
+- 도저히 어떤 코드인지 추정할 수 없는 경우에만 확인필요라고 입력합니다.
+- 빈칸은 실제로 해당 날짜 값이 없거나 월에 존재하지 않는 날짜일 때만 비워둡니다.
+- 즉, AO? = 추정값 있음 / 확인필요 = 판독 불가 / 빈칸 = 값 없음 으로 구분합니다.
+
 [최종 검토]
 출력 전 아래를 확인하세요.
 1. 마크다운 기호 없이 텍스트로만 시작하고 끝났는가?
@@ -984,10 +992,24 @@ function getKnownCodesSet() {
   return new Set(Object.keys(state.codes || {}));
 }
 
+function normalizeScheduleCodeValue(code) {
+  return String(code || '').trim().toUpperCase().replace(/\s+/g, '');
+}
+
+function hasUncertaintyMarker(code) {
+  const value = normalizeScheduleCodeValue(code);
+  return value.endsWith('?') || value.endsWith('？');
+}
+
+function stripUncertaintyMarker(code) {
+  return normalizeScheduleCodeValue(code).replace(/[?？]+$/g, '');
+}
+
 function isKnownScheduleCode(code) {
-  const value = String(code || '').trim().toUpperCase();
+  const value = normalizeScheduleCodeValue(code);
   if (!value || value === '확인필요') return true;
-  return getKnownCodesSet().has(value);
+  const baseCode = stripUncertaintyMarker(value);
+  return getKnownCodesSet().has(baseCode);
 }
 
 function validatePeopleData(people = state.people, year = state.year, month = state.month) {
@@ -997,11 +1019,26 @@ function validatePeopleData(people = state.people, year = state.year, month = st
     const name = String(person.name || '').trim() || `이름 없는 행 ${personIndex + 1}`;
     for (let i = 0; i < days; i++) {
       const day = i + 1;
-      const code = String(person.schedules?.[i] || '').trim().toUpperCase();
+      const code = normalizeScheduleCodeValue(person.schedules?.[i] || '');
       if (!code) {
         issues.push({ type: 'empty', personIndex, name, day, code, message: `${name} ${day}일 값이 비어 있어요.` });
       } else if (code === '확인필요') {
-        issues.push({ type: 'check', personIndex, name, day, code, message: `${name} ${day}일은 확인이 필요해요.` });
+        issues.push({ type: 'check', personIndex, name, day, code, message: `${name} ${day}일은 판독 불가라 원본 확인이 필요해요.` });
+      } else if (hasUncertaintyMarker(code)) {
+        const baseCode = stripUncertaintyMarker(code);
+        const known = isKnownScheduleCode(code);
+        issues.push({
+          type: 'uncertain',
+          personIndex,
+          name,
+          day,
+          code,
+          baseCode,
+          known,
+          message: known
+            ? `${name} ${day}일 코드 ${code}는 추정값이에요. 원본 확인 후 맞으면 ?를 지워 주세요.`
+            : `${name} ${day}일 코드 ${code}는 추정값이지만 코드 설정에 없어요. 원본 확인 후 코드 설정도 확인해 주세요.`,
+        });
       } else if (!isKnownScheduleCode(code)) {
         issues.push({ type: 'unknown', personIndex, name, day, code, message: `${name} ${day}일 코드 ${code}가 코드 설정에 없어요.` });
       }
@@ -1022,7 +1059,7 @@ function shouldShowPersonInEditor(person, rowIndex) {
   if (filter === 'all') return true;
   const types = getPersonValidationTypes(person, rowIndex);
   if (filter === 'empty') return types.has('empty');
-  if (filter === 'unknown') return types.has('unknown') || types.has('check');
+  if (filter === 'unknown') return types.has('unknown') || types.has('check') || types.has('uncertain');
   if (filter === 'off') return types.has('off');
   return true;
 }
@@ -1031,6 +1068,7 @@ function getIssueTypeLabel(type) {
   if (type === 'empty') return '미입력';
   if (type === 'unknown') return '미등록';
   if (type === 'check') return '확인필요';
+  if (type === 'uncertain') return '불확실';
   return '확인';
 }
 
@@ -1040,51 +1078,66 @@ function renderValidationSummary() {
   const issues = validatePeopleData();
   const empty = issues.filter((issue) => issue.type === 'empty').length;
   const unknownIssues = issues.filter((issue) => issue.type === 'unknown');
+  const uncertainIssues = issues.filter((issue) => issue.type === 'uncertain');
   const unknown = unknownIssues.length;
+  const uncertain = uncertainIssues.length;
   const check = issues.filter((issue) => issue.type === 'check').length;
 
-  const groupByCode = unknownIssues.reduce((acc, issue) => {
-    const code = issue.code || '빈 코드';
-    if (!acc[code]) acc[code] = [];
-    acc[code].push(issue);
-    return acc;
-  }, {});
+  function renderGroupedIssues(title, groupIssues, className = '') {
+    if (!groupIssues.length) return '';
+    const groupByCode = groupIssues.reduce((acc, issue) => {
+      const code = issue.code || '빈 코드';
+      if (!acc[code]) acc[code] = [];
+      acc[code].push(issue);
+      return acc;
+    }, {});
+    const cards = Object.entries(groupByCode)
+      .sort(([, a], [, b]) => b.length - a.length)
+      .map(([code, items]) => {
+        const positions = items.map((issue) => `
+          <span class="validation-position-chip">${escapeHtml(issue.name)} ${issue.day}일</span>
+        `).join('');
+        return `
+          <details class="validation-code-card ${className}">
+            <summary>
+              <span class="validation-code-name">${escapeHtml(code)}</span>
+              <span class="validation-code-count">${items.length}건</span>
+              <small>위치 보기</small>
+            </summary>
+            <div class="validation-position-grid">${positions}</div>
+          </details>
+        `;
+      }).join('');
+    return `<section class="validation-code-groups"><h4>${title}</h4><div class="validation-code-grid">${cards}</div></section>`;
+  }
 
-  const unknownGroups = Object.entries(groupByCode)
-    .sort(([, a], [, b]) => b.length - a.length)
-    .map(([code, items]) => {
-      const positions = items.map((issue) => `
-        <span class="validation-position-chip">${escapeHtml(issue.name)} ${issue.day}일</span>
-      `).join('');
-      return `
-        <details class="validation-code-card">
-          <summary>
-            <span class="validation-code-name">${escapeHtml(code)}</span>
-            <span class="validation-code-count">${items.length}건</span>
-            <small>위치 보기</small>
-          </summary>
-          <div class="validation-position-grid">${positions}</div>
-        </details>
-      `;
-    }).join('');
+  const uncertainGroups = renderGroupedIssues('불확실 코드 요약', uncertainIssues, 'uncertain');
+  const unknownGroups = renderGroupedIssues('미등록 코드 요약', unknownIssues, 'unknown');
 
   const issueList = issues.map((issue) => {
     const typeLabel = getIssueTypeLabel(issue.type);
-    return `<li><span class="validation-type-badge">${typeLabel}</span><b>${escapeHtml(issue.message)}</b></li>`;
+    return `<li><span class="validation-type-badge ${issue.type}">${typeLabel}</span><b>${escapeHtml(issue.message)}</b></li>`;
   }).join('');
+
+  const helperText = [
+    uncertain ? '?가 붙은 코드는 추정값이에요. 원본 확인 후 맞으면 ?만 지워 주세요.' : '',
+    unknown ? '미등록 코드는 코드 설정에 추가하면 확인 목록에서 사라져요.' : '',
+    check ? '확인필요는 판독 불가 값이라 원본을 보고 직접 입력해 주세요.' : '',
+  ].filter(Boolean).join(' ');
 
   target.innerHTML = `
     <div class="validation-card ${issues.length ? 'has-issues' : 'ok'}">
       <div class="validation-head">
         <div>
           <strong>${issues.length ? '확인 필요 항목' : '검수 상태 좋음'}</strong>
-          <span>${issues.length ? `미입력 ${empty}개 · 미등록 ${unknown}개 · 확인필요 ${check}개` : '미입력/미등록 코드가 없습니다.'}</span>
+          <span>${issues.length ? `미입력 ${empty}개 · 미등록 ${unknown}개 · 불확실 ${uncertain}개 · 확인필요 ${check}개` : '미입력/미등록/불확실 코드가 없습니다.'}</span>
         </div>
-        ${unknown ? `<p>미등록 코드는 코드 설정에 추가하면 확인 목록에서 사라져요.</p>` : ''}
+        ${helperText ? `<p>${helperText}</p>` : ''}
       </div>
       ${issues.length ? `
         <div class="validation-body validation-body-compact">
-          ${unknownGroups ? `<section class="validation-code-groups"><h4>미등록 코드 요약</h4><div class="validation-code-grid">${unknownGroups}</div></section>` : ''}
+          ${uncertainGroups}
+          ${unknownGroups}
           <details class="validation-all-list">
             <summary>전체 확인 목록 ${issues.length}개 보기</summary>
             <ul>${issueList}</ul>
@@ -1094,7 +1147,6 @@ function renderValidationSummary() {
     </div>
   `;
 }
-
 function renderScheduleTable() {
   normalizePeopleDays();
   const days = daysInMonth(state.year, state.month);
@@ -1105,7 +1157,9 @@ function renderScheduleTable() {
     if (!shouldShowPersonInEditor(person, rowIndex)) return;
     html += `<tr><td><input class="name-input" data-row="${rowIndex}" data-field="name" value="${escapeHtml(person.name)}" placeholder="이름" /></td>`;
     for (let d = 0; d < days; d++) {
-      html += `<td><input maxlength="3" data-row="${rowIndex}" data-day="${d}" value="${escapeHtml(person.schedules[d] || '')}" /></td>`;
+      const cellCode = normalizeScheduleCodeValue(person.schedules[d] || '');
+      const issueClass = !cellCode ? 'cell-empty' : cellCode === '확인필요' ? 'cell-check' : hasUncertaintyMarker(cellCode) ? 'cell-uncertain' : !isKnownScheduleCode(cellCode) ? 'cell-unknown' : '';
+      html += `<td class="${issueClass}"><input class="schedule-code-input ${issueClass}" maxlength="6" data-row="${rowIndex}" data-day="${d}" value="${escapeHtml(person.schedules[d] || '')}" /></td>`;
     }
     html += `<td><button class="ghost-btn row-delete" data-row="${rowIndex}">×</button></td></tr>`;
   });
@@ -1137,8 +1191,9 @@ function handleScheduleInput(e) {
     state.people[row].name = e.target.value.trim();
   } else {
     const day = Number(e.target.dataset.day);
-    state.people[row].schedules[day] = e.target.value.trim().toUpperCase();
-    e.target.value = e.target.value.toUpperCase();
+    const normalizedInput = e.target.value.trim().toUpperCase().replace(/？/g, '?');
+    state.people[row].schedules[day] = normalizedInput;
+    e.target.value = normalizedInput;
   }
   renderAll();
   markUnsavedChanges();
@@ -1670,7 +1725,7 @@ function normalizeCsvCode(value) {
   const raw = String(value ?? '').trim();
   if (!raw) return '';
   if (raw === '확인필요') return raw;
-  return raw.toUpperCase().replace(/\s+/g, '');
+  return raw.toUpperCase().replace(/？/g, '?').replace(/\s+/g, '');
 }
 
 function csvRowsToPeople(rows) {
@@ -1703,7 +1758,8 @@ function csvRowsToPeople(rows) {
       const code = normalizeCsvCode(row[index.get(key)] || '');
       schedules.push(code);
       if (!code) csvIssues.push(`${name} ${d}일 값이 비어 있어요.`);
-      else if (code === '확인필요') csvIssues.push(`${name} ${d}일은 확인이 필요해요.`);
+      else if (code === '확인필요') csvIssues.push(`${name} ${d}일은 판독 불가라 원본 확인이 필요해요.`);
+      else if (hasUncertaintyMarker(code)) csvIssues.push(`${name} ${d}일 코드 ${code}는 추정값이에요. 원본 확인 후 맞으면 ?를 지워 주세요.`);
       else if (!isKnownScheduleCode(code)) csvIssues.push(`${name} ${d}일 코드 ${code}가 코드 설정에 없어요.`);
     }
     for (let d = days + 1; d <= 31; d++) {
@@ -1796,8 +1852,16 @@ function getDateObj(day) {
 }
 
 function getCodeInfo(code) {
-  if (!code) return { label: '미입력', start: '', end: '', type: 'empty' };
-  return state.codes[code] || { label: '코드 미등록', start: '', end: '', type: 'unknown' };
+  const value = normalizeScheduleCodeValue(code);
+  if (!value) return { label: '미입력', start: '', end: '', type: 'empty' };
+  if (value === '확인필요') return { label: '확인 필요', start: '', end: '', type: 'uncertain' };
+  if (hasUncertaintyMarker(value)) {
+    const baseCode = stripUncertaintyMarker(value);
+    const baseInfo = state.codes[baseCode];
+    if (baseInfo) return { ...baseInfo, label: `${baseInfo.label || '근무'} 확인 필요`, type: 'uncertain', baseCode };
+    return { label: '추정 코드 확인 필요', start: '', end: '', type: 'uncertain', baseCode };
+  }
+  return state.codes[value] || { label: '코드 미등록', start: '', end: '', type: 'unknown' };
 }
 
 function getScheduleRowsForPerson(person) {
@@ -2478,6 +2542,7 @@ function badgeClass(type) {
   if (type === 'work') return 'work';
   if (type === 'leave') return 'leave';
   if (type === 'off') return 'off';
+  if (type === 'uncertain') return 'uncertain';
   return '';
 }
 
