@@ -4307,3 +4307,186 @@ body::after,
 .floating-btn svg {
   stroke: currentColor !important;
 }
+
+/* =========================================
+   v2.7 기능 개선 UI
+   - 검수 필터, 오류 요약, 기본 직원 목록, 공유 템플릿, 보기 기준 선택
+========================================= */
+.validation-summary {
+  margin: 14px 0 18px;
+}
+.validation-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
+  gap: 14px;
+  align-items: start;
+  padding: 16px 18px;
+  border-radius: 24px;
+  background: #F4F8D8;
+  border: 1px solid rgba(11, 11, 20, 0.05);
+  box-shadow: 0 10px 22px rgba(11, 11, 20, 0.04);
+}
+.validation-card.has-issues { background: #FBEADC; }
+.validation-card.ok { background: #DDEEEE; }
+.validation-card strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--navy);
+  font-weight: 900;
+}
+.validation-card span,
+.validation-card li {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.validation-card ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.editor-filter-row,
+.template-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 8px;
+}
+.editor-filter-row .ghost-btn,
+.template-toggle .ghost-btn {
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 13px;
+  background: #FFFFFF !important;
+  color: #6f6f73 !important;
+}
+.editor-filter-row .ghost-btn.active,
+.template-toggle .ghost-btn.active {
+  background: #DDEEEE !important;
+  color: var(--navy) !important;
+  box-shadow: 0 8px 18px rgba(11, 11, 20, 0.05) !important;
+}
+.csv-issue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+.csv-issue-list span {
+  display: inline-flex;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: #FBEADC;
+  color: #7f5b43;
+  font-size: 12px;
+  font-weight: 700;
+}
+.person-view-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 8px 14px;
+  border-radius: 999px;
+  background: #FFFFFF;
+  border: 1px solid rgba(11, 11, 20, 0.05);
+  box-shadow: 0 8px 18px rgba(11, 11, 20, 0.04);
+}
+.person-view-picker span {
+  color: var(--muted) !important;
+  font-size: 12px !important;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.person-view-picker select {
+  min-width: 96px;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--navy) !important;
+  font-weight: 900;
+  padding: 4px 6px;
+}
+.view-title-side {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.week-nav .person-view-picker {
+  order: -1;
+}
+.settings-helper-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.2fr);
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: stretch;
+}
+.default-names-card .share-box {
+  min-height: 110px;
+  height: auto;
+}
+.compact-code-card select {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 16px !important;
+  background: #fff !important;
+  color: var(--navy) !important;
+  border: 1px solid rgba(11, 11, 20, 0.06) !important;
+  font-weight: 800;
+}
+.archive-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0;
+}
+.archive-status em {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #F4F8D8;
+  color: #6f7354;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 900;
+}
+.offday-chip {
+  align-items: flex-start !important;
+}
+.offday-chip small {
+  display: block;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+.cloud-status.warn {
+  background: #FFF3BF !important;
+  color: #7a661b !important;
+}
+
+@media (max-width: 780px) {
+  .validation-card,
+  .settings-helper-grid {
+    grid-template-columns: 1fr;
+  }
+  .person-view-picker {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .view-title-side {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .view-title-side > span {
+    width: 100%;
+    text-align: center;
+  }
+  .week-nav .person-view-picker {
+    order: 0;
+  }
+}

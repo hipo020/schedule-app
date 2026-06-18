@@ -278,10 +278,18 @@
             <span>데이터 입력 페이지에서 반영한 결과를 여기서 수정·검수합니다. 사람 이름과 날짜별 코드가 맞는지 확인해 주세요.</span>
           </div>
 
-          <div class="toolbar">
+          <div class="toolbar editor-toolbar">
             <button id="addPersonButton" class="secondary-btn">사람 추가</button>
             <button id="removeEmptyRowsButton" class="ghost-btn">빈 행 정리</button>
           </div>
+
+          <div class="editor-filter-row">
+            <button class="ghost-btn active" data-editor-filter="all" type="button">전체 보기</button>
+            <button class="ghost-btn" data-editor-filter="empty" type="button">미입력만</button>
+            <button class="ghost-btn" data-editor-filter="unknown" type="button">미등록/확인필요</button>
+            <button class="ghost-btn" data-editor-filter="off" type="button">휴무/연차</button>
+          </div>
+          <div id="validationSummary" class="validation-summary"></div>
 
           <div class="table-scroll">
             <table id="scheduleTable" class="schedule-table"></table>

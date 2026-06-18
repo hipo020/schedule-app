@@ -16,6 +16,8 @@ const supabaseClient = window.supabase
 let currentSession = null;
 let currentUser = null;
 let isCloudBusy = false;
+let hasUnsavedCloudChanges = false;
+let suppressDirtyFlag = false;
 
 
 const state = {
@@ -32,6 +34,9 @@ const state = {
   monthStore: {},
   archiveMeta: [],
   ocr: getDefaultOcrState(),
+  editorFilter: 'all',
+  shareTemplate: 'detailed',
+  defaultNames: getInitialDefaultNames(),
 };
 
 const el = (id) => document.getElementById(id);
@@ -68,6 +73,39 @@ const CATEGORY_DEFAULT_PAGE = {
 function getPageCategory(page) {
   return PAGE_CATEGORY[page] || 'view';
 }
+
+
+function markUnsavedChanges(message = '') {
+  if (suppressDirtyFlag) return;
+  hasUnsavedCloudChanges = true;
+  showUnsavedStatus(message || '저장하지 않은 변경사항이 있어요. 저장 버튼을 눌러 클라우드에 반영해 주세요.');
+}
+
+function markCloudSaved() {
+  hasUnsavedCloudChanges = false;
+}
+
+function showUnsavedStatus(message) {
+  if (!message) return;
+  const node = el('cloudStatus');
+  if (!node) return;
+  node.textContent = message;
+  node.className = 'cloud-status warn';
+}
+
+async function confirmUnsavedBeforeMove() {
+  if (!hasUnsavedCloudChanges || !currentUser) return true;
+  const shouldSave = confirm('저장하지 않은 변경사항이 있어요. 저장하고 이동할까요?\n\n확인: 저장 후 이동\n취소: 이동 취소');
+  if (!shouldSave) return false;
+  await saveCurrentMonthToCloud(false);
+  return !hasUnsavedCloudChanges;
+}
+
+window.addEventListener('beforeunload', (event) => {
+  if (!hasUnsavedCloudChanges) return;
+  event.preventDefault();
+  event.returnValue = '';
+});
 
 
 function getExtractionPrompt() {
@@ -193,16 +231,29 @@ function getDefaultCodes() {
   };
 }
 
+function getInitialDefaultNames() {
+  return ['이준호', '류선협', '이상민', '김도영', '이승호', '곽병우', '이미현', '이다연', '김성민', '정세환'];
+}
+
+function getDefaultNamesText() {
+  const names = Array.isArray(state.defaultNames) && state.defaultNames.length ? state.defaultNames : getInitialDefaultNames();
+  return names.map((name) => String(name || '').trim()).filter(Boolean).join(' ');
+}
+
+function parseDefaultNames(value) {
+  return String(value || '').split(/[\n,\s]+/).map((name) => name.trim()).filter(Boolean);
+}
+
 function getDefaultOcrState() {
   return {
-    names: ['이준호', '류선협', '이상민', '김도영', '이승호', '곽병우', '이미현', '이다연', '김성민', '정세환'].join(' '),
+    names: getInitialDefaultNames().join(' '),
     rect: { x: 18.3, y: 12.1, w: 49.6, h: 25.5 },
     results: [],
   };
 }
 
 function normalizeOcrDefaultNames() {
-  const currentDefault = getDefaultOcrState().names;
+  const currentDefault = getDefaultNamesText();
   const legacyDefaults = [
     ['곽병우', '이준호', '유희수', '김도영', '이다운', '이상민', '정세완'].join(' '),
     ['곽병우', '이준호', '유희수', '김도영', '이다운', '이상민', '정세완'].join('\n'),
@@ -247,7 +298,7 @@ async function init() {
 function bindEvents() {
   el('yearInput').addEventListener('input', async (e) => { await changeActiveMonth(Number(e.target.value), state.month); });
   el('monthInput').addEventListener('change', async (e) => { await changeActiveMonth(state.year, Number(e.target.value)); });
-  el('myNameInput').addEventListener('input', (e) => { state.myName = e.target.value.trim(); renderAll(); saveState(false); });
+  el('myNameInput').addEventListener('input', (e) => { state.myName = e.target.value.trim(); renderAll(); markUnsavedChanges(); saveState(false); });
   el('selectedDateInput').addEventListener('change', (e) => { state.selectedDate = e.target.value; renderAll(); saveState(false); });
   el('uploadButton').addEventListener('click', () => el('imageInput').click());
   el('imageInput').addEventListener('change', handleImageUpload);
@@ -488,7 +539,11 @@ function loadMonthDataFromStore(key = monthKey()) {
 }
 
 async function changeActiveMonth(nextYear, nextMonth) {
-  if (!Number.isFinite(nextYear) || !Number.isFinite(nextMonth)) return;
+  if (!Number.isFinite(nextYear) || !Number.isFinite(nextMonth)) return false;
+  if (!(await confirmUnsavedBeforeMove())) {
+    syncInputs();
+    return false;
+  }
   saveCurrentMonthToStore();
   state.year = nextYear;
   state.month = nextMonth;
@@ -510,6 +565,7 @@ async function changeActiveMonth(nextYear, nextMonth) {
   renderScheduleTable();
   renderAll();
   saveState(false);
+  return true;
 }
 
 
@@ -522,6 +578,7 @@ async function loadCloudInitialData(showMessage = false) {
     await loadWorkCodesFromCloud();
     await loadCloudMonthData(state.year, state.month);
     await refreshArchiveMeta();
+    markCloudSaved();
     if (showMessage) showCloudStatus('클라우드 데이터를 불러왔어요.', 'ok');
   } catch (error) {
     console.error('클라우드 로드 실패', error);
@@ -642,6 +699,7 @@ async function saveCurrentMonthToCloud(showAlert = false) {
       if (insertError) throw insertError;
     }
     await refreshArchiveMeta();
+    markCloudSaved();
     showCloudStatus('저장 완료. 다른 기기에서도 로그인하면 불러올 수 있어요.', 'ok');
     if (showAlert) alert('클라우드에 저장했어요.');
   } catch (error) {
@@ -921,6 +979,70 @@ function normalizePeopleDays() {
   });
 }
 
+
+function getKnownCodesSet() {
+  return new Set(Object.keys(state.codes || {}));
+}
+
+function isKnownScheduleCode(code) {
+  const value = String(code || '').trim().toUpperCase();
+  if (!value || value === '확인필요') return true;
+  return getKnownCodesSet().has(value);
+}
+
+function validatePeopleData(people = state.people, year = state.year, month = state.month) {
+  const days = daysInMonth(year, month);
+  const issues = [];
+  (people || []).forEach((person, personIndex) => {
+    const name = String(person.name || '').trim() || `이름 없는 행 ${personIndex + 1}`;
+    for (let i = 0; i < days; i++) {
+      const day = i + 1;
+      const code = String(person.schedules?.[i] || '').trim().toUpperCase();
+      if (!code) {
+        issues.push({ type: 'empty', personIndex, name, day, code, message: `${name} ${day}일 값이 비어 있어요.` });
+      } else if (code === '확인필요') {
+        issues.push({ type: 'check', personIndex, name, day, code, message: `${name} ${day}일은 확인이 필요해요.` });
+      } else if (!isKnownScheduleCode(code)) {
+        issues.push({ type: 'unknown', personIndex, name, day, code, message: `${name} ${day}일 코드 ${code}가 코드 설정에 없어요.` });
+      }
+    }
+  });
+  return issues;
+}
+
+function getPersonValidationTypes(person, personIndex) {
+  const types = new Set(validatePeopleData([person], state.year, state.month).map((issue) => issue.type));
+  const hasOff = (person.schedules || []).some((code) => ['off', 'leave'].includes(getCodeInfo(code).type));
+  if (hasOff) types.add('off');
+  return types;
+}
+
+function shouldShowPersonInEditor(person, rowIndex) {
+  const filter = state.editorFilter || 'all';
+  if (filter === 'all') return true;
+  const types = getPersonValidationTypes(person, rowIndex);
+  if (filter === 'empty') return types.has('empty');
+  if (filter === 'unknown') return types.has('unknown') || types.has('check');
+  if (filter === 'off') return types.has('off');
+  return true;
+}
+
+function renderValidationSummary() {
+  const target = el('validationSummary');
+  if (!target) return;
+  const issues = validatePeopleData();
+  const empty = issues.filter((issue) => issue.type === 'empty').length;
+  const unknown = issues.filter((issue) => issue.type === 'unknown').length;
+  const check = issues.filter((issue) => issue.type === 'check').length;
+  const sample = issues.slice(0, 5).map((issue) => `<li>${escapeHtml(issue.message)}</li>`).join('');
+  target.innerHTML = `
+    <div class="validation-card ${issues.length ? 'has-issues' : 'ok'}">
+      <div><strong>${issues.length ? '확인 필요 항목' : '검수 상태 좋음'}</strong><span>${issues.length ? `미입력 ${empty}개 · 미등록 ${unknown}개 · 확인필요 ${check}개` : '미입력/미등록 코드가 없습니다.'}</span></div>
+      ${issues.length ? `<ul>${sample}${issues.length > 5 ? `<li>외 ${issues.length - 5}개가 더 있어요.</li>` : ''}</ul>` : ''}
+    </div>
+  `;
+}
+
 function renderScheduleTable() {
   normalizePeopleDays();
   const days = daysInMonth(state.year, state.month);
@@ -928,6 +1050,7 @@ function renderScheduleTable() {
   for (let d = 1; d <= days; d++) html += `<th>${d}</th>`;
   html += '<th>삭제</th></tr></thead><tbody>';
   state.people.forEach((person, rowIndex) => {
+    if (!shouldShowPersonInEditor(person, rowIndex)) return;
     html += `<tr><td><input class="name-input" data-row="${rowIndex}" data-field="name" value="${escapeHtml(person.name)}" placeholder="이름" /></td>`;
     for (let d = 0; d < days; d++) {
       html += `<td><input maxlength="3" data-row="${rowIndex}" data-day="${d}" value="${escapeHtml(person.schedules[d] || '')}" /></td>`;
@@ -936,6 +1059,10 @@ function renderScheduleTable() {
   });
   html += '</tbody>';
   el('scheduleTable').innerHTML = html;
+  renderValidationSummary();
+  document.querySelectorAll('[data-editor-filter]').forEach((button) => {
+    button.classList.toggle('active', (state.editorFilter || 'all') === button.dataset.editorFilter);
+  });
 
   el('scheduleTable').querySelectorAll('input').forEach((input) => {
     input.addEventListener('input', handleScheduleInput);
@@ -946,6 +1073,7 @@ function renderScheduleTable() {
       ensurePeople();
       renderScheduleTable();
       renderAll();
+      markUnsavedChanges();
       saveState(false);
     });
   });
@@ -961,12 +1089,14 @@ function handleScheduleInput(e) {
     e.target.value = e.target.value.toUpperCase();
   }
   renderAll();
+  markUnsavedChanges();
   saveState(false);
 }
 
 function addPerson() {
   state.people.push(makePerson(''));
   renderScheduleTable();
+  markUnsavedChanges();
   saveState(false);
 }
 
@@ -975,6 +1105,7 @@ function removeEmptyRows() {
   ensurePeople();
   renderScheduleTable();
   renderAll();
+  markUnsavedChanges();
   saveState(false);
 }
 
@@ -983,6 +1114,7 @@ function clearAll() {
   state.people = [makePerson(''), makePerson(''), makePerson(''), makePerson(''), makePerson('')];
   renderScheduleTable();
   renderAll();
+  markUnsavedChanges();
   saveState(false);
 }
 
@@ -1009,6 +1141,7 @@ function loadSample() {
   setTimeout(drawOcrPreview, 0);
   renderScheduleTable();
   renderAll();
+  markUnsavedChanges('샘플 데이터가 반영됐어요. 실제 데이터라면 저장해 주세요.');
   saveState(true);
 }
 
@@ -1054,6 +1187,7 @@ async function handleImageUpload(e) {
     renderUploadedImage();
     drawOcrPreview();
     renderAll();
+    markUnsavedChanges('이미지가 변경됐어요. 저장 버튼을 눌러 클라우드에 반영해 주세요.');
     saveState(false);
   } catch (error) {
     console.error('이미지 업로드 실패', error);
@@ -1130,7 +1264,7 @@ function bindOcrEvents() {
     });
   });
   el('loadDefaultNamesButton')?.addEventListener('click', () => {
-    state.ocr.names = getDefaultOcrState().names;
+    state.ocr.names = getDefaultNamesText();
     syncOcrInputs();
     saveState(false);
   });
@@ -1364,6 +1498,7 @@ function applyOcrResultsToEditor() {
   syncInputs();
   renderScheduleTable();
   renderAll();
+  markUnsavedChanges('OCR 결과가 검수표에 반영됐어요. 확인 후 저장해 주세요.');
   saveState(true);
   switchPage('editor', true);
 }
@@ -1506,18 +1641,28 @@ function csvRowsToPeople(rows) {
   const days = daysInMonth(nextYear, nextMonth);
 
   const people = [];
+  const csvIssues = [];
   rows.slice(1).forEach((row) => {
     const name = String(row[index.get('person_name')] || '').trim();
     if (!name) return;
     const schedules = [];
     for (let d = 1; d <= days; d++) {
       const key = `d${String(d).padStart(2, '0')}`;
-      schedules.push(normalizeCsvCode(row[index.get(key)] || ''));
+      const code = normalizeCsvCode(row[index.get(key)] || '');
+      schedules.push(code);
+      if (!code) csvIssues.push(`${name} ${d}일 값이 비어 있어요.`);
+      else if (code === '확인필요') csvIssues.push(`${name} ${d}일은 확인이 필요해요.`);
+      else if (!isKnownScheduleCode(code)) csvIssues.push(`${name} ${d}일 코드 ${code}가 코드 설정에 없어요.`);
+    }
+    for (let d = days + 1; d <= 31; d++) {
+      const key = `d${String(d).padStart(2, '0')}`;
+      const extra = normalizeCsvCode(row[index.get(key)] || '');
+      if (extra) csvIssues.push(`${name} ${d}일은 ${nextMonth}월에 없는 날짜라 저장하지 않았어요.`);
     }
     people.push({ name, schedules });
   });
   if (!people.length) throw new Error('person_name이 있는 데이터 행을 찾지 못했어요.');
-  return { year: nextYear, month: nextMonth, people, header };
+  return { year: nextYear, month: nextMonth, people, header, issues: csvIssues };
 }
 
 function importCsvFromInput(showAlert = true) {
@@ -1541,6 +1686,7 @@ function importCsvFromInput(showAlert = true) {
     syncInputs();
     renderScheduleTable();
     renderAll();
+    markUnsavedChanges('CSV 데이터가 검수표에 반영됐어요. 확인 후 저장해 주세요.');
     saveState(false);
     setCsvInputStatus(`${state.year}년 ${state.month}월 데이터 ${parsed.people.length}명을 검수표에 반영했어요.`, 'ok');
     renderCsvPreview();
@@ -1567,8 +1713,9 @@ function renderCsvPreview(errorMessage = '') {
     wrap.innerHTML = `
       <div class="info-card csv-preview-card">
         <h4>CSV 미리보기</h4>
-        <p>${parsed.year}년 ${parsed.month}월 · ${parsed.people.length}명 인식됨</p>
+        <p>${parsed.year}년 ${parsed.month}월 · ${parsed.people.length}명 인식됨${parsed.issues?.length ? ` · 확인 필요 ${parsed.issues.length}개` : ''}</p>
         <div class="list">${sample}</div>
+        ${parsed.issues?.length ? `<div class="csv-issue-list">${parsed.issues.slice(0, 6).map((issue) => `<span>${escapeHtml(issue)}</span>`).join('')}${parsed.issues.length > 6 ? `<span>외 ${parsed.issues.length - 6}개 더 있음</span>` : ''}</div>` : ''}
       </div>
     `;
   } catch (error) {
@@ -1675,6 +1822,20 @@ function switchPage(page, shouldSave = true) {
   if (shouldSave) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function renderPersonPicker(title = '보기 기준') {
+  const people = state.people.filter((p) => p.name);
+  if (!people.length) return '';
+  const current = state.myName || people[0].name;
+  return `
+    <label class="person-view-picker">
+      <span>${title}</span>
+      <select data-person-select="true">
+        ${people.map((person) => `<option value="${escapeHtml(person.name)}" ${person.name === current ? 'selected' : ''}>${escapeHtml(person.name)}</option>`).join('')}
+      </select>
+    </label>
+  `;
+}
+
 function renderDaily() {
   const person = getMyPerson();
   const selected = new Date(state.selectedDate || Date.now());
@@ -1683,7 +1844,7 @@ function renderDaily() {
   const info = getCodeInfo(code);
   const roster = getDayRoster(day);
   return `
-    <div class="view-title"><h3>${state.month}/${day}(${dayNames[getDateObj(day).getDay()]}) 일간 보기</h3></div>
+    <div class="view-title with-actions"><div><h3>${state.month}/${day}(${dayNames[getDateObj(day).getDay()]}) 일간 보기</h3></div>${renderPersonPicker()}</div>
     <div class="card-grid">
       <div class="info-card"><h4>내 스케줄</h4><div class="list-row"><strong>${state.myName || '이름 미입력'}</strong><span>${info.label}</span><span class="badge ${badgeClass(info.type)}">${code || '-'}</span></div><p>${formatTime(info) || '시간 정보 없음'}</p></div>
       <div class="info-card"><h4>오늘 요약</h4><p>출근 ${roster.workTotal}명 · 휴무/연차 ${roster.offTotal}명</p><p>가장 이른 출근: ${roster.earliest || '-'}</p></div>
@@ -1732,6 +1893,7 @@ function renderWeekly() {
         <p>${startLabel} ~ ${endLabel} 기준 · 선택일 ${state.month}/${baseDay}</p>
       </div>
       <div class="week-nav">
+        ${renderPersonPicker()}
         <button class="ghost-btn week-nav-btn" data-week-shift="-1" type="button">‹ 저번주</button>
         <span>근무 ${workCount}일 · 휴무/연차 ${offCount}일</span>
         <button class="ghost-btn week-nav-btn" data-week-shift="1" type="button">다음주 ›</button>
@@ -1777,7 +1939,7 @@ function renderMonthly() {
         <h3>${state.year}년 ${state.month}월 월간</h3>
         <p>날짜를 누르면 선택일 기준으로 일간·공유 정보가 바뀝니다.</p>
       </div>
-      <span>근무 ${workCount}일 · 휴무 ${offCount - leaveCount}일 · 연차 ${leaveCount}일</span>
+      <div class="view-title-side">${renderPersonPicker()}<span>근무 ${workCount}일 · 휴무 ${offCount - leaveCount}일 · 연차 ${leaveCount}일</span></div>
     </div>
     <div class="month-legend">
       <span><i class="legend-dot work"></i>근무</span>
@@ -1823,6 +1985,12 @@ function renderRosterBlocks(day) {
   return `<div class="info-card roster-card">${workSections}<div class="roster-section"><h4>휴무/연차</h4><div class="roster-pill-wrap">${off}</div></div></div>`;
 }
 
+function getSameOffPeopleText(day) {
+  const roster = getDayRoster(day);
+  const names = roster.offPeople.map((p) => p.name).filter((name) => name && name !== state.myName);
+  return names.length ? ` · 같이 쉬는 사람: ${names.join(', ')}` : '';
+}
+
 function renderOffDays() {
   const person = getMyPerson();
   const rows = person ? getScheduleRowsForPerson(person).filter((row) => ['off', 'leave'].includes(row.type)) : [];
@@ -1861,13 +2029,13 @@ function renderOffDays() {
         <h3>휴무일 모아보기</h3>
         <p>${state.myName || '내 이름 미입력'} 기준 · 이번 달 쉬는 날을 계획용으로 다시 정리합니다.</p>
       </div>
-      <span>총 ${rows.length}일</span>
+      <div class="view-title-side">${renderPersonPicker()}<span>총 ${rows.length}일</span></div>
     </div>
     <div class="offday-summary-grid">
       <button class="offday-summary-card next" data-pick-day="${nextOff.day}">
         <span>다음 휴무</span>
         <strong>${nextOff.dateText}</strong>
-        <em>${nextOff.code} · ${nextOff.label}</em>
+        <em>${nextOff.code} · ${nextOff.label}${getSameOffPeopleText(nextOff.day)}</em>
       </button>
       <div class="offday-summary-card">
         <span>휴무</span>
@@ -1897,21 +2065,30 @@ function renderOffDays() {
       ${Object.entries(grouped).map(([group, items]) => `
         <section class="offday-group">
           <h4>${group} <span>${items.length}일</span></h4>
-          <div class="offday-chip-list">${items.map((row) => `<button class="offday-chip ${badgeClass(row.type)}" data-pick-day="${row.day}"><strong>${row.dateText}</strong><span>${row.code}</span></button>`).join('')}</div>
+          <div class="offday-chip-list">${items.map((row) => `<button class="offday-chip ${badgeClass(row.type)}" data-pick-day="${row.day}"><strong>${row.dateText}</strong><small>${getSameOffPeopleText(row.day) || '같이 쉬는 사람 없음'}</small><span>${row.code}</span></button>`).join('')}</div>
         </section>
       `).join('')}
     </div>
   `;
 }
 
-function makeRosterShareText() {
+function makeRosterShareText(template = state.shareTemplate || 'detailed') {
   const day = getSelectedRosterDay();
   const roster = getDayRoster(day);
-  const rosterText = Object.entries(roster.byStart)
-    .sort(([a], [b]) => a.localeCompare(b))
+  const sortedEntries = Object.entries(roster.byStart).sort(([a], [b]) => a.localeCompare(b));
+  const offNames = roster.offPeople.map((p) => p.name).join(', ') || '없음';
+  if (template === 'simple') {
+    const workNames = sortedEntries.flatMap(([, people]) => people.map((p) => p.name)).join(', ') || '없음';
+    return `[${state.month}/${day} 출근 현황]\n출근: ${workNames}\n휴무/연차: ${offNames}`;
+  }
+  if (template === 'names') {
+    const workNames = sortedEntries.flatMap(([, people]) => people.map((p) => p.name)).join(', ') || '없음';
+    return `[${state.month}/${day} 인원 요약]\n근무자: ${workNames}\n휴무자: ${offNames}`;
+  }
+  const rosterText = sortedEntries
     .map(([time, people]) => `${time} 출근: ${people.map((p) => p.name).join(', ')}`)
     .join('\n');
-  return `[${state.month}/${day} 출근 현황]\n${rosterText || '출근자 없음'}\n휴무/연차: ${roster.offPeople.map((p) => p.name).join(', ') || '없음'}`;
+  return `[${state.month}/${day} 출근 현황]\n${rosterText || '출근자 없음'}\n휴무/연차: ${offNames}`;
 }
 
 function makePersonalScheduleText() {
@@ -1925,10 +2102,15 @@ function makePersonalScheduleText() {
 }
 
 function renderShare() {
-  const rosterText = makeRosterShareText();
+  const rosterText = makeRosterShareText(state.shareTemplate || 'detailed');
   const personalText = makePersonalScheduleText();
   return `
     <div class="view-title"><div><h3>공유·엑셀</h3><p>선택일 기준 출근 현황을 바로 복사하고, 엑셀에는 전체 데이터와 출근 현황이 함께 저장됩니다.</p></div></div>
+    <div class="template-toggle">
+      <button class="ghost-btn ${state.shareTemplate === 'detailed' ? 'active' : ''}" data-share-template="detailed" type="button">상세형</button>
+      <button class="ghost-btn ${state.shareTemplate === 'simple' ? 'active' : ''}" data-share-template="simple" type="button">간단형</button>
+      <button class="ghost-btn ${state.shareTemplate === 'names' ? 'active' : ''}" data-share-template="names" type="button">이름만</button>
+    </div>
     <div class="share-layout">
       <section class="share-card primary-share">
         <h4>출근 현황 공유문</h4>
@@ -1948,7 +2130,7 @@ function renderShare() {
 }
 
 function makeShareText() {
-  return makeRosterShareText();
+  return makeRosterShareText(state.shareTemplate || 'detailed');
 }
 
 function renderArchive() {
@@ -1966,6 +2148,10 @@ function renderArchive() {
       ${records.map((record) => {
         const savedMonth = state.monthStore?.[record.key];
         const peopleCount = savedMonth?.people?.filter((p) => p.name).length || 0;
+        const statusBadges = [
+          record.imageName || record.thumbData ? '이미지 있음' : '이미지 없음',
+          peopleCount ? `데이터 ${peopleCount}명` : (record.cloud ? '클라우드 저장됨' : '데이터 없음'),
+        ];
         const activeClass = record.key === monthKey() ? 'active' : '';
         return `
           <article class="archive-card ${activeClass}">
@@ -1973,7 +2159,7 @@ function renderArchive() {
             <div class="archive-body">
               <strong>${record.year}년 ${record.month}월</strong>
               <span>${escapeHtml(record.imageName || '스케줄표 이미지')}</span>
-              <small>스케줄 ${peopleCount}명 · 저장 ${formatSavedDate(record.updatedAt)}</small>
+              <div class="archive-status">${statusBadges.map((badge) => `<em>${escapeHtml(badge)}</em>`).join('')}</div><small>저장 ${formatSavedDate(record.updatedAt)}</small>
             </div>
             <div class="archive-actions">
               <button class="primary-btn load-month" data-month-key="${record.key}">불러오기</button>
@@ -1994,18 +2180,33 @@ function formatSavedDate(value) {
 }
 
 function renderSettings() {
+  const typeOptions = [
+    ['work', '근무'],
+    ['off', '휴무'],
+    ['leave', '연차'],
+    ['unknown', '기타/미정'],
+  ];
   const rows = Object.entries(state.codes).map(([code, info]) => `
     <div class="code-editor-row compact-code-card">
       <label><span>코드</span><input data-code-key="${code}" value="${escapeHtml(code)}" /></label>
       <label><span>의미</span><input data-code-prop="label" data-code="${code}" value="${escapeHtml(info.label)}" placeholder="의미" /></label>
+      <label><span>유형</span><select data-code-prop="type" data-code="${code}">${typeOptions.map(([value, label]) => `<option value="${value}" ${deriveCodeType(code, info) === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
       <label><span>출근</span><input data-code-prop="start" data-code="${code}" value="${escapeHtml(info.start)}" placeholder="출근" /></label>
       <label><span>퇴근</span><input data-code-prop="end" data-code="${code}" value="${escapeHtml(info.end)}" placeholder="퇴근" /></label>
       <button class="ghost-btn delete-code" data-code="${code}" type="button">삭제</button>
     </div>
   `).join('');
   return `
-    <div class="view-title settings-title"><div><h3>근무 코드 설정</h3><p>코드별 의미와 시간을 카드 형태로 빠르게 확인·수정합니다.</p></div><button id="addCodeButton" class="secondary-btn">코드 추가</button></div>
-    <div class="notice"><strong>유형 규칙</strong><span>시간이 있으면 근무, 시간이 없고 AL이면 연차, DO/PH/SD/RT/CC는 휴무로 처리됩니다.</span></div>
+    <div class="view-title settings-title"><div><h3>근무 코드 설정</h3><p>코드별 의미, 시간, 유형을 카드 형태로 관리합니다.</p></div><button id="addCodeButton" class="secondary-btn">코드 추가</button></div>
+    <div class="settings-helper-grid">
+      <section class="data-guide-card default-names-card">
+        <h3>기본 직원 목록</h3>
+        <p>OCR 보조와 사람 추가 시 기본으로 사용할 이름 목록입니다. 한 줄 또는 공백으로 구분해 입력해 주세요.</p>
+        <textarea id="defaultNamesInput" class="share-box" rows="4">${escapeHtml(getDefaultNamesText())}</textarea>
+        <button id="saveDefaultNamesButton" class="secondary-btn" type="button">기본 이름 저장</button>
+      </section>
+      <div class="notice"><strong>유형 규칙</strong><span>근무/휴무/연차를 직접 지정할 수 있어요. 출근·퇴근 시간이 있는 코드는 기본적으로 근무로 인식됩니다.</span></div>
+    </div>
     <div id="codeEditor" class="code-editor-grid">${rows}</div>
   `;
 }
@@ -2029,6 +2230,41 @@ async function moveSelectedWeek(direction) {
 }
 
 function bindViewEvents() {
+  document.querySelectorAll('[data-editor-filter]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.editorFilter = button.dataset.editorFilter || 'all';
+      renderScheduleTable();
+      saveState(false);
+    });
+  });
+  document.querySelectorAll('[data-person-select]').forEach((select) => {
+    select.addEventListener('change', () => {
+      state.myName = select.value;
+      syncInputs();
+      renderAll();
+      saveState(false);
+    });
+  });
+  document.querySelectorAll('[data-share-template]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.shareTemplate = button.dataset.shareTemplate || 'detailed';
+      renderViews();
+      saveState(false);
+    });
+  });
+  el('saveDefaultNamesButton')?.addEventListener('click', () => {
+    const names = parseDefaultNames(el('defaultNamesInput')?.value || '');
+    if (!names.length) {
+      alert('기본 이름을 한 명 이상 입력해 주세요.');
+      return;
+    }
+    state.defaultNames = names;
+    state.ocr.names = names.join(' ');
+    syncOcrInputs();
+    markUnsavedChanges('기본 직원 목록이 변경됐어요. 저장 버튼을 눌러 반영해 주세요.');
+    saveState(false);
+    alert('기본 직원 목록을 저장했어요.');
+  });
   document.querySelectorAll('[data-pick-day]').forEach((button) => {
     button.addEventListener('click', () => {
       const day = String(button.dataset.pickDay).padStart(2, '0');
@@ -2056,8 +2292,8 @@ function bindViewEvents() {
   document.querySelectorAll('.load-month').forEach((button) => {
     button.addEventListener('click', async () => {
       const { year, month } = parseMonthKey(button.dataset.monthKey);
-      await changeActiveMonth(year, month);
-      switchPage('setup', true);
+      const changed = await changeActiveMonth(year, month);
+      if (changed) switchPage('setup', true);
     });
   });
   document.querySelectorAll('.delete-month-image').forEach((button) => {
@@ -2106,8 +2342,10 @@ function bindViewEvents() {
       const code = input.dataset.code;
       const prop = input.dataset.codeProp;
       state.codes[code][prop] = input.value;
-      state.codes[code].type = deriveCodeType(code, state.codes[code]);
+      if (prop === 'type') state.codes[code].type = input.value;
+      else state.codes[code].type = deriveCodeType(code, state.codes[code]);
       renderAll();
+      markUnsavedChanges('근무 코드 설정이 변경됐어요. 저장 버튼을 눌러 반영해 주세요.');
       saveState(false);
     });
   });
@@ -2115,6 +2353,7 @@ function bindViewEvents() {
     button.addEventListener('click', () => {
       delete state.codes[button.dataset.code];
       renderViews();
+      markUnsavedChanges('근무 코드가 삭제됐어요. 저장 버튼을 눌러 반영해 주세요.');
       saveState(false);
     });
   });
@@ -2170,7 +2409,8 @@ function downloadExcel() {
   XLSX.writeFile(wb, `schedule_${state.year}_${String(state.month).padStart(2, '0')}_${state.myName || 'me'}.xlsx`);
 }
 
-function deriveCodeType(code, info) {
+function deriveCodeType(code, info = {}) {
+  if (['work', 'off', 'leave', 'unknown'].includes(info.type)) return info.type;
   if (info.start || info.end) return 'work';
   if (code === 'AL') return 'leave';
   if (['DO', 'PH', 'SD', 'RT', 'CC'].includes(code)) return 'off';
@@ -2255,6 +2495,9 @@ function loadState() {
     state.monthStore = parsed.monthStore || {};
     state.archiveMeta = Array.isArray(parsed.archiveMeta) ? parsed.archiveMeta : [];
     state.ocr = { ...getDefaultOcrState(), ...(parsed.ocr || {}) };
+    state.defaultNames = Array.isArray(parsed.defaultNames) && parsed.defaultNames.length ? parsed.defaultNames : getInitialDefaultNames();
+    state.editorFilter = parsed.editorFilter || 'all';
+    state.shareTemplate = parsed.shareTemplate || 'detailed';
     state.activePage = parsed.activePage || parsed.activeTab || 'home';
     ensureMonthStore();
     normalizeOcrDefaultNames();
