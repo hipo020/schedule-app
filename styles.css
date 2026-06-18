@@ -2826,3 +2826,213 @@ select:focus {
     margin-left: 6px;
   }
 }
+
+/* =========================================
+   v2.7 Solid pastel refinement
+   - 박스 내부 그라데이션 제거
+   - 카드 안쪽 여백 보강
+   - 원본 이미지 뷰어는 예전 방식 유지 + 현재 스타일만 적용
+========================================= */
+
+/* 네모/카드형 박스는 단색 중심으로 정리 */
+.hero-card,
+.account-card,
+.auth-card,
+.page-area,
+.data-guide-card,
+.info-card,
+.summary-card,
+.ocr-control-card,
+.ocr-preview-card,
+.archive-card,
+.share-card,
+.offday-summary-card,
+.offday-group,
+.offday-planner-card,
+.drop-zone,
+.image-preview-wrap,
+.upload-status,
+.notice,
+.empty-archive,
+.csv-preview-card,
+.table-scroll,
+.ocr-progress,
+.cloud-status,
+.image-month-picker,
+.roster-card,
+.mini-stat,
+.compact-code-card,
+.code-editor-row,
+.week-day-card,
+.day-cell,
+.archive-thumb {
+  background-image: none !important;
+}
+
+.hero-card,
+.account-card,
+.auth-card,
+.page-area,
+.data-guide-card,
+.archive-card,
+.share-card,
+.ocr-control-card,
+.ocr-preview-card,
+.offday-group,
+.offday-planner-card,
+.drop-zone,
+.upload-status,
+.table-scroll,
+.csv-preview-card,
+.roster-card,
+.compact-code-card,
+.code-editor-row {
+  background-color: #FFFFFF !important;
+}
+
+.cloud-status,
+.notice,
+.info-card,
+.image-preview-wrap,
+.ocr-progress,
+.empty-archive,
+.archive-thumb,
+.mini-stat {
+  background-color: #FAFAF2 !important;
+}
+
+.data-guide-card:nth-child(1),
+.summary-cards .summary-card:nth-child(3n+1),
+.offday-summary-card:nth-child(1),
+.share-card:nth-child(1) {
+  background-color: #DDEEEE !important;
+}
+
+.data-guide-card:nth-child(2),
+.summary-cards .summary-card:nth-child(3n+2),
+.offday-summary-card:nth-child(2),
+.share-card:nth-child(2) {
+  background-color: #F4F8D8 !important;
+}
+
+.summary-cards .summary-card:nth-child(3n),
+.offday-summary-card:nth-child(3) {
+  background-color: #FBEADC !important;
+}
+
+.category-tab[data-category="view"] { background: #FFFFFF !important; }
+.category-tab[data-category="manage"] { background: #F4F8D8 !important; }
+.category-tab[data-category="export"] { background: #FBEADC !important; }
+.category-tab.active { background: #080812 !important; color: #FFFFFF !important; }
+.category-tab.active .category-icon { background: rgba(255,255,255,0.16) !important; }
+.category-tab.active small { color: rgba(255,255,255,0.72) !important; }
+
+/* 장식성 그라데이션 원은 아주 약하게만 유지 */
+.hero-card::after,
+.auth-card::after,
+.page-area::before {
+  opacity: 0.16 !important;
+}
+
+/* 페이지 박스와 안쪽 콘텐츠 사이 여백 보강 */
+.page-area {
+  padding: 46px !important;
+}
+
+.app-page.active .panel {
+  padding: 2px 4px;
+}
+
+.home-panel .section-title,
+.view-panel .section-title,
+.editor-panel .section-title,
+.setup-panel .section-title {
+  margin-bottom: 30px;
+}
+
+.summary-cards,
+.card-grid,
+.week-grid,
+.improved-week-grid,
+.data-input-grid,
+.review-summary-grid,
+.offday-summary-grid,
+.share-layout,
+.archive-grid {
+  gap: 20px !important;
+}
+
+/* 원본 이미지 뷰어: 예전 플로팅 버튼 + 중앙 모달 방식으로 복귀 */
+.image-modal-content {
+  position: relative;
+  width: 92vw !important;
+  max-width: 1200px !important;
+  height: 88vh !important;
+  max-height: 88vh !important;
+  border-radius: 30px !important;
+  background: #FFFFFF !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-shadow: 0 28px 70px rgba(8, 8, 18, 0.20) !important;
+  animation: modalFadeIn 0.24s ease !important;
+}
+
+.image-modal-header {
+  min-height: 66px;
+  padding: 16px 22px !important;
+  background: #FFFFFF !important;
+}
+
+.image-modal-header h3 {
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--navy);
+}
+
+.image-modal-body {
+  background: #FAFAF2 !important;
+}
+
+.image-modal-body img {
+  border-radius: 18px !important;
+}
+
+/* 혹시 남아있을 월 선택 UI 스타일은 숨김 처리 */
+.image-modal-header-enhanced,
+.image-modal-title-group,
+.image-modal-actions,
+.image-month-picker,
+#modalImageMonthSelect,
+#modalImageInfo {
+  all: revert-layer;
+}
+
+@media (max-width: 780px) {
+  .page-area {
+    padding: 24px 18px !important;
+  }
+
+  .app-page.active .panel {
+    padding: 0;
+  }
+
+  .summary-cards,
+  .card-grid,
+  .data-input-grid,
+  .offday-summary-grid,
+  .share-layout {
+    gap: 14px !important;
+  }
+
+  .image-modal-content {
+    width: calc(100vw - 18px) !important;
+    height: calc(100dvh - 18px) !important;
+    max-height: calc(100dvh - 18px) !important;
+    border-radius: 24px !important;
+  }
+
+  .image-modal-header {
+    padding: 14px 16px !important;
+  }
+}
