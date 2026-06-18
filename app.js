@@ -2136,14 +2136,14 @@ function renderDailyTimeline(day) {
 
   const mobileHourHeight = 52;
   const mobileTotalHeight = Math.max((window.end - window.start) / 60 * mobileHourHeight, 560);
-  const mobileLaneWidth = 22;
+  const mobileLaneWidth = 42;
   const mobileTimeTicks = window.hours.map((minute) => {
     const top = ((minute - window.start) / (window.end - window.start)) * mobileTotalHeight;
     const hourOnly = String(Math.floor(minute / 60) % 24);
     return `<span style="top:${top}px">${hourOnly}</span>`;
   }).join('');
-  const mobileLanePitch = 40;
-  const mobileLanesWidth = Math.max(workItems.length * mobileLanePitch, 260);
+  const mobileLanePitch = 42;
+  const mobileLanesWidth = Math.max(workItems.length * mobileLanePitch, mobileLanePitch);
   const mobileLanes = workItems.map((item) => {
     const top = ((item.start - window.start) / (window.end - window.start)) * mobileTotalHeight;
     const height = Math.max(((item.end - item.start) / (window.end - window.start)) * mobileTotalHeight, 84);
@@ -2158,7 +2158,7 @@ function renderDailyTimeline(day) {
     <div class="mobile-vertical-timeline" style="--mobile-timeline-height:${mobileTotalHeight}px">
       <div class="mobile-vertical-time-scale" style="height:${mobileTotalHeight}px">${mobileTimeTicks}</div>
       <div class="mobile-vertical-scroll">
-        <div class="mobile-vertical-lanes" style="min-width:100%;width:${mobileLanesWidth}px">${mobileLanes}</div>
+        <div class="mobile-vertical-lanes" style="width:${mobileLanesWidth}px">${mobileLanes}</div>
       </div>
     </div>
   ` : '';
@@ -2171,7 +2171,7 @@ function renderDailyTimeline(day) {
       <div class="timeline-card-head">
         <div>
           <h4>근무 타임라인</h4>
-          <p>PC에서는 시간축을 가로로, 모바일에서는 얇은 세로 바와 포스트잇 라벨로 보여줘요.</p>
+          <p>오늘 근무 시간을 타임라인으로 확인해요.</p>
         </div>
         <span>근무 ${workItems.length}명 · 피크 ${getPeakCoverage(workItems)}</span>
       </div>

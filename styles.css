@@ -5830,3 +5830,123 @@ body::after,
     line-height: 0.95;
   }
 }
+
+/* v2.21 모바일 일간 타임라인 레이아웃 정돈 */
+@media (max-width: 720px) {
+  .daily-timeline-card {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .timeline-card-head p {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .mobile-vertical-timeline {
+    grid-template-columns: 10px minmax(0, 1fr);
+    gap: 4px;
+    align-items: start;
+    max-width: 100%;
+  }
+
+  .mobile-vertical-time-scale {
+    font-size: 7px;
+    color: #8a98a5;
+  }
+
+  .mobile-vertical-time-scale span {
+    right: 1px;
+  }
+
+  .mobile-vertical-scroll {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-left: 0;
+    padding-right: 28px;
+    padding-bottom: 64px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-vertical-lanes {
+    width: max-content !important;
+    min-width: 0 !important;
+    display: flex;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    align-items: stretch;
+    padding-left: 2px;
+    padding-right: 18px;
+  }
+
+  .mobile-vertical-lane {
+    width: 42px !important;
+    min-width: 42px !important;
+    flex: 0 0 42px !important;
+    overflow: visible;
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .mobile-vertical-lane::before {
+    opacity: 0.45;
+  }
+
+  .mobile-vertical-bar {
+    left: 50%;
+    right: auto;
+    width: 6px;
+    min-width: 6px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    overflow: visible;
+    box-shadow: 0 5px 10px rgba(39, 86, 87, 0.05);
+  }
+
+  .mobile-vertical-label {
+    top: 1px;
+    left: 50%;
+    width: max-content;
+    min-width: 28px;
+    max-width: none;
+    padding: 2px 4px;
+    border-radius: 8px 8px 8px 3px;
+    transform: translate(-50%, -2px) rotate(-1deg);
+    overflow: visible;
+    text-align: center;
+    align-items: center;
+    box-shadow: 0 3px 7px rgba(76, 60, 22, 0.08);
+  }
+
+  .mobile-vertical-label::before {
+    left: 50%;
+    top: 100%;
+    width: 5px;
+    height: 5px;
+    transform: translate(-50%, -3px) rotate(45deg);
+    border-left: 0;
+    border-bottom: 1px solid rgba(197, 150, 56, 0.16);
+    border-right: 1px solid rgba(197, 150, 56, 0.16);
+  }
+
+  .mobile-vertical-bar .mobile-vertical-label strong,
+  .mobile-vertical-bar .mobile-vertical-label small {
+    max-width: none;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+    letter-spacing: -0.07em;
+  }
+
+  .mobile-vertical-bar .mobile-vertical-label strong {
+    font-size: 7px;
+    line-height: 1.02;
+  }
+
+  .mobile-vertical-bar .mobile-vertical-label small {
+    margin-top: 0;
+    font-size: 6px;
+    line-height: 0.95;
+  }
+}
