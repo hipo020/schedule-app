@@ -214,9 +214,18 @@ function migrateOcrDefaultNames() {
 async function init() {
   loadState();
   migrateOcrDefaultNames();
-  initMonthSelect();
-  bindEvents();
+
+  // 로그인 버튼은 앱 내부 UI 초기화보다 먼저 연결합니다.
+  // 이후 화면 요소에서 오류가 생겨도 Google 로그인 버튼이 죽지 않도록 분리합니다.
   bindAuthEvents();
+
+  try {
+    initMonthSelect();
+    bindEvents();
+  } catch (error) {
+    console.error('앱 UI 초기화 오류', error);
+    setAuthMessage('화면 초기화 중 일부 오류가 있어요. Google 로그인은 계속 사용할 수 있습니다.', 'error');
+  }
 
   const authenticated = await initAuth();
   if (!authenticated) {
