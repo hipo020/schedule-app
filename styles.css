@@ -3810,3 +3810,443 @@ body::after,
     border-radius: 24px !important;
   }
 }
+
+/* =========================================
+   v2.9 Final soft solid UI correction
+   - 화살표 표시 영역 기준: 과하게 키운 페이지 여백 복구
+   - 박스 내부 그라데이션/장식 제거
+   - 선택 탭은 연한 기본색 -> 선택 시 단색 파스텔
+   - 원본 근무표 버튼은 앱쉘 안, 페이지 밖 fixed 위치로 고정
+========================================= */
+:root {
+  --ui-bg: #FAFAF2;
+  --ui-card: #FFFFFF;
+  --ui-base: #FFFDF7;
+  --ui-cream: #F8F9EA;
+  --ui-mint: #DDEEEE;
+  --ui-mint-light: #F3FAFA;
+  --ui-lime: #F4F8D8;
+  --ui-lime-light: #FBFDEC;
+  --ui-peach: #FBEADC;
+  --ui-peach-light: #FFF5EC;
+  --ui-text: #0B0B14;
+  --ui-sub: #8C8C8C;
+  --ui-line: rgba(11, 11, 20, 0.08);
+  --ui-line-soft: rgba(11, 11, 20, 0.045);
+  --ui-shadow: 0 16px 34px rgba(11, 11, 20, 0.055);
+  --ui-shadow-soft: 0 8px 18px rgba(11, 11, 20, 0.045);
+}
+
+body {
+  color: var(--ui-text) !important;
+  background: var(--ui-bg) !important;
+}
+
+body::before,
+body::after,
+.hero-card::after,
+.auth-card::after,
+.page-area::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* 모든 주요 박스 내부는 단색으로 고정 */
+.hero-card,
+.account-card,
+.auth-card,
+.page-area,
+.panel,
+.data-guide-card,
+.info-card,
+.summary-card,
+.ocr-control-card,
+.ocr-preview-card,
+.ocr-result-card,
+.archive-card,
+.share-card,
+.offday-summary-card,
+.offday-group,
+.offday-planner-card,
+.drop-zone,
+.image-preview-wrap,
+.upload-status,
+.notice,
+.empty-archive,
+.csv-preview-card,
+.table-scroll,
+.ocr-progress,
+.cloud-status,
+.image-month-picker,
+.roster-card,
+.roster-section,
+.mini-stat,
+.offday-chip,
+.offday-streak,
+.person-pill,
+.archive-thumb,
+.image-modal-content,
+.image-modal-header,
+.image-modal-body,
+.month-title span,
+.week-nav span,
+.stat-pill,
+.mini-checklist span,
+.auth-message,
+.sheet-nav,
+.sheet-tab,
+.category-tab,
+.category-icon,
+.badge,
+.day-code {
+  background-image: none !important;
+  background-blend-mode: normal !important;
+}
+
+.hero-card,
+.account-card,
+.auth-card,
+.page-area,
+.data-guide-card,
+.archive-card,
+.share-card,
+.ocr-control-card,
+.ocr-preview-card,
+.offday-group,
+.offday-planner-card,
+.drop-zone,
+.table-scroll,
+.roster-card,
+.compact-code-card,
+.code-editor-row,
+.image-modal-content,
+.image-modal-header {
+  background-color: var(--ui-card) !important;
+  border: 1px solid var(--ui-line-soft) !important;
+  box-shadow: var(--ui-shadow) !important;
+}
+
+.cloud-status,
+.notice,
+.upload-status,
+.empty-archive,
+.ocr-progress,
+.sheet-nav,
+.image-modal-body,
+.csv-preview-card,
+.image-preview-wrap,
+.archive-thumb,
+.mini-stat,
+.month-title span,
+.week-nav span,
+.stat-pill,
+.mini-checklist span,
+.person-pill,
+.offday-streak {
+  background-color: var(--ui-base) !important;
+  border: 1px solid var(--ui-line-soft) !important;
+  box-shadow: var(--ui-shadow-soft) !important;
+}
+
+/* 홈 카드 색상은 단색 유지 */
+.summary-cards .summary-card:nth-child(3n+1),
+.info-card:nth-child(1) {
+  background-color: var(--ui-mint) !important;
+}
+.summary-cards .summary-card:nth-child(3n+2) {
+  background-color: var(--ui-lime) !important;
+}
+.summary-cards .summary-card:nth-child(3n),
+.info-card:nth-child(2) {
+  background-color: var(--ui-peach) !important;
+}
+
+/* 과하게 키웠던 페이지 여백은 되돌림 */
+.page-area {
+  padding: 44px !important;
+  overflow: visible !important;
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: none !important;
+  border-radius: 34px !important;
+}
+
+.app-page.active .panel {
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+.home-panel {
+  max-width: none !important;
+}
+
+.home-panel .section-title,
+.view-panel .section-title,
+.editor-panel .section-title,
+.setup-panel .section-title {
+  margin-bottom: 28px !important;
+}
+
+.summary-cards {
+  gap: 24px !important;
+  margin-top: 12px !important;
+}
+
+.summary-cards .summary-card {
+  padding: 28px 30px !important;
+  min-height: 150px !important;
+}
+
+/* 상위 카테고리 탭: 기본은 아주 연하고, 선택 시 해당 색으로 자연스럽게 */
+.category-tab {
+  background-color: #FFFFFF !important;
+  color: var(--ui-text) !important;
+  border: 1px solid var(--ui-line-soft) !important;
+  outline: 0 !important;
+  box-shadow: var(--ui-shadow-soft) !important;
+}
+
+.category-tab[data-category="view"] {
+  background-color: var(--ui-mint-light) !important;
+}
+.category-tab[data-category="manage"] {
+  background-color: var(--ui-lime-light) !important;
+}
+.category-tab[data-category="export"] {
+  background-color: var(--ui-peach-light) !important;
+}
+
+.category-tab.active[data-category="view"] {
+  background-color: var(--ui-mint) !important;
+  border-color: rgba(87, 134, 143, 0.28) !important;
+}
+.category-tab.active[data-category="manage"] {
+  background-color: var(--ui-lime) !important;
+  border-color: rgba(139, 151, 64, 0.22) !important;
+}
+.category-tab.active[data-category="export"] {
+  background-color: var(--ui-peach) !important;
+  border-color: rgba(170, 113, 75, 0.22) !important;
+}
+
+.category-tab.active,
+.category-tab.active strong,
+.category-tab.active small,
+.category-tab.active span,
+.category-tab strong,
+.category-tab small,
+.category-tab span {
+  color: var(--ui-text) !important;
+}
+
+.category-tab small,
+.category-tab.active small {
+  opacity: 0.66 !important;
+}
+
+.category-tab .category-icon,
+.category-tab.active .category-icon {
+  background-color: #FFFFFF !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-shadow-soft) !important;
+}
+
+/* 하위 탭도 선택 시 흰 글씨 금지 */
+.sheet-nav {
+  background-color: rgba(255, 255, 255, 0.72) !important;
+  box-shadow: var(--ui-shadow-soft) !important;
+}
+.sheet-tab {
+  background-color: #FFFFFF !important;
+  color: var(--ui-text) !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+}
+.category-shell[data-active-category="view"] .sheet-tab.active {
+  background-color: var(--ui-mint) !important;
+  border-color: rgba(87, 134, 143, 0.22) !important;
+}
+.category-shell[data-active-category="manage"] .sheet-tab.active {
+  background-color: var(--ui-lime) !important;
+  border-color: rgba(139, 151, 64, 0.18) !important;
+}
+.category-shell[data-active-category="export"] .sheet-tab.active {
+  background-color: var(--ui-peach) !important;
+  border-color: rgba(170, 113, 75, 0.18) !important;
+}
+.sheet-tab.active,
+.sheet-tab.active span,
+.sheet-tab.active strong,
+.sheet-tab.active small,
+.sheet-tab:hover {
+  color: var(--ui-text) !important;
+}
+
+/* 어두운 버튼 완전 배제: 저장/주요 버튼 포함 */
+.primary-btn,
+.secondary-btn,
+.ghost-btn,
+.week-nav-btn,
+.archive-actions button,
+#cloudSaveButton,
+#cloudReloadButton,
+#logoutButton,
+#saveButton,
+#saveImportedCsvButton,
+#importCsvButton,
+#downloadExcelButton,
+#copyShareButton,
+#copyPersonalShareButton,
+#runOcrButton,
+#applyOcrToEditorButton,
+#uploadButton,
+#addPersonButton,
+#addCodeButton,
+#copyExtractionPromptButton,
+#copyExtractionPromptButton2 {
+  background-color: #FFFFFF !important;
+  color: var(--ui-text) !important;
+  border: 1px solid var(--ui-line) !important;
+  box-shadow: var(--ui-shadow-soft) !important;
+}
+
+#cloudSaveButton,
+#saveButton,
+#saveImportedCsvButton,
+#importCsvButton,
+#downloadExcelButton,
+#copyShareButton,
+#runOcrButton,
+#applyOcrToEditorButton,
+#copyExtractionPromptButton2 {
+  background-color: var(--ui-mint) !important;
+}
+
+.primary-btn:hover,
+.secondary-btn:hover,
+.ghost-btn:hover,
+.week-nav-btn:hover,
+.archive-actions button:hover {
+  background-color: var(--ui-lime-light) !important;
+  color: var(--ui-text) !important;
+}
+
+/* 휴무일 카드: 날짜가 잘 보이도록 글자색 + 단색 고정 */
+.offday-summary-card,
+.offday-summary-card.next,
+.offday-summary-card.leave {
+  background-color: #FFFFFF !important;
+  color: var(--ui-text) !important;
+  background-image: none !important;
+}
+.offday-summary-card.next {
+  background-color: var(--ui-peach) !important;
+}
+.offday-summary-card.leave {
+  background-color: var(--ui-lime) !important;
+}
+.offday-summary-card.next span,
+.offday-summary-card.next strong,
+.offday-summary-card.next em,
+.offday-summary-card span,
+.offday-summary-card strong,
+.offday-summary-card em {
+  color: var(--ui-text) !important;
+}
+.offday-summary-card.next strong {
+  color: #5B3329 !important;
+}
+.offday-summary-card em {
+  opacity: 0.72 !important;
+}
+
+/* 원본 근무표 버튼: 페이지 내부가 아니라 화면 기준으로 항상 고정 */
+#floatingImageViewerBtn,
+.floating-btn {
+  position: fixed !important;
+  right: calc(24px + env(safe-area-inset-right)) !important;
+  bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 2147483000 !important;
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 999px !important;
+  background-color: #FFFFFF !important;
+  color: var(--ui-text) !important;
+  border: 1px solid var(--ui-line) !important;
+  box-shadow: 0 18px 42px rgba(11, 11, 20, 0.16) !important;
+}
+
+#floatingImageViewerBtn:hover,
+.floating-btn:hover {
+  background-color: var(--ui-mint) !important;
+}
+
+/* 원본 이미지 모달 + 월 선택 드롭다운 유지 */
+.image-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147482999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 22px !important;
+}
+.image-modal.is-hidden {
+  display: none !important;
+}
+.image-month-picker,
+.image-modal-actions,
+.image-modal-title-group,
+.image-modal-header-enhanced {
+  display: flex !important;
+}
+.image-month-picker {
+  align-items: center !important;
+  gap: 8px !important;
+  background-color: var(--ui-cream) !important;
+}
+.image-month-picker select,
+#modalImageMonthSelect,
+#modalImageInfo {
+  color: var(--ui-text) !important;
+}
+
+@media (max-width: 780px) {
+  .page-area {
+    padding: 26px 18px 34px !important;
+    border-radius: 28px !important;
+  }
+  .summary-cards {
+    gap: 12px !important;
+  }
+  .summary-cards .summary-card {
+    padding: 22px !important;
+    min-height: 118px !important;
+  }
+  #floatingImageViewerBtn,
+  .floating-btn {
+    right: calc(16px + env(safe-area-inset-right)) !important;
+    bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+    width: 54px !important;
+    height: 54px !important;
+  }
+  .image-modal {
+    padding: 10px !important;
+  }
+  .image-modal-header-enhanced {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .image-modal-actions {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 10px !important;
+  }
+  .image-month-picker {
+    min-width: 0 !important;
+  }
+}
