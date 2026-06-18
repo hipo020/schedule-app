@@ -3036,3 +3036,358 @@ select:focus {
     padding: 14px 16px !important;
   }
 }
+
+/* =========================================
+   v2.7 Solid pastel refinement
+   - 카드 그라데이션 제거
+   - 홈 페이지 내부 여백 보강
+   - 선택 탭 색상 자연스럽게 완화
+   - 원본 이미지 뷰어는 우하단 플로팅 + 중앙 모달 방식 유지
+========================================= */
+:root {
+  --solid-bg: #FAFAF2;
+  --solid-card: #FFFFFF;
+  --solid-mint: #EAF5F4;
+  --solid-lime: #F6F8DD;
+  --solid-peach: #FCEBDF;
+  --solid-blue: #E9F4FA;
+  --solid-active: #EEF4EE;
+  --solid-text: #0B0B14;
+  --solid-muted: #8C8C8C;
+  --solid-line: rgba(11, 11, 20, 0.055);
+  --solid-shadow: 0 16px 38px rgba(11, 11, 20, 0.055), 0 6px 16px rgba(11, 11, 20, 0.035);
+}
+
+/* 카드와 네모 박스는 단색으로 통일 */
+.hero-card,
+.auth-card,
+.page-area,
+.data-guide-card,
+.info-card,
+.summary-card,
+.ocr-control-card,
+.ocr-preview-card,
+.ocr-result-card,
+.archive-card,
+.share-card,
+.offday-summary-card,
+.offday-group,
+.offday-planner-card,
+.drop-zone,
+.image-preview-wrap,
+.upload-status,
+.notice,
+.empty-archive,
+.csv-preview-card,
+.table-scroll,
+.ocr-progress,
+.cloud-status,
+.image-month-picker,
+.compact-code-card,
+.code-editor-row,
+.roster-card,
+.mini-stat,
+.offday-chip,
+.offday-streak,
+.person-pill,
+.archive-thumb,
+.image-modal-content,
+.image-modal-header,
+.image-modal-body,
+.month-title span,
+.week-nav span,
+.stat-pill,
+.mini-checklist span,
+.auth-message {
+  background-image: none !important;
+  background: var(--solid-card) !important;
+  border: 1px solid var(--solid-line) !important;
+  box-shadow: var(--solid-shadow) !important;
+}
+
+body {
+  background:
+    radial-gradient(circle at 6% 12%, rgba(244, 248, 216, 0.45) 0 8%, rgba(244, 248, 216, 0) 22%),
+    radial-gradient(circle at 92% 8%, rgba(221, 238, 238, 0.38) 0 8%, rgba(221, 238, 238, 0) 24%),
+    linear-gradient(180deg, #F8F9EA 0%, #FAFAF2 62%, #FFFFFF 100%) !important;
+}
+
+body::before,
+body::after,
+.hero-card::after,
+.auth-card::after,
+.page-area::before {
+  opacity: 0.18 !important;
+}
+
+.account-card,
+.image-preview-wrap,
+.ocr-preview-wrap,
+.archive-thumb,
+.csv-preview-card {
+  background: #FFFFFF !important;
+}
+
+.cloud-status,
+.notice,
+.drop-zone,
+.upload-status,
+.empty-archive,
+.ocr-progress {
+  background: #FCFCF5 !important;
+}
+
+.data-guide-card:nth-child(1),
+.summary-cards .summary-card:nth-child(3n+1),
+.category-tab[data-category="view"] {
+  background: var(--solid-mint) !important;
+}
+
+.data-guide-card:nth-child(2),
+.summary-cards .summary-card:nth-child(3n+2),
+.category-tab[data-category="manage"] {
+  background: var(--solid-lime) !important;
+}
+
+.summary-cards .summary-card:nth-child(3n),
+.category-tab[data-category="export"] {
+  background: var(--solid-peach) !important;
+}
+
+.info-card:nth-child(1),
+.share-card:nth-child(1) {
+  background: var(--solid-blue) !important;
+}
+
+.info-card:nth-child(2),
+.share-card:nth-child(2) {
+  background: #FFF7EE !important;
+}
+
+/* 홈을 감싸는 큰 박스 내부 여백 보강 */
+@media (min-width: 781px) {
+  .page-area {
+    padding: 56px 62px 66px !important;
+  }
+
+  .home-panel {
+    max-width: none !important;
+  }
+
+  .home-panel .section-title {
+    margin-bottom: 34px !important;
+  }
+
+  .summary-cards {
+    gap: 24px !important;
+    margin-top: 12px !important;
+  }
+
+  .summary-cards .summary-card {
+    padding: 28px 30px !important;
+  }
+}
+
+/* 선택된 탭이 너무 진하지 않게 완화 */
+.category-tab.active,
+.category-tab.active[data-category="view"],
+.category-tab.active[data-category="manage"],
+.category-tab.active[data-category="export"] {
+  background: #FFFFFF !important;
+  color: var(--solid-text) !important;
+  border-color: rgba(11, 11, 20, 0.09) !important;
+  box-shadow: 0 14px 32px rgba(11, 11, 20, 0.07) !important;
+  outline: 3px solid rgba(221, 238, 238, 0.85) !important;
+}
+
+.sheet-tab.active {
+  background: #EAF5F4 !important;
+  color: var(--solid-text) !important;
+  border-color: rgba(11, 11, 20, 0.07) !important;
+  box-shadow: 0 9px 18px rgba(11, 11, 20, 0.06) !important;
+}
+
+.primary-btn {
+  background: #181823 !important;
+  box-shadow: 0 10px 22px rgba(24, 24, 35, 0.14) !important;
+}
+
+.primary-btn:hover {
+  background: #242432 !important;
+}
+
+.secondary-btn,
+.ghost-btn,
+.sheet-tab {
+  box-shadow: 0 8px 18px rgba(11, 11, 20, 0.045) !important;
+}
+
+/* 월별 원본 이미지 뷰어: 우하단 플로팅 + 화면 위 중앙 모달 */
+#floatingImageViewerBtn,
+.floating-btn {
+  position: fixed !important;
+  right: 28px !important;
+  bottom: 28px !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 950 !important;
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 999px !important;
+  background: #181823 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 18px 36px rgba(24, 24, 35, 0.18) !important;
+}
+
+.image-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1200 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 22px !important;
+}
+
+.image-modal.is-hidden {
+  display: none !important;
+}
+
+.image-modal-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgba(11, 11, 20, 0.46) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.image-modal-content {
+  position: relative !important;
+  width: min(1180px, 94vw) !important;
+  height: min(86vh, 860px) !important;
+  max-height: 86vh !important;
+  border-radius: 30px !important;
+  overflow: hidden !important;
+  background: #FFFFFF !important;
+}
+
+.image-modal-header-enhanced,
+.image-modal-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  padding: 18px 22px !important;
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--solid-line) !important;
+}
+
+.image-modal-title-group {
+  min-width: 0 !important;
+}
+
+.image-modal-title-group h3 {
+  margin: 0 !important;
+}
+
+.image-modal-title-group p {
+  margin: 5px 0 0 !important;
+  color: var(--solid-muted) !important;
+  font-size: 13px !important;
+}
+
+.image-modal-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex: 0 0 auto !important;
+}
+
+.image-month-picker {
+  display: inline-grid !important;
+  grid-template-columns: auto minmax(180px, 260px) !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  background: #FAFAF2 !important;
+}
+
+.image-month-picker span {
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  color: var(--solid-muted) !important;
+  white-space: nowrap !important;
+}
+
+.image-month-picker select,
+#modalImageMonthSelect {
+  min-width: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+
+.image-modal-body {
+  background: #FAFAF2 !important;
+  padding: 22px !important;
+  overflow: auto !important;
+}
+
+.image-modal-body img {
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 20px !important;
+  box-shadow: 0 14px 36px rgba(11, 11, 20, 0.12) !important;
+}
+
+@media (max-width: 780px) {
+  .page-area {
+    padding: 28px 20px 34px !important;
+  }
+
+  .summary-cards .summary-card {
+    padding: 22px 22px !important;
+  }
+
+  #floatingImageViewerBtn,
+  .floating-btn {
+    right: 18px !important;
+    bottom: 18px !important;
+    width: 54px !important;
+    height: 54px !important;
+  }
+
+  .image-modal {
+    padding: 10px !important;
+  }
+
+  .image-modal-content {
+    width: calc(100vw - 20px) !important;
+    height: calc(100dvh - 20px) !important;
+    max-height: calc(100dvh - 20px) !important;
+    border-radius: 24px !important;
+  }
+
+  .image-modal-header-enhanced,
+  .image-modal-header {
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding: 16px !important;
+  }
+
+  .image-modal-actions {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+  }
+
+  .image-month-picker {
+    width: 100% !important;
+    grid-template-columns: 1fr !important;
+    border-radius: 20px !important;
+  }
+}

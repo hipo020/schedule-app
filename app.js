@@ -2381,21 +2381,23 @@ function bindImageViewerEvents() {
   const modal = el('imageViewerModal');
   const closeBtn = el('closeImageModalBtn');
   const backdrop = document.querySelector('.image-modal-backdrop');
-  const modalImg = el('modalImagePreview');
-  const modalEmpty = el('modalImageEmpty');
+  const select = el('modalImageMonthSelect');
 
   if (!btn || !modal) return;
 
-  const openModal = () => {
-    if (state.imageData) {
-      modalImg.src = state.imageData;
-      modalImg.style.display = 'block';
-      modalEmpty.style.display = 'none';
-    } else {
-      modalImg.style.display = 'none';
-      modalEmpty.style.display = 'block';
-    }
+  const openModal = async () => {
     modal.classList.remove('is-hidden');
+    setModalImageState('저장된 월별 근무표 이미지를 불러오는 중이에요.');
+
+    try {
+      await refreshArchiveMeta();
+    } catch (error) {
+      console.warn('이미지 목록 갱신 실패', error);
+    }
+
+    const selectedKey = populateImageMonthSelect(monthKey());
+    if (selectedKey) await showModalImageForMonth(selectedKey);
+    else setModalImageState('아직 저장된 근무표 이미지가 없어요. 설정·이미지에서 월별 이미지를 먼저 업로드해 주세요.');
   };
 
   const closeModal = () => {
@@ -2403,6 +2405,9 @@ function bindImageViewerEvents() {
   };
 
   btn.addEventListener('click', openModal);
+  select?.addEventListener('change', async () => {
+    if (select.value) await showModalImageForMonth(select.value);
+  });
   closeBtn?.addEventListener('click', closeModal);
   backdrop?.addEventListener('click', closeModal);
 }
