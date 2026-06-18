@@ -2136,13 +2136,14 @@ function renderDailyTimeline(day) {
 
   const mobileHourHeight = 52;
   const mobileTotalHeight = Math.max((window.end - window.start) / 60 * mobileHourHeight, 560);
-  const mobileLaneWidth = 20;
+  const mobileLaneWidth = 22;
   const mobileTimeTicks = window.hours.map((minute) => {
     const top = ((minute - window.start) / (window.end - window.start)) * mobileTotalHeight;
     const hourOnly = String(Math.floor(minute / 60) % 24);
     return `<span style="top:${top}px">${hourOnly}</span>`;
   }).join('');
-  const mobileLanesWidth = Math.max(workItems.length * (mobileLaneWidth + 14) + 42, 190);
+  const mobileLanePitch = 40;
+  const mobileLanesWidth = Math.max(workItems.length * mobileLanePitch, 260);
   const mobileLanes = workItems.map((item) => {
     const top = ((item.start - window.start) / (window.end - window.start)) * mobileTotalHeight;
     const height = Math.max(((item.end - item.start) / (window.end - window.start)) * mobileTotalHeight, 84);
@@ -2157,7 +2158,7 @@ function renderDailyTimeline(day) {
     <div class="mobile-vertical-timeline" style="--mobile-timeline-height:${mobileTotalHeight}px">
       <div class="mobile-vertical-time-scale" style="height:${mobileTotalHeight}px">${mobileTimeTicks}</div>
       <div class="mobile-vertical-scroll">
-        <div class="mobile-vertical-lanes" style="width:${mobileLanesWidth}px">${mobileLanes}</div>
+        <div class="mobile-vertical-lanes" style="min-width:100%;width:${mobileLanesWidth}px">${mobileLanes}</div>
       </div>
     </div>
   ` : '';
