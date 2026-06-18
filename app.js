@@ -36,6 +36,7 @@ const state = {
   ocr: getDefaultOcrState(),
   editorFilter: 'all',
   shareTemplate: 'detailed',
+  dailyView: 'timeline',
   defaultNames: getInitialDefaultNames(),
 };
 
@@ -2027,6 +2028,151 @@ function renderPersonPicker(title = '보기 기준') {
   `;
 }
 
+function timeToMinutes(value) {
+  const match = String(value || '').trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return null;
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
+  if (!Number.isFinite(hour) || !Number.isFinite(minute)) return null;
+  return hour * 60 + minute;
+}
+
+function minutesToTimelineLabel(totalMinutes) {
+  const normalized = ((Math.round(totalMinutes) % 1440) + 1440) % 1440;
+  return `${String(Math.floor(normalized / 60)).padStart(2, '0')}:${String(normalized % 60).padStart(2, '0')}`;
+}
+
+function getTimelineItems(day) {
+  const workItems = [];
+  const offPeople = [];
+  const noTimePeople = [];
+  state.people.filter((p) => p.name).forEach((person) => {
+    const rawCode = person.schedules[day - 1] || '';
+    const code = normalizeScheduleCodeValue(rawCode);
+    const info = getCodeInfo(code);
+    const start = timeToMinutes(info.start);
+    let end = timeToMinutes(info.end);
+    const hasTimelineTime = start !== null && end !== null;
+
+    if (hasTimelineTime && !['off', 'leave', 'empty'].includes(info.type)) {
+      if (end <= start) end += 1440;
+      workItems.push({
+        name: person.name,
+        code,
+        info,
+        start,
+        end,
+        startLabel: minutesToTimelineLabel(start),
+        endLabel: minutesToTimelineLabel(end),
+        isUncertain: info.type === 'uncertain' || hasUncertaintyMarker(code),
+      });
+    } else if (['off', 'leave'].includes(info.type)) {
+      offPeople.push({ name: person.name, code, info });
+    } else if (code) {
+      noTimePeople.push({ name: person.name, code, info });
+    }
+  });
+
+  workItems.sort((a, b) => a.start - b.start || a.end - b.end || a.name.localeCompare(b.name));
+  return { workItems, offPeople, noTimePeople };
+}
+
+function getTimelineWindow(items) {
+  if (!items.length) return { start: 6 * 60, end: 23 * 60, hours: [] };
+  const minStart = Math.min(...items.map((item) => item.start));
+  const maxEnd = Math.max(...items.map((item) => item.end));
+  const start = Math.max(0, Math.floor(minStart / 60) * 60 - 60);
+  const end = Math.min(36 * 60, Math.ceil(maxEnd / 60) * 60 + 60);
+  const hours = [];
+  for (let minute = start; minute <= end; minute += 60) hours.push(minute);
+  return { start, end, hours };
+}
+
+function getPeakCoverage(items) {
+  if (!items.length) return '-';
+  const window = getTimelineWindow(items);
+  let best = { count: 0, minute: window.start };
+  for (let minute = window.start; minute < window.end; minute += 30) {
+    const count = items.filter((item) => item.start <= minute && item.end > minute).length;
+    if (count > best.count) best = { count, minute };
+  }
+  if (!best.count) return '-';
+  return `${minutesToTimelineLabel(best.minute)} 전후 ${best.count}명`;
+}
+
+function renderDailyViewToggle() {
+  const view = state.dailyView || 'timeline';
+  return `
+    <div class="daily-view-toggle" role="group" aria-label="일간 보기 방식">
+      <button class="ghost-btn ${view === 'timeline' ? 'active' : ''}" data-daily-view="timeline" type="button">타임라인</button>
+      <button class="ghost-btn ${view === 'start' ? 'active' : ''}" data-daily-view="start" type="button">출근시간별</button>
+    </div>
+  `;
+}
+
+function renderDailyTimeline(day) {
+  const { workItems, offPeople, noTimePeople } = getTimelineItems(day);
+  if (!workItems.length && !offPeople.length && !noTimePeople.length) {
+    return `<div class="info-card roster-card"><p>해당 날짜에 입력된 스케줄 데이터가 없어요.</p></div>`;
+  }
+
+  const window = getTimelineWindow(workItems);
+  const hourWidth = 78;
+  const totalWidth = Math.max((window.end - window.start) / 60 * hourWidth, 720);
+  const hourCells = window.hours.map((minute) => `<span style="width:${hourWidth}px">${minutesToTimelineLabel(minute)}</span>`).join('');
+  const desktopRows = workItems.map((item) => {
+    const left = ((item.start - window.start) / (window.end - window.start)) * totalWidth;
+    const width = Math.max(((item.end - item.start) / (window.end - window.start)) * totalWidth, 56);
+    return `
+      <div class="timeline-row ${item.isUncertain ? 'uncertain' : ''}">
+        <div class="timeline-person"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.code)}</small></div>
+        <div class="timeline-track" style="width:${totalWidth}px">
+          <span class="timeline-bar ${item.isUncertain ? 'uncertain' : ''}" style="left:${left}px;width:${width}px">
+            <strong>${escapeHtml(item.code)}</strong><small>${item.startLabel}~${item.endLabel}</small>
+          </span>
+        </div>
+      </div>`;
+  }).join('');
+
+  const groupedMobile = workItems.reduce((acc, item) => {
+    const key = `${item.startLabel}|${item.endLabel}|${item.code}`;
+    if (!acc[key]) acc[key] = { ...item, names: [] };
+    acc[key].names.push(item.name);
+    return acc;
+  }, {});
+  const mobileRows = Object.values(groupedMobile).map((item) => `
+    <div class="mobile-timeline-row ${item.isUncertain ? 'uncertain' : ''}">
+      <div class="mobile-time-axis"><strong>${item.startLabel}</strong><span>${item.endLabel}</span></div>
+      <div class="mobile-shift-card">
+        <strong>${escapeHtml(item.names.join(', '))}</strong>
+        <small>${escapeHtml(item.code)} · ${item.startLabel}~${item.endLabel}</small>
+      </div>
+    </div>
+  `).join('');
+
+  const offHtml = offPeople.map((p) => `<span class="person-pill ${badgeClass(p.info.type)}">${escapeHtml(p.name)} <small>${escapeHtml(p.code)}</small></span>`).join('') || '<span class="person-pill">없음</span>';
+  const noTimeHtml = noTimePeople.map((p) => `<span class="person-pill ${badgeClass(p.info.type)}">${escapeHtml(p.name)} <small>${escapeHtml(p.code)}</small></span>`).join('');
+
+  return `
+    <section class="daily-timeline-card">
+      <div class="timeline-card-head">
+        <div>
+          <h4>근무 타임라인</h4>
+          <p>PC에서는 시간축을 가로로, 모바일에서는 시간축을 세로로 보여줘요.</p>
+        </div>
+        <span>근무 ${workItems.length}명 · 피크 ${getPeakCoverage(workItems)}</span>
+      </div>
+      <div class="daily-timeline-desktop">
+        <div class="timeline-scale" style="margin-left:132px;width:${totalWidth}px">${hourCells}</div>
+        <div class="timeline-body">${desktopRows || '<p>시간 정보가 있는 근무자가 없어요.</p>'}</div>
+      </div>
+      <div class="daily-timeline-mobile">${mobileRows || '<p>시간 정보가 있는 근무자가 없어요.</p>'}</div>
+      ${noTimeHtml ? `<div class="timeline-sub-section"><h4>시간 정보 없는 코드</h4><div class="roster-pill-wrap">${noTimeHtml}</div></div>` : ''}
+      <div class="timeline-sub-section"><h4>휴무/연차</h4><div class="roster-pill-wrap">${offHtml}</div></div>
+    </section>
+  `;
+}
+
 function renderDaily() {
   const person = getMyPerson();
   const selected = new Date(state.selectedDate || Date.now());
@@ -2034,13 +2180,22 @@ function renderDaily() {
   const code = person?.schedules[day - 1] || '';
   const info = getCodeInfo(code);
   const roster = getDayRoster(day);
+  const timeline = getTimelineItems(day);
+  const dailyMain = (state.dailyView || 'timeline') === 'start' ? renderRosterBlocks(day) : renderDailyTimeline(day);
   return `
-    <div class="view-title with-actions"><div><h3>${state.month}/${day}(${dayNames[getDateObj(day).getDay()]}) 일간 보기</h3></div>${renderPersonPicker()}</div>
-    <div class="card-grid">
-      <div class="info-card"><h4>내 스케줄</h4><div class="list-row"><strong>${state.myName || '이름 미입력'}</strong><span>${info.label}</span><span class="badge ${badgeClass(info.type)}">${code || '-'}</span></div><p>${formatTime(info) || '시간 정보 없음'}</p></div>
-      <div class="info-card"><h4>오늘 요약</h4><p>출근 ${roster.workTotal}명 · 휴무/연차 ${roster.offTotal}명</p><p>가장 이른 출근: ${roster.earliest || '-'}</p></div>
+    <div class="view-title with-actions">
+      <div>
+        <h3>${state.month}/${day}(${dayNames[getDateObj(day).getDay()]}) 일간 보기</h3>
+        <p>하루 기준으로 누가 언제부터 언제까지 근무하는지 확인합니다.</p>
+      </div>
+      <div class="daily-title-actions">${renderPersonPicker()}${renderDailyViewToggle()}</div>
     </div>
-    ${renderRosterBlocks(day)}
+    <div class="card-grid daily-summary-grid">
+      <div class="info-card"><h4>내 스케줄</h4><div class="list-row"><strong>${state.myName || '이름 미입력'}</strong><span>${info.label}</span><span class="badge ${badgeClass(info.type)}">${code || '-'}</span></div><p>${formatTime(info) || '시간 정보 없음'}</p></div>
+      <div class="info-card"><h4>오늘 요약</h4><p>근무 ${timeline.workItems.length}명 · 휴무/연차 ${timeline.offPeople.length}명</p><p>가장 이른 출근: ${roster.earliest || '-'}</p></div>
+      <div class="info-card"><h4>집중 시간대</h4><p>${getPeakCoverage(timeline.workItems)}</p><p>근무자가 가장 많이 겹치는 시간입니다.</p></div>
+    </div>
+    ${dailyMain}
   `;
 }
 
@@ -2504,6 +2659,13 @@ function bindViewEvents() {
       saveState(false);
     });
   });
+  document.querySelectorAll('[data-daily-view]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.dailyView = button.dataset.dailyView || 'timeline';
+      renderViews();
+      saveState(false);
+    });
+  });
   el('saveDefaultNamesButton')?.addEventListener('click', () => {
     const names = parseDefaultNames(el('defaultNamesInput')?.value || '');
     if (!names.length) {
@@ -2633,7 +2795,7 @@ function getDayRoster(day) {
   state.people.filter((p) => p.name).forEach((person) => {
     const code = person.schedules[day - 1] || '';
     const info = getCodeInfo(code);
-    if (info.type === 'work' && info.start) {
+    if (info.start && info.end && !['off', 'leave', 'empty'].includes(info.type)) {
       workTotal += 1;
       if (!byStart[info.start]) byStart[info.start] = [];
       byStart[info.start].push({ name: person.name, code, info });
@@ -2765,6 +2927,7 @@ function loadState() {
     state.defaultNames = Array.isArray(parsed.defaultNames) && parsed.defaultNames.length ? parsed.defaultNames : getInitialDefaultNames();
     state.editorFilter = parsed.editorFilter || 'all';
     state.shareTemplate = parsed.shareTemplate || 'detailed';
+    state.dailyView = parsed.dailyView || 'timeline';
     state.activePage = parsed.activePage || parsed.activeTab || 'home';
     ensureMonthStore();
     normalizeOcrDefaultNames();
