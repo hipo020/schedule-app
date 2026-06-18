@@ -2136,13 +2136,13 @@ function renderDailyTimeline(day) {
 
   const mobileHourHeight = 52;
   const mobileTotalHeight = Math.max((window.end - window.start) / 60 * mobileHourHeight, 560);
-  const mobileLaneWidth = 26;
+  const mobileLaneWidth = 20;
   const mobileTimeTicks = window.hours.map((minute) => {
     const top = ((minute - window.start) / (window.end - window.start)) * mobileTotalHeight;
     const hourOnly = String(Math.floor(minute / 60) % 24);
     return `<span style="top:${top}px">${hourOnly}</span>`;
   }).join('');
-  const mobileLanesWidth = Math.max(workItems.length * (mobileLaneWidth + 24), 220);
+  const mobileLanesWidth = Math.max(workItems.length * (mobileLaneWidth + 14) + 42, 190);
   const mobileLanes = workItems.map((item) => {
     const top = ((item.start - window.start) / (window.end - window.start)) * mobileTotalHeight;
     const height = Math.max(((item.end - item.start) / (window.end - window.start)) * mobileTotalHeight, 84);

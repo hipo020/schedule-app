@@ -5675,3 +5675,67 @@ body::after,
     border-style: dashed;
   }
 }
+
+
+/* v2.19 모바일 일간 타임라인 포스트잇 라벨 밀착/압축 */
+@media (max-width: 720px) {
+  .mobile-vertical-timeline {
+    grid-template-columns: 12px minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .mobile-vertical-time-scale span {
+    right: 2px;
+  }
+
+  .mobile-vertical-scroll {
+    padding-right: 46px;
+  }
+
+  .mobile-vertical-lanes {
+    gap: 10px;
+  }
+
+  .mobile-vertical-bar {
+    left: 7px;
+    width: 7px;
+    min-width: 7px;
+  }
+
+  .mobile-vertical-label {
+    top: 5px;
+    left: 7px;
+    min-width: 30px;
+    width: 30px;
+    max-width: 30px;
+    padding: 2px 4px 2px 5px;
+    border-radius: 8px 8px 8px 2px;
+    overflow: visible;
+    box-shadow: 0 4px 8px rgba(76, 60, 22, 0.08);
+  }
+
+  .mobile-vertical-label::before {
+    left: -3px;
+    top: 6px;
+    width: 5px;
+    height: 5px;
+  }
+
+  .mobile-vertical-bar .mobile-vertical-label strong,
+  .mobile-vertical-bar .mobile-vertical-label small {
+    max-width: none;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  .mobile-vertical-bar .mobile-vertical-label strong {
+    font-size: 7px;
+    line-height: 1.02;
+  }
+
+  .mobile-vertical-bar .mobile-vertical-label small {
+    font-size: 6px;
+    line-height: 0.95;
+  }
+}
