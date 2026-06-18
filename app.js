@@ -1027,6 +1027,13 @@ function shouldShowPersonInEditor(person, rowIndex) {
   return true;
 }
 
+function getIssueTypeLabel(type) {
+  if (type === 'empty') return '미입력';
+  if (type === 'unknown') return '미등록';
+  if (type === 'check') return '확인필요';
+  return '확인';
+}
+
 function renderValidationSummary() {
   const target = el('validationSummary');
   if (!target) return;
@@ -1046,31 +1053,39 @@ function renderValidationSummary() {
   const unknownGroups = Object.entries(groupByCode)
     .sort(([, a], [, b]) => b.length - a.length)
     .map(([code, items]) => {
-      const positions = items.map((issue) => `${issue.name} ${issue.day}일`).join(', ');
+      const positions = items.map((issue) => `
+        <span class="validation-position-chip">${escapeHtml(issue.name)} ${issue.day}일</span>
+      `).join('');
       return `
-        <details class="validation-detail">
-          <summary><strong>${escapeHtml(code)}</strong><span>${items.length}건</span></summary>
-          <p>${escapeHtml(positions)}</p>
+        <details class="validation-code-card">
+          <summary>
+            <span class="validation-code-name">${escapeHtml(code)}</span>
+            <span class="validation-code-count">${items.length}건</span>
+            <small>위치 보기</small>
+          </summary>
+          <div class="validation-position-grid">${positions}</div>
         </details>
       `;
     }).join('');
 
   const issueList = issues.map((issue) => {
-    const typeLabel = issue.type === 'empty' ? '미입력' : issue.type === 'unknown' ? '미등록' : '확인필요';
-    return `<li><span>${typeLabel}</span>${escapeHtml(issue.message)}</li>`;
+    const typeLabel = getIssueTypeLabel(issue.type);
+    return `<li><span class="validation-type-badge">${typeLabel}</span><b>${escapeHtml(issue.message)}</b></li>`;
   }).join('');
 
   target.innerHTML = `
     <div class="validation-card ${issues.length ? 'has-issues' : 'ok'}">
       <div class="validation-head">
-        <strong>${issues.length ? '확인 필요 항목' : '검수 상태 좋음'}</strong>
-        <span>${issues.length ? `미입력 ${empty}개 · 미등록 ${unknown}개 · 확인필요 ${check}개` : '미입력/미등록 코드가 없습니다.'}</span>
+        <div>
+          <strong>${issues.length ? '확인 필요 항목' : '검수 상태 좋음'}</strong>
+          <span>${issues.length ? `미입력 ${empty}개 · 미등록 ${unknown}개 · 확인필요 ${check}개` : '미입력/미등록 코드가 없습니다.'}</span>
+        </div>
         ${unknown ? `<p>미등록 코드는 코드 설정에 추가하면 확인 목록에서 사라져요.</p>` : ''}
       </div>
       ${issues.length ? `
-        <div class="validation-body">
-          ${unknownGroups ? `<section class="validation-code-groups"><h4>미등록 코드별 위치</h4>${unknownGroups}</section>` : ''}
-          <details class="validation-all-list" open>
+        <div class="validation-body validation-body-compact">
+          ${unknownGroups ? `<section class="validation-code-groups"><h4>미등록 코드 요약</h4><div class="validation-code-grid">${unknownGroups}</div></section>` : ''}
+          <details class="validation-all-list">
             <summary>전체 확인 목록 ${issues.length}개 보기</summary>
             <ul>${issueList}</ul>
           </details>
