@@ -1304,3 +1304,641 @@ button { cursor: pointer; }
     padding: 14px;
   }
 }
+
+/* =========================================
+   모바일 사용성 정리 패치
+   - 상단 영역 축소
+   - 홈/일간/주간/월간/휴무일 모바일 가독성 개선
+   - 데이터 입력 모바일 세로 흐름 보정
+========================================= */
+@media (max-width: 720px) {
+  body {
+    background: #fbfaf7;
+    overflow-x: hidden;
+  }
+
+  .app-shell {
+    width: min(100%, calc(100% - 20px));
+    padding: 14px 0 48px;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 0 !important;
+  }
+
+  .hero > div:first-child {
+    padding: 0 !important;
+  }
+
+  .hero .eyebrow,
+  .hero-desc {
+    display: none !important;
+  }
+
+  .hero h1 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.12;
+    letter-spacing: -0.6px;
+  }
+
+  .account-card {
+    padding: 10px 12px !important;
+    border-radius: 18px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 10px;
+    min-height: 0;
+  }
+
+  .account-card strong {
+    font-size: 13px !important;
+    margin: 0 !important;
+  }
+
+  .account-card small {
+    grid-column: 1 / 2;
+    margin: -4px 0 0 !important;
+    font-size: 11px !important;
+    max-width: 100%;
+  }
+
+  .account-card .hero-actions {
+    grid-column: 2 / 3;
+    grid-row: 1 / span 2;
+    display: grid !important;
+    grid-template-columns: repeat(3, auto) !important;
+    gap: 4px !important;
+    margin: 0 !important;
+    align-items: center;
+  }
+
+  .account-card .hero-actions button,
+  .account-card .secondary-btn,
+  .account-card .ghost-btn,
+  .account-card #logoutButton {
+    grid-column: auto !important;
+    min-height: 30px !important;
+    height: 30px !important;
+    padding: 0 8px !important;
+    border-radius: 999px !important;
+    font-size: 10px !important;
+    white-space: nowrap;
+  }
+
+  .cloud-status {
+    margin: 8px 0 10px !important;
+    padding: 9px 12px !important;
+    border-radius: 16px !important;
+    font-size: 12px !important;
+    line-height: 1.35;
+  }
+
+  .category-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .category-tab {
+    min-height: 50px !important;
+    padding: 8px 6px !important;
+    border-radius: 16px !important;
+    justify-content: center !important;
+    text-align: center;
+    gap: 3px !important;
+  }
+
+  .category-icon {
+    display: none !important;
+  }
+
+  .category-tab strong {
+    font-size: 11px !important;
+    letter-spacing: -0.03em;
+  }
+
+  .category-tab small {
+    display: none !important;
+  }
+
+  .sheet-nav {
+    margin: 0 -2px 10px !important;
+    padding: 5px !important;
+    border-radius: 18px !important;
+    gap: 5px !important;
+  }
+
+  .sheet-tab {
+    min-height: 34px !important;
+    padding: 0 12px !important;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+  }
+
+  .page-area {
+    min-height: auto !important;
+    padding: 14px !important;
+    border-radius: 22px !important;
+    overflow: visible !important;
+  }
+
+  .section-title,
+  .section-title.with-actions,
+  .view-title,
+  .view-title.with-actions,
+  .week-title-with-nav,
+  .offday-title,
+  .month-title {
+    margin-bottom: 12px !important;
+    padding-bottom: 0 !important;
+    border-bottom: 0 !important;
+    gap: 8px !important;
+  }
+
+  .section-title p,
+  .view-title p,
+  .month-title p,
+  .offday-title p {
+    display: none !important;
+  }
+
+  .section-title h2,
+  .view-title h3,
+  .month-title h3,
+  .offday-title h3 {
+    font-size: 19px !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+  }
+
+  .section-title.with-actions,
+  .view-title.with-actions,
+  .month-title,
+  .offday-title {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .section-title.with-actions .action-row,
+  .view-title.with-actions .action-row {
+    gap: 6px !important;
+    justify-content: flex-end;
+  }
+
+  .section-title.with-actions button,
+  .view-title.with-actions button,
+  .page-shortcut {
+    min-height: 34px !important;
+    padding: 0 10px !important;
+    font-size: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  /* 홈: 첫 화면 안에 요약이 들어오도록 카드 압축 */
+  .home-panel {
+    max-width: none !important;
+  }
+
+  .summary-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .summary-cards .summary-card,
+  .summary-card {
+    min-height: 78px !important;
+    padding: 10px 8px !important;
+    border-radius: 15px !important;
+    gap: 4px !important;
+    justify-content: center !important;
+  }
+
+  .summary-card p {
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+
+  .summary-cards .summary-card strong,
+  .summary-card strong {
+    font-size: 15px !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.03em;
+  }
+
+  .summary-card span {
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+  }
+
+  /* 일간: 두 카드가 과하게 세로로 늘어나지 않도록 2열 압축 */
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .info-card {
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .info-card h4 {
+    margin-bottom: 8px !important;
+    font-size: 13px !important;
+  }
+
+  .info-card p {
+    margin-bottom: 4px !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+  }
+
+  .list-row {
+    grid-template-columns: 1fr auto !important;
+    gap: 5px !important;
+    padding: 9px 10px !important;
+    border-radius: 12px !important;
+    font-size: 12px !important;
+  }
+
+  .list-row span {
+    grid-column: 1 / -1;
+    font-size: 11px !important;
+  }
+
+  .badge {
+    padding: 3px 8px !important;
+    font-size: 10px !important;
+    border-radius: 999px !important;
+  }
+
+  .roster-card .roster-section,
+  .roster-section {
+    padding-bottom: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .roster-section h4 {
+    margin-bottom: 7px !important;
+    font-size: 12px !important;
+  }
+
+  .person-pill {
+    padding: 7px 10px !important;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+  }
+
+  /* 주간: 네비는 한 줄, 카드는 모바일에서 세로 리스트 */
+  .week-title-with-nav {
+    display: block !important;
+  }
+
+  .week-nav {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px !important;
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .week-nav span {
+    min-width: 0;
+    padding: 7px 6px !important;
+    font-size: 11px !important;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .week-nav-btn {
+    min-height: 34px !important;
+    padding: 0 9px !important;
+    font-size: 11px !important;
+    white-space: nowrap;
+  }
+
+  .mini-stat-row.weekly-stat-row {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .mini-stat {
+    padding: 9px 8px !important;
+    border-radius: 13px !important;
+    gap: 2px !important;
+  }
+
+  .mini-stat span {
+    font-size: 10px !important;
+  }
+
+  .mini-stat strong {
+    font-size: 13px !important;
+    white-space: nowrap;
+  }
+
+  .week-grid,
+  .improved-week-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    overflow: visible !important;
+    padding-bottom: 0 !important;
+  }
+
+  .week-day-card,
+  .improved-week-grid .week-day-card {
+    min-height: 0 !important;
+    padding: 10px 12px !important;
+    border-radius: 15px !important;
+    display: grid !important;
+    grid-template-columns: 44px 1fr auto;
+    align-items: center;
+    gap: 8px !important;
+    text-align: left;
+  }
+
+  .improved-week-grid .week-day-card span,
+  .week-day-card b,
+  .week-day-card span {
+    font-size: 11px !important;
+  }
+
+  .improved-week-grid .week-day-card strong,
+  .week-day-card strong {
+    margin: 0 !important;
+    font-size: 15px !important;
+  }
+
+  .improved-week-grid .week-day-card em,
+  .week-day-card .badge {
+    margin: 0 !important;
+    width: auto !important;
+    min-width: 42px;
+    text-align: center;
+  }
+
+  .improved-week-grid .week-day-card small,
+  .week-day-card small {
+    grid-column: 2 / 4;
+    font-size: 11px !important;
+    text-align: left !important;
+  }
+
+  .improved-week-grid .selected-week-day,
+  .selected-week-day {
+    transform: none !important;
+  }
+
+  /* 월간: 상단 요약 한 줄 유지 */
+  .month-title span,
+  .offday-title span {
+    flex: 0 0 auto;
+    max-width: 52%;
+    padding: 6px 9px !important;
+    border-radius: 999px !important;
+    font-size: 10.5px !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .month-legend {
+    gap: 7px !important;
+    margin-bottom: 9px !important;
+    padding: 0 !important;
+  }
+
+  .month-legend span {
+    gap: 4px !important;
+    font-size: 10px !important;
+  }
+
+  .legend-dot {
+    width: 8px !important;
+    height: 8px !important;
+  }
+
+  .monthly-calendar-wrap {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .calendar.refined-calendar,
+  .improved-month-calendar {
+    width: 100%;
+    padding: 7px !important;
+    gap: 3px !important;
+    border-radius: 16px !important;
+  }
+
+  .calendar-head {
+    padding: 5px 0 !important;
+    font-size: 10px !important;
+  }
+
+  .improved-month-calendar .day-cell,
+  .day-cell {
+    min-height: 58px !important;
+    padding: 5px 3px !important;
+    border-radius: 10px !important;
+    gap: 3px !important;
+  }
+
+  .day-number {
+    font-size: 10px !important;
+  }
+
+  .month-day-main {
+    gap: 2px !important;
+  }
+
+  .month-day-main .badge,
+  .day-code {
+    padding: 3px 0 !important;
+    font-size: 9px !important;
+    border-radius: 7px !important;
+  }
+
+  .day-cell small {
+    display: none !important;
+  }
+
+  /* 휴무일: 요약 카드를 작게, 한 줄형으로 */
+  .offday-summary-grid {
+    display: grid !important;
+    grid-template-columns: 1.35fr .82fr .82fr !important;
+    gap: 7px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .offday-summary-card {
+    min-width: 0;
+    padding: 10px 8px !important;
+    border-radius: 15px !important;
+    gap: 3px !important;
+  }
+
+  .offday-summary-card span {
+    font-size: 10px !important;
+    line-height: 1.15;
+  }
+
+  .offday-summary-card strong {
+    font-size: 14px !important;
+    line-height: 1.15 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .offday-summary-card em {
+    display: none !important;
+  }
+
+  .offday-planner-card {
+    padding: 12px !important;
+    border-radius: 16px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .offday-planner-card h4,
+  .offday-group h4 {
+    font-size: 13px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .offday-streak-list,
+  .offday-chip-list {
+    gap: 6px !important;
+  }
+
+  .offday-streak,
+  .offday-chip {
+    width: 100% !important;
+    padding: 9px 10px !important;
+    border-radius: 12px !important;
+  }
+
+  .offday-streak strong,
+  .offday-chip strong {
+    font-size: 12px !important;
+  }
+
+  .offday-streak span,
+  .offday-chip span {
+    font-size: 11px !important;
+  }
+
+  .improved-offday-grid,
+  .offday-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .offday-group {
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+
+  /* 데이터 입력: 모바일에서는 1번 → 2번 순서로 세로 배치 */
+  .data-input-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .data-guide-card {
+    padding: 14px !important;
+    border-radius: 16px !important;
+    gap: 9px !important;
+  }
+
+  .data-guide-card h3 {
+    font-size: 15px !important;
+  }
+
+  .data-guide-card p,
+  .helper-text,
+  .notice span {
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+  }
+
+  .mini-checklist {
+    gap: 5px !important;
+  }
+
+  .mini-checklist span {
+    padding: 5px 8px !important;
+    font-size: 10px !important;
+  }
+
+  .notice {
+    margin-bottom: 12px !important;
+    padding: 11px 12px !important;
+    border-radius: 14px !important;
+    align-items: flex-start;
+  }
+
+  .notice strong {
+    font-size: 12px !important;
+  }
+
+  .share-box,
+  .csv-input-box {
+    min-height: 180px;
+    height: 180px;
+    padding: 12px !important;
+    border-radius: 14px !important;
+    font-size: 12px !important;
+  }
+
+  .action-row {
+    gap: 7px !important;
+  }
+
+  .primary-btn,
+  .secondary-btn,
+  .ghost-btn {
+    min-height: 38px;
+    padding: 0 12px;
+    border-radius: 13px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 390px) {
+  .account-card {
+    grid-template-columns: 1fr;
+  }
+  .account-card .hero-actions {
+    grid-column: 1;
+    grid-row: auto;
+    grid-template-columns: repeat(3, 1fr) !important;
+    width: 100%;
+  }
+  .summary-cards {
+    grid-template-columns: 1fr !important;
+  }
+  .summary-cards .summary-card {
+    min-height: 62px !important;
+  }
+}
