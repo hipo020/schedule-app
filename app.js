@@ -1032,13 +1032,50 @@ function renderValidationSummary() {
   if (!target) return;
   const issues = validatePeopleData();
   const empty = issues.filter((issue) => issue.type === 'empty').length;
-  const unknown = issues.filter((issue) => issue.type === 'unknown').length;
+  const unknownIssues = issues.filter((issue) => issue.type === 'unknown');
+  const unknown = unknownIssues.length;
   const check = issues.filter((issue) => issue.type === 'check').length;
-  const sample = issues.slice(0, 5).map((issue) => `<li>${escapeHtml(issue.message)}</li>`).join('');
+
+  const groupByCode = unknownIssues.reduce((acc, issue) => {
+    const code = issue.code || '빈 코드';
+    if (!acc[code]) acc[code] = [];
+    acc[code].push(issue);
+    return acc;
+  }, {});
+
+  const unknownGroups = Object.entries(groupByCode)
+    .sort(([, a], [, b]) => b.length - a.length)
+    .map(([code, items]) => {
+      const positions = items.map((issue) => `${issue.name} ${issue.day}일`).join(', ');
+      return `
+        <details class="validation-detail">
+          <summary><strong>${escapeHtml(code)}</strong><span>${items.length}건</span></summary>
+          <p>${escapeHtml(positions)}</p>
+        </details>
+      `;
+    }).join('');
+
+  const issueList = issues.map((issue) => {
+    const typeLabel = issue.type === 'empty' ? '미입력' : issue.type === 'unknown' ? '미등록' : '확인필요';
+    return `<li><span>${typeLabel}</span>${escapeHtml(issue.message)}</li>`;
+  }).join('');
+
   target.innerHTML = `
     <div class="validation-card ${issues.length ? 'has-issues' : 'ok'}">
-      <div><strong>${issues.length ? '확인 필요 항목' : '검수 상태 좋음'}</strong><span>${issues.length ? `미입력 ${empty}개 · 미등록 ${unknown}개 · 확인필요 ${check}개` : '미입력/미등록 코드가 없습니다.'}</span></div>
-      ${issues.length ? `<ul>${sample}${issues.length > 5 ? `<li>외 ${issues.length - 5}개가 더 있어요.</li>` : ''}</ul>` : ''}
+      <div class="validation-head">
+        <strong>${issues.length ? '확인 필요 항목' : '검수 상태 좋음'}</strong>
+        <span>${issues.length ? `미입력 ${empty}개 · 미등록 ${unknown}개 · 확인필요 ${check}개` : '미입력/미등록 코드가 없습니다.'}</span>
+        ${unknown ? `<p>미등록 코드는 코드 설정에 추가하면 확인 목록에서 사라져요.</p>` : ''}
+      </div>
+      ${issues.length ? `
+        <div class="validation-body">
+          ${unknownGroups ? `<section class="validation-code-groups"><h4>미등록 코드별 위치</h4>${unknownGroups}</section>` : ''}
+          <details class="validation-all-list" open>
+            <summary>전체 확인 목록 ${issues.length}개 보기</summary>
+            <ul>${issueList}</ul>
+          </details>
+        </div>
+      ` : ''}
     </div>
   `;
 }

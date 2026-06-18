@@ -4490,3 +4490,117 @@ body::after,
     order: 0;
   }
 }
+
+
+
+/* v2.8 데이터 확인 전체 문제 목록 보강 */
+.validation-card {
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr) !important;
+}
+.validation-head p {
+  margin: 8px 0 0;
+  color: #7a6a58;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.validation-body {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.validation-code-groups {
+  display: grid;
+  gap: 8px;
+}
+.validation-code-groups h4 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 900;
+}
+.validation-detail,
+.validation-all-list {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(11, 11, 20, 0.05);
+  border-radius: 18px;
+  padding: 10px 12px;
+  box-shadow: 0 6px 14px rgba(11, 11, 20, 0.035);
+}
+.validation-detail summary,
+.validation-all-list summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 900;
+  list-style: none;
+}
+.validation-detail summary::-webkit-details-marker,
+.validation-all-list summary::-webkit-details-marker {
+  display: none;
+}
+.validation-detail summary::after,
+.validation-all-list summary::after {
+  content: "⌄";
+  margin-left: auto;
+  color: #8C8C8C;
+  font-weight: 900;
+}
+.validation-detail[open] summary::after,
+.validation-all-list[open] summary::after {
+  content: "⌃";
+}
+.validation-detail summary span {
+  margin-left: auto;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #F4F8D8;
+  color: #6B6B50;
+  font-size: 12px;
+}
+.validation-detail p {
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+.validation-all-list ul {
+  max-height: 220px;
+  overflow: auto;
+  margin: 10px 0 0 !important;
+  padding: 0 !important;
+  display: grid;
+  gap: 6px;
+  list-style: none;
+}
+.validation-all-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 12px;
+  background: rgba(250, 250, 242, 0.86);
+  color: #666;
+}
+.validation-all-list li span {
+  flex: 0 0 auto;
+  min-width: 52px;
+  text-align: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #FBEADC;
+  color: #7F5B43;
+  font-size: 11px;
+  font-weight: 900;
+}
+@media (max-width: 780px) {
+  .validation-card {
+    grid-template-columns: 1fr !important;
+  }
+  .validation-all-list ul {
+    max-height: 260px;
+  }
+}
