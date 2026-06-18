@@ -3391,3 +3391,422 @@ body::after,
     border-radius: 20px !important;
   }
 }
+
+/* =========================================
+   v2.8 soft-solid consistency fix
+   - 박스 그라데이션 제거 강화
+   - 활성 탭/버튼 어두운 색 제거
+   - 홈 페이지 여백 추가
+   - 원본 이미지 버튼 fixed + 중앙 모달 유지
+========================================= */
+:root {
+  --ui-bg: #FAFAF2;
+  --ui-card: #FFFFFF;
+  --ui-mint: #EAF5F4;
+  --ui-lime: #F6F8DD;
+  --ui-peach: #FCEBDF;
+  --ui-blue: #E9F4FA;
+  --ui-cream: #FFFDF6;
+  --ui-text: #0B0B14;
+  --ui-sub: #8C8C8C;
+  --ui-line: rgba(11, 11, 20, 0.065);
+  --ui-shadow: 0 14px 32px rgba(11, 11, 20, 0.052), 0 5px 14px rgba(11, 11, 20, 0.035);
+  --ui-shadow-soft: 0 8px 20px rgba(11, 11, 20, 0.045);
+}
+
+/* 카드/네모칸 안쪽은 모두 단색으로 통일 */
+.hero-card,
+.account-card,
+.auth-card,
+.page-area,
+.data-guide-card,
+.info-card,
+.summary-card,
+.ocr-control-card,
+.ocr-preview-card,
+.ocr-result-card,
+.archive-card,
+.share-card,
+.offday-summary-card,
+.offday-group,
+.offday-planner-card,
+.drop-zone,
+.image-preview-wrap,
+.upload-status,
+.notice,
+.empty-archive,
+.csv-preview-card,
+.table-scroll,
+.ocr-progress,
+.cloud-status,
+.image-month-picker,
+.compact-code-card,
+.code-editor-row,
+.roster-card,
+.roster-section,
+.mini-stat,
+.offday-chip,
+.offday-streak,
+.person-pill,
+.archive-thumb,
+.image-modal-content,
+.image-modal-header,
+.image-modal-body,
+.month-title span,
+.week-nav span,
+.stat-pill,
+.mini-checklist span,
+.auth-message,
+.sheet-nav,
+.sheet-tab,
+.category-tab,
+.category-icon,
+.badge,
+.day-code {
+  background-image: none !important;
+  background-blend-mode: normal !important;
+}
+
+.page-area,
+.hero-card,
+.account-card,
+.auth-card,
+.archive-card,
+.share-card,
+.ocr-control-card,
+.ocr-preview-card,
+.offday-group,
+.offday-planner-card,
+.drop-zone,
+.table-scroll,
+.roster-card,
+.compact-code-card,
+.code-editor-row,
+.image-modal-content,
+.image-modal-header {
+  background-color: var(--ui-card) !important;
+  border: 1px solid var(--ui-line) !important;
+  box-shadow: var(--ui-shadow) !important;
+}
+
+.cloud-status,
+.notice,
+.upload-status,
+.empty-archive,
+.ocr-progress,
+.sheet-nav,
+.image-modal-body {
+  background-color: var(--ui-cream) !important;
+}
+
+.summary-cards .summary-card:nth-child(3n+1),
+.data-guide-card:nth-child(1),
+.info-card:nth-child(1),
+.category-tab[data-category="view"] {
+  background-color: var(--ui-mint) !important;
+}
+
+.summary-cards .summary-card:nth-child(3n+2),
+.data-guide-card:nth-child(2),
+.category-tab[data-category="manage"] {
+  background-color: var(--ui-lime) !important;
+}
+
+.summary-cards .summary-card:nth-child(3n),
+.info-card:nth-child(2),
+.category-tab[data-category="export"] {
+  background-color: var(--ui-peach) !important;
+}
+
+.image-preview-wrap,
+.archive-thumb,
+.csv-preview-card,
+.month-title span,
+.week-nav span,
+.stat-pill,
+.mini-stat,
+.mini-checklist span,
+.person-pill,
+.offday-streak {
+  background-color: #FFFFFF !important;
+}
+
+/* 홈/페이지 박스 여백: 스샷 기준으로 카드와 바깥 박스 사이를 넓힘 */
+@media (min-width: 781px) {
+  .page-area {
+    padding: 78px 84px 86px !important;
+  }
+
+  .app-page.active .panel {
+    padding: 0 !important;
+  }
+
+  .home-panel .section-title,
+  .view-panel .section-title,
+  .editor-panel .section-title,
+  .setup-panel .section-title {
+    margin-bottom: 42px !important;
+  }
+
+  .summary-cards {
+    gap: 28px !important;
+    margin-top: 18px !important;
+  }
+
+  .summary-cards .summary-card {
+    padding: 34px 34px !important;
+    min-height: 162px !important;
+  }
+}
+
+@media (max-width: 780px) {
+  .page-area {
+    padding: 34px 22px 42px !important;
+  }
+
+  .summary-cards .summary-card,
+  .info-card,
+  .data-guide-card,
+  .offday-summary-card,
+  .share-card {
+    padding: 22px !important;
+  }
+}
+
+/* 활성 탭: 밝은 배경 + 진한 텍스트로 고정 */
+.category-tab,
+.category-tab strong,
+.category-tab small,
+.category-tab span,
+.sheet-tab,
+.sheet-tab strong,
+.sheet-tab small,
+.sheet-tab span {
+  color: var(--ui-text) !important;
+}
+
+.category-tab small {
+  opacity: 0.62 !important;
+}
+
+.category-tab.active,
+.category-tab.active[data-category="view"],
+.category-tab.active[data-category="manage"],
+.category-tab.active[data-category="export"] {
+  background-color: #FFFFFF !important;
+  color: var(--ui-text) !important;
+  border: 1px solid rgba(11, 11, 20, 0.10) !important;
+  outline: 3px solid rgba(221, 238, 238, 0.95) !important;
+  box-shadow: 0 16px 34px rgba(11, 11, 20, 0.07) !important;
+}
+
+.category-tab.active .category-icon {
+  background-color: var(--ui-mint) !important;
+  color: var(--ui-text) !important;
+}
+
+.category-tab.active small,
+.category-tab.active strong,
+.category-tab.active span {
+  color: var(--ui-text) !important;
+}
+
+.sheet-tab {
+  background-color: #FFFFFF !important;
+  color: var(--ui-text) !important;
+  border: 1px solid transparent !important;
+  box-shadow: var(--ui-shadow-soft) !important;
+}
+
+.sheet-tab.active {
+  background-color: var(--ui-mint) !important;
+  color: var(--ui-text) !important;
+  border: 1px solid rgba(11, 11, 20, 0.08) !important;
+  box-shadow: 0 10px 22px rgba(11, 11, 20, 0.07) !important;
+}
+
+/* 어두운 저장/주요 버튼 제거: 전체 버튼을 밝은 파스텔 계열로 통일 */
+.primary-btn,
+.secondary-btn,
+.ghost-btn,
+.week-nav-btn,
+.archive-actions button,
+#cloudSaveButton,
+#cloudReloadButton,
+#logoutButton,
+#saveButton,
+#saveImportedCsvButton,
+#importCsvButton,
+#downloadExcelButton,
+#copyShareButton,
+#copyPersonalShareButton,
+#runOcrButton,
+#applyOcrToEditorButton,
+#uploadButton,
+#addPersonButton,
+#addCodeButton {
+  background-color: #FFFFFF !important;
+  color: var(--ui-text) !important;
+  border: 1px solid var(--ui-line) !important;
+  box-shadow: var(--ui-shadow-soft) !important;
+}
+
+.primary-btn:hover,
+.secondary-btn:hover,
+.ghost-btn:hover,
+.week-nav-btn:hover,
+.archive-actions button:hover {
+  background-color: var(--ui-mint) !important;
+  color: var(--ui-text) !important;
+}
+
+#cloudSaveButton,
+#saveButton,
+#saveImportedCsvButton,
+#importCsvButton,
+#downloadExcelButton,
+#copyShareButton,
+#runOcrButton,
+#applyOcrToEditorButton {
+  background-color: var(--ui-mint) !important;
+}
+
+/* 버튼 안 화살표도 어둡게 튀지 않도록 밝은 원형으로 통일 */
+.page-shortcut::after,
+#copyExtractionPromptButton::after,
+#copyExtractionPromptButton2::after,
+#goDataInputAfterUploadButton::after,
+#goEditorAfterUploadButton::after,
+#loadSampleFromUploadButton::after,
+#openImageViewerButton::after {
+  background-color: #FFFFFF !important;
+  color: var(--ui-text) !important;
+  border: 1px solid var(--ui-line) !important;
+}
+
+/* 휴무일: 다음 휴무 카드 날짜가 안 보이던 문제 + 그라데이션 제거 */
+.offday-summary-card,
+.offday-summary-card.next,
+.offday-summary-card.leave {
+  background-image: none !important;
+  color: var(--ui-text) !important;
+  border: 1px solid var(--ui-line) !important;
+  box-shadow: var(--ui-shadow) !important;
+}
+
+.offday-summary-card.next {
+  background-color: var(--ui-peach) !important;
+}
+
+.offday-summary-card:not(.next) {
+  background-color: #FFFFFF !important;
+}
+
+.offday-summary-card.next span,
+.offday-summary-card.next strong,
+.offday-summary-card.next em,
+.offday-summary-card span,
+.offday-summary-card strong,
+.offday-summary-card em {
+  color: var(--ui-text) !important;
+}
+
+.offday-summary-card.next strong {
+  color: #8F4E38 !important;
+}
+
+.offday-summary-card em {
+  opacity: 0.72 !important;
+}
+
+/* 원본 근무표 보기 버튼: 항상 화면 오른쪽 아래에 고정 */
+#floatingImageViewerBtn,
+.floating-btn {
+  position: fixed !important;
+  right: calc(24px + env(safe-area-inset-right)) !important;
+  bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 9999 !important;
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 999px !important;
+  background-color: #FFFFFF !important;
+  color: var(--ui-text) !important;
+  border: 1px solid var(--ui-line) !important;
+  box-shadow: 0 18px 42px rgba(11, 11, 20, 0.14) !important;
+}
+
+#floatingImageViewerBtn:hover,
+.floating-btn:hover {
+  background-color: var(--ui-mint) !important;
+  color: var(--ui-text) !important;
+}
+
+/* 원본 이미지 모달은 화면 위에 뜨는 방식 + 월 선택 드롭다운 유지 */
+.image-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9998 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 22px !important;
+}
+
+.image-modal.is-hidden {
+  display: none !important;
+}
+
+.image-modal-backdrop {
+  background: rgba(11, 11, 20, 0.38) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.image-modal-content {
+  width: min(1180px, 94vw) !important;
+  height: min(86vh, 860px) !important;
+  max-height: 86vh !important;
+  background-color: #FFFFFF !important;
+  border-radius: 30px !important;
+  overflow: hidden !important;
+  box-shadow: 0 28px 70px rgba(11, 11, 20, 0.18) !important;
+}
+
+.image-modal-header,
+.image-modal-header-enhanced {
+  background-color: #FFFFFF !important;
+}
+
+.image-month-picker {
+  background-color: var(--ui-cream) !important;
+  color: var(--ui-text) !important;
+}
+
+.image-month-picker span,
+.image-month-picker select,
+#modalImageMonthSelect,
+#modalImageInfo {
+  color: var(--ui-text) !important;
+}
+
+@media (max-width: 780px) {
+  #floatingImageViewerBtn,
+  .floating-btn {
+    right: calc(16px + env(safe-area-inset-right)) !important;
+    bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+    width: 54px !important;
+    height: 54px !important;
+  }
+
+  .image-modal {
+    padding: 10px !important;
+  }
+
+  .image-modal-content {
+    width: calc(100vw - 20px) !important;
+    height: calc(100dvh - 20px) !important;
+    max-height: calc(100dvh - 20px) !important;
+    border-radius: 24px !important;
+  }
+}
