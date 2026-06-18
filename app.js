@@ -36,6 +36,8 @@ const state = {
 
 const el = (id) => document.getElementById(id);
 const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+const DEFAULT_OCR_NAMES = ['이준호', '류선협', '이상민', '김도영', '이승호', '곽병우', '이미현', '이다연', '김성민', '정세환'];
+const LEGACY_OCR_NAME_KEYWORDS = ['유희수', '이다운', '정세완'];
 const STORAGE_KEY = 'shift-organizer-v1';
 const IMAGE_DB_NAME = 'shift-organizer-images-v1';
 const IMAGE_STORE_NAME = 'monthlyImages';
@@ -195,14 +197,23 @@ function getDefaultCodes() {
 
 function getDefaultOcrState() {
   return {
-    names: ['이준호', '류선협', '이상민', '김도영', '이승호', '곽병우', '이미현', '이다연', '김성민', '정세환'].join(' '),
+    names: DEFAULT_OCR_NAMES.join(' '),
     rect: { x: 18.3, y: 12.1, w: 49.6, h: 25.5 },
     results: [],
   };
 }
 
+function migrateOcrDefaultNames() {
+  state.ocr = { ...getDefaultOcrState(), ...(state.ocr || {}) };
+  const currentNames = String(state.ocr.names || '').trim();
+  if (!currentNames || LEGACY_OCR_NAME_KEYWORDS.some((name) => currentNames.includes(name))) {
+    state.ocr.names = DEFAULT_OCR_NAMES.join(' ');
+  }
+}
+
 async function init() {
   loadState();
+  migrateOcrDefaultNames();
   initMonthSelect();
   bindEvents();
   bindAuthEvents();
@@ -975,19 +986,22 @@ function clearAll() {
 function loadSample() {
   state.year = 2026;
   state.month = 6;
-  state.myName = '유희수';
+  state.myName = '이준호';
   state.selectedDate = '2026-06-12';
-  const names = ['곽병우', '이준호', '유희수', '김도영', '이다운', '이상민', '정세완'];
+  const names = DEFAULT_OCR_NAMES.slice();
   const patterns = [
-    ['DO','DO','AM','BM','BM','BM','BM','PH','DO','BM','BM','BM','AM','BM','DO','DO','BM','BM','DO','AL','AL','DO','DO','BM','BM','BM','BM','BM','SD','DO'],
     ['AM','BM','PH','DO','BM','BM','BM','BM','BM','DO','DO','BM','BM','BM','BM','DO','DO','BM','BM','AL','AL','DO','BM','BM','BM','BM','BM','BM','BM','DO'],
     ['DO','BM','BM','BM','DO','BM','BM','PH','BM','BM','BM','AM','BM','BM','BM','DO','DO','BM','BM','BM','BM','BM','DO','DO','BM','BM','BM','BM','BM','BM'],
+    ['AD','AD','AT','AT','DO','PH','DO','AD','AT','AT','AM','DO','DO','AD','AD','AT','AT','AT','DO','DO','AD','AD','AT','AT','AT','DO','DO','AD','AT','AT'],
     ['BM','DO','PH','DO','BM','SD','BM','BM','BM','BM','BM','DO','SD','BM','BM','BM','DO','DO','BM','AL','AL','BM','BM','DO','DO','BM','BM','BM','BM','DO'],
     ['BM','BM','BM','BM','BM','PH','DO','BM','BM','BM','BM','BM','AD','DO','DO','AL','AL','BM','BM','BM','BM','DO','DO','BM','BM','BM','BM','DO','DO','BM'],
-    ['AD','AD','AT','AT','DO','PH','DO','AD','AT','AT','AM','DO','DO','AD','AD','AT','AT','AT','DO','DO','AD','AD','AT','AT','AT','DO','DO','AD','AT','AT'],
     ['DO','DO','AL','DO','AM','AM','AL','PH','DO','AM','AM','AD','AM','AQ','DO','DO','AM','AM','AM','AM','AM','DO','DO','AM','AQ','AQ','AQ','AL','DO','AM'],
+    ['DO','DO','AM','BM','BM','BM','BM','PH','DO','BM','BM','BM','AM','BM','DO','DO','BM','BM','DO','AL','AL','DO','DO','BM','BM','BM','BM','BM','SD','DO'],
+    ['AD','BM','BM','DO','BM','BM','DO','PH','BM','BM','AE','DO','BM','BM','DO','BM','BM','AE','DO','BM','BM','DO','BM','BM','AE','DO','BM','BM','DO','BM'],
+    ['AD','AD','DO','BM','BM','DO','BM','PH','AD','AD','DO','BM','BM','DO','BM','AD','AD','DO','BM','BM','DO','BM','AD','AD','DO','BM','BM','DO','BM','BM'],
+    ['AD','AD','BM','BM','DO','DO','BM','PH','AD','AD','BM','BM','DO','DO','BM','AD','AD','BM','BM','DO','DO','BM','AD','AD','BM','BM','DO','DO','BM','BM'],
   ];
-  state.people = names.map((name, i) => ({ name, schedules: patterns[i] }));
+  state.people = names.map((name, i) => ({ name, schedules: patterns[i] || [] }));
   syncInputs();
   renderUploadedImage();
   syncOcrInputs();
@@ -2241,6 +2255,7 @@ function loadState() {
     state.monthStore = parsed.monthStore || {};
     state.archiveMeta = Array.isArray(parsed.archiveMeta) ? parsed.archiveMeta : [];
     state.ocr = { ...getDefaultOcrState(), ...(parsed.ocr || {}) };
+    migrateOcrDefaultNames();
     state.activePage = parsed.activePage || parsed.activeTab || 'home';
     ensureMonthStore();
   } catch (e) {
