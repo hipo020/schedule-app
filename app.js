@@ -314,7 +314,7 @@ function formatCodeGapSummary(gaps, sourceName = '현재 코드표') {
       ${missingText}
       ${differentText}
       ${extraText}
-      <small>누락 코드는 “기본 코드 보정”을 누른 뒤 저장하면 Supabase 코드표에도 다시 들어갑니다.</small>
+      <small>기본 코드 누락은 앱이 자동으로 보정합니다. 현재 화면의 코드표를 저장하려면 저장 버튼을 눌러 주세요.</small>
     </div>
   `;
 }
@@ -2388,7 +2388,16 @@ function renderSettings() {
     </div>
   `).join('');
   return `
-    <div class="view-title settings-title"><div><h3>근무 코드 설정</h3><p>코드별 의미, 시간, 유형을 카드 형태로 관리합니다.</p></div><button id="addCodeButton" class="secondary-btn">코드 추가</button></div>
+    <div class="view-title settings-title">
+      <div>
+        <h3>근무 코드 설정</h3>
+        <p>코드별 의미, 시간, 유형을 카드 형태로 관리합니다. 기본 코드 누락은 앱이 자동으로 보정해요.</p>
+      </div>
+      <div class="action-row settings-main-actions">
+        <button id="addCodeButton" class="secondary-btn">코드 추가</button>
+        <button id="saveCodesButton" class="secondary-btn">저장</button>
+      </div>
+    </div>
     <div class="settings-helper-grid">
       <section class="data-guide-card default-names-card">
         <h3>기본 직원 목록</h3>
@@ -2397,17 +2406,20 @@ function renderSettings() {
         <button id="saveDefaultNamesButton" class="secondary-btn" type="button">기본 이름 저장</button>
       </section>
       <section class="data-guide-card code-table-card">
-        <h3>기본 코드표 점검</h3>
-        <p>이미지 하단 코드표 기준으로 누락된 코드가 있는지 확인하고, Supabase에 저장된 코드표도 비교할 수 있어요.</p>
-        <div class="action-row code-table-actions">
-          <button id="checkLocalCodesButton" class="secondary-btn" type="button">현재 코드표 확인</button>
-          <button id="checkCloudCodesButton" class="secondary-btn" type="button">Supabase 코드표 확인</button>
-          <button id="repairDefaultCodesButton" class="secondary-btn" type="button">기본 코드 보정</button>
-          <button id="resetDefaultCodesButton" class="ghost-btn" type="button">기본 코드로 초기화</button>
-        </div>
+        <h3>코드표 상태</h3>
+        <p>미등록 코드가 생기면 앱이 먼저 기본 코드 누락을 자동으로 보정합니다. 자세한 확인은 필요할 때만 고급 설정을 열어 주세요.</p>
         <div id="codeCheckStatus" class="code-check-status">
-          <span>미등록 코드가 많이 뜨면 먼저 Supabase 코드표 확인 → 기본 코드 보정을 눌러 주세요.</span>
+          <span>기본 코드는 자동 보정됩니다. 코드 수정 후에는 저장 버튼을 눌러 클라우드에 반영해 주세요.</span>
         </div>
+        <details class="advanced-code-details">
+          <summary>고급 설정 열기</summary>
+          <div class="action-row code-table-actions advanced-code-actions">
+            <button id="checkLocalCodesButton" class="secondary-btn" type="button">현재 코드 확인</button>
+            <button id="checkCloudCodesButton" class="secondary-btn" type="button">저장된 코드 확인</button>
+            <button id="resetDefaultCodesButton" class="ghost-btn" type="button">기본값으로 되돌리기</button>
+          </div>
+          <p class="helper-text">현재 코드 확인은 지금 앱에서 사용 중인 코드표, 저장된 코드 확인은 Supabase에 저장된 코드표를 비교합니다.</p>
+        </details>
       </section>
       <div class="notice"><strong>유형 규칙</strong><span>근무/휴무/연차를 직접 지정할 수 있어요. 출근·퇴근 시간이 있는 코드는 기본적으로 근무로 인식됩니다. OC는 사내행사, MH는 병가로 기본 등록됩니다.</span></div>
     </div>
@@ -2439,7 +2451,7 @@ async function checkCloudWorkCodes() {
     setCodeCheckStatus('<span>로그인 후 Supabase 코드표를 확인할 수 있어요.</span>', 'warn');
     return;
   }
-  setCodeCheckStatus('<span>Supabase 코드표를 확인하는 중이에요...</span>', 'warn');
+  setCodeCheckStatus('<span>저장된 코드표를 확인하는 중이에요...</span>', 'warn');
   const { data, error } = await supabaseClient
     .from('work_codes')
     .select('*')
@@ -2447,7 +2459,7 @@ async function checkCloudWorkCodes() {
     .order('code', { ascending: true });
 
   if (error) {
-    setCodeCheckStatus(`<span>Supabase 코드표 확인 실패: ${escapeHtml(error.message || error)}</span>`, 'error');
+    setCodeCheckStatus(`<span>저장된 코드표 확인 실패: ${escapeHtml(error.message || error)}</span>`, 'error');
     return;
   }
 
@@ -2462,11 +2474,11 @@ async function checkCloudWorkCodes() {
   });
 
   if (!data?.length) {
-    setCodeCheckStatus('<span>Supabase에 저장된 코드표가 아직 없어요. 기본 코드 보정 후 저장하면 기본 코드표가 저장됩니다.</span>', 'warn');
+    setCodeCheckStatus('<span>저장된 코드표가 아직 없어요. 저장 버튼을 누르면 현재 코드표가 저장됩니다.</span>', 'warn');
     return;
   }
 
-  setCodeCheckStatus(formatCodeGapSummary(getCodeSetGaps(cloudCodes), `Supabase 코드표 ${data.length}개`));
+  setCodeCheckStatus(formatCodeGapSummary(getCodeSetGaps(cloudCodes), `저장된 코드표 ${data.length}개`));
 }
 
 function bindViewEvents() {
@@ -2570,26 +2582,18 @@ function bindViewEvents() {
     });
   });
   el('checkLocalCodesButton')?.addEventListener('click', () => {
-    setCodeCheckStatus(formatCodeGapSummary(getCodeSetGaps(state.codes), `현재 앱 코드표 ${Object.keys(state.codes || {}).length}개`));
+    setCodeCheckStatus(formatCodeGapSummary(getCodeSetGaps(state.codes), `현재 코드표 ${Object.keys(state.codes || {}).length}개`));
   });
   el('checkCloudCodesButton')?.addEventListener('click', checkCloudWorkCodes);
-  el('repairDefaultCodesButton')?.addEventListener('click', () => {
-    const added = mergeMissingDefaultCodes(false);
-    renderViews();
-    renderScheduleTable();
-    renderAll();
-    if (added.length) {
-      markUnsavedChanges(`기본 코드 ${added.length}개를 보정했어요. 저장 버튼을 눌러 Supabase에도 반영해 주세요.`);
-      setCodeCheckStatus(`<span>기본 코드 ${added.length}개를 추가했어요: ${escapeHtml(added.join(', '))}<br>상단 저장 버튼 또는 코드 설정의 저장 버튼을 눌러 Supabase에 반영해 주세요.</span>`, 'ok');
-    } else {
-      setCodeCheckStatus('<span>누락된 기본 코드가 없어요. 현재 코드표가 기본 코드표를 모두 포함하고 있습니다.</span>', 'ok');
-    }
-    saveState(false);
-  });
   el('resetDefaultCodesButton')?.addEventListener('click', () => {
-    if (!confirm('현재 코드 설정을 이미지 하단 기본 코드표 기준으로 초기화할까요? 직접 추가한 코드나 수정한 시간은 사라질 수 있어요.')) return;
+    if (!confirm('현재 코드 설정을 이미지 하단 기본 코드표 기준으로 되돌릴까요? 직접 추가한 코드나 수정한 시간은 사라질 수 있어요.')) return;
     resetCodesToDefaultTable();
-    setCodeCheckStatus(formatCodeGapSummary(getCodeSetGaps(state.codes), `초기화된 기본 코드표 ${Object.keys(state.codes || {}).length}개`), 'ok');
+    setCodeCheckStatus(formatCodeGapSummary(getCodeSetGaps(state.codes), `기본값으로 되돌린 코드표 ${Object.keys(state.codes || {}).length}개`), 'ok');
+  });
+  el('saveCodesButton')?.addEventListener('click', async () => {
+    saveState(false);
+    await saveCurrentMonthToCloud(true);
+    setCodeCheckStatus('<span>현재 코드표를 저장했어요. Supabase 저장 공간에도 반영됐습니다.</span>', 'ok');
   });
   el('addCodeButton')?.addEventListener('click', () => {
     let key = prompt('추가할 코드를 입력하세요. 예: AQ');

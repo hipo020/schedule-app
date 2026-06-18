@@ -4965,3 +4965,64 @@ body::after,
     gap: 4px;
   }
 }
+
+/* =========================================
+   코드 설정 버튼 단순화
+========================================= */
+.settings-main-actions {
+  justify-content: flex-end;
+}
+.advanced-code-details {
+  margin-top: 14px;
+  border-radius: 22px;
+  background: #FAFAF2;
+  border: 1px solid rgba(11, 11, 20, 0.06);
+  padding: 12px 14px;
+}
+.advanced-code-details summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 800;
+  color: #656565;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.advanced-code-details summary::-webkit-details-marker { display: none; }
+.advanced-code-details summary::after {
+  content: '⌄';
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #FFFFFF;
+  color: #777;
+  box-shadow: 0 6px 14px rgba(11, 11, 20, 0.06);
+}
+.advanced-code-details[open] summary::after {
+  content: '⌃';
+}
+.advanced-code-actions {
+  margin-top: 12px;
+}
+.advanced-code-details .helper-text {
+  margin: 10px 0 0;
+}
+.code-table-card #codeCheckStatus {
+  margin-top: 12px;
+}
+@media (max-width: 780px) {
+  .settings-main-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .settings-main-actions button {
+    flex: 1 1 0;
+  }
+  .advanced-code-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
