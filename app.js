@@ -2134,22 +2134,22 @@ function renderDailyTimeline(day) {
       </div>`;
   }).join('');
 
-  const mobileHourHeight = 58;
-  const mobileTotalHeight = Math.max((window.end - window.start) / 60 * mobileHourHeight, 620);
-  const mobileLaneWidth = 92;
+  const mobileHourHeight = 52;
+  const mobileTotalHeight = Math.max((window.end - window.start) / 60 * mobileHourHeight, 560);
+  const mobileLaneWidth = 54;
   const mobileTimeTicks = window.hours.map((minute) => {
     const top = ((minute - window.start) / (window.end - window.start)) * mobileTotalHeight;
-    return `<span style="top:${top}px">${minutesToTimelineLabel(minute)}</span>`;
+    const hourOnly = String(Math.floor(minute / 60) % 24);
+    return `<span style="top:${top}px">${hourOnly}</span>`;
   }).join('');
   const mobileLanes = workItems.map((item) => {
     const top = ((item.start - window.start) / (window.end - window.start)) * mobileTotalHeight;
     const height = Math.max(((item.end - item.start) / (window.end - window.start)) * mobileTotalHeight, 84);
     return `
       <div class="mobile-vertical-lane ${item.isUncertain ? 'uncertain' : ''}" style="width:${mobileLaneWidth}px;height:${mobileTotalHeight}px">
-        <span class="mobile-vertical-bar ${item.isUncertain ? 'uncertain' : ''}" style="top:${top}px;height:${height}px">
+        <span class="mobile-vertical-bar ${item.isUncertain ? 'uncertain' : ''}" style="top:${top}px;height:${height}px" title="${escapeHtml(item.name)} ${escapeHtml(item.code)} · ${item.startLabel}~${item.endLabel}">
           <strong>${escapeHtml(item.name)}</strong>
           <small>${escapeHtml(item.code)}</small>
-          <em>${item.startLabel}~${item.endLabel}</em>
         </span>
       </div>`;
   }).join('');
@@ -2157,7 +2157,7 @@ function renderDailyTimeline(day) {
     <div class="mobile-vertical-timeline" style="--mobile-timeline-height:${mobileTotalHeight}px">
       <div class="mobile-vertical-time-scale" style="height:${mobileTotalHeight}px">${mobileTimeTicks}</div>
       <div class="mobile-vertical-scroll">
-        <div class="mobile-vertical-lanes" style="width:${workItems.length * (mobileLaneWidth + 8)}px">${mobileLanes}</div>
+        <div class="mobile-vertical-lanes" style="width:${workItems.length * (mobileLaneWidth + 6)}px">${mobileLanes}</div>
       </div>
     </div>
   ` : '';
@@ -2170,7 +2170,7 @@ function renderDailyTimeline(day) {
       <div class="timeline-card-head">
         <div>
           <h4>근무 타임라인</h4>
-          <p>PC에서는 시간축을 가로로, 모바일에서는 같은 타임라인을 세로 시간축으로 보여줘요.</p>
+          <p>PC에서는 시간축을 가로로, 모바일에서는 시간 숫자를 줄인 세로 타임라인으로 보여줘요.</p>
         </div>
         <span>근무 ${workItems.length}명 · 피크 ${getPeakCoverage(workItems)}</span>
       </div>

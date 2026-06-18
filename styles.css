@@ -4789,7 +4789,7 @@ body::after,
   display: inline-block;
   width: 8px;
   height: 8px;
-  margin-right: 7px;
+  margin-right: 6px;
   border-radius: 999px;
   background: #F2C94C;
   vertical-align: 1px;
@@ -5337,8 +5337,8 @@ body::after,
 
   .mobile-vertical-timeline {
     display: grid;
-    grid-template-columns: 58px minmax(0, 1fr);
-    gap: 10px;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 7px;
     align-items: start;
     margin-top: 4px;
   }
@@ -5347,13 +5347,13 @@ body::after,
     position: relative;
     border-right: 2px solid rgba(22, 48, 53, 0.12);
     color: #7b8490;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 900;
   }
 
   .mobile-vertical-time-scale span {
     position: absolute;
-    right: 10px;
+    right: 6px;
     transform: translateY(-50%);
     white-space: nowrap;
   }
@@ -5381,13 +5381,13 @@ body::after,
   .mobile-vertical-scroll {
     overflow-x: auto;
     overflow-y: hidden;
-    padding-bottom: 12px;
+    padding-bottom: 10px;
     -webkit-overflow-scrolling: touch;
   }
 
   .mobile-vertical-lanes {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     align-items: stretch;
     min-width: 100%;
   }
@@ -5395,7 +5395,7 @@ body::after,
   .mobile-vertical-lane {
     position: relative;
     flex: 0 0 auto;
-    border-radius: 20px;
+    border-radius: 16px;
     background: #f8faf8;
     border: 1px solid rgba(16, 24, 40, 0.05);
     overflow: hidden;
@@ -5408,17 +5408,17 @@ body::after,
     background-image: repeating-linear-gradient(
       to bottom,
       transparent 0,
-      transparent 56px,
-      rgba(16, 24, 40, 0.04) 57px,
-      transparent 58px
+      transparent 50px,
+      rgba(16, 24, 40, 0.04) 51px,
+      transparent 52px
     );
     pointer-events: none;
   }
 
   .mobile-vertical-bar {
     position: absolute;
-    left: 8px;
-    right: 8px;
+    left: 5px;
+    right: 5px;
     border-radius: 999px;
     background: #dff1ee;
     border: 1px solid rgba(30, 83, 87, 0.1);
@@ -5428,21 +5428,31 @@ body::after,
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
-    padding: 10px 6px;
+    gap: 1px;
+    padding: 7px 3px;
     text-align: center;
   }
 
   .mobile-vertical-bar strong {
-    font-size: 12px;
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 9px;
     font-weight: 900;
-    letter-spacing: -0.02em;
+    line-height: 1.1;
+    letter-spacing: -0.06em;
   }
 
-  .mobile-vertical-bar small,
-  .mobile-vertical-bar em {
+  .mobile-vertical-bar small {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-style: normal;
-    font-size: 10px;
+    font-size: 8px;
+    line-height: 1;
     font-weight: 900;
     color: rgba(24, 50, 55, 0.72);
   }
