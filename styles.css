@@ -5463,3 +5463,94 @@ body::after,
     border-style: dashed;
   }
 }
+
+/* v2.16 모바일 일간 타임라인 폭 압축 */
+@media (max-width: 720px) {
+  .daily-timeline-card {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .mobile-vertical-timeline {
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .mobile-vertical-time-scale {
+    border-right-width: 1px;
+    font-size: 8px;
+    color: #8b949f;
+  }
+
+  .mobile-vertical-time-scale span {
+    right: 4px;
+    letter-spacing: -0.04em;
+  }
+
+  .mobile-vertical-time-scale::before,
+  .mobile-vertical-time-scale::after {
+    right: -3px;
+    width: 5px;
+    height: 5px;
+  }
+
+  .mobile-vertical-scroll {
+    padding-left: 1px;
+  }
+
+  .mobile-vertical-lanes {
+    gap: 4px;
+  }
+
+  .mobile-vertical-lane {
+    border-radius: 12px;
+    overflow: visible;
+    background: transparent;
+    border-color: rgba(16, 24, 40, 0.035);
+  }
+
+  .mobile-vertical-lane::before {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 50px,
+      rgba(16, 24, 40, 0.035) 51px,
+      transparent 52px
+    );
+  }
+
+  .mobile-vertical-bar {
+    left: 11px;
+    right: 11px;
+    min-width: 12px;
+    border-radius: 999px;
+    padding: 4px 0;
+    overflow: visible;
+    box-shadow: 0 5px 10px rgba(39, 86, 87, 0.06);
+    z-index: 1;
+  }
+
+  .mobile-vertical-bar strong,
+  .mobile-vertical-bar small {
+    max-width: none;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+    position: relative;
+    left: 8px;
+    z-index: 2;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+  }
+
+  .mobile-vertical-bar strong {
+    font-size: 7px;
+    line-height: 0.95;
+    letter-spacing: -0.08em;
+  }
+
+  .mobile-vertical-bar small {
+    font-size: 6px;
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+  }
+}

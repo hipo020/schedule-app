@@ -2136,7 +2136,7 @@ function renderDailyTimeline(day) {
 
   const mobileHourHeight = 52;
   const mobileTotalHeight = Math.max((window.end - window.start) / 60 * mobileHourHeight, 560);
-  const mobileLaneWidth = 54;
+  const mobileLaneWidth = 34;
   const mobileTimeTicks = window.hours.map((minute) => {
     const top = ((minute - window.start) / (window.end - window.start)) * mobileTotalHeight;
     const hourOnly = String(Math.floor(minute / 60) % 24);
