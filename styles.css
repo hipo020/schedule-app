@@ -1023,118 +1023,201 @@ button { cursor: pointer; }
 
 
 /* =========================================
-   PC 기준 레이아웃 정리 패치 - 로그인 로직 영향 없음
+   요청 반영 롤백 안전 패치
+   - 로그인 스크립트는 건드리지 않고 PC 레이아웃/색상/입력 영역만 보정
 ========================================= */
 :root {
-  --rest-bg: #fee2e2;
-  --rest-text: #dc2626;
-  --rest-line: #fca5a5;
+  --work-bg: #dff1fb;
+  --work-text: #0477a8;
+  --off-bg: #fee2e2;
+  --off-soft: #fff5f5;
+  --off-text: #dc2626;
+  --leave-bg: #fff3c4;
+  --leave-soft: #fffaf0;
+  --leave-text: #b45309;
+  --empty-bg: #f1f5f9;
+  --empty-text: #94a3b8;
 }
 
-/* 홈 요약 카드가 한쪽에만 길게 늘어지지 않도록 카드 그리드화 */
+/* 홈: PC에서 긴 빈 박스처럼 보이지 않게 요약 카드 폭과 배열 정리 */
+.home-panel {
+  max-width: 1040px;
+}
 .summary-cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
-  max-width: 980px;
+  align-items: stretch;
 }
-.home-panel .summary-card {
+.summary-cards .summary-card {
   min-height: 150px;
-  justify-content: center;
+  justify-content: space-between;
 }
-.home-panel .section-title {
-  max-width: 980px;
+.summary-cards .summary-card strong {
+  line-height: 1.15;
+  word-break: keep-all;
 }
 
-/* PC 주간 보기: 7일 카드를 가로 배열 */
+/* 데이터 입력: 두 버튼 역할 설명 */
+.button-help-text {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+/* 주간 보기: PC에서는 7일을 가로 카드로 배치 */
 .week-grid,
-.week-strip,
 .improved-week-grid {
   display: grid !important;
   grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
   gap: 14px !important;
   align-items: stretch;
 }
-.week-grid .week-day-card,
+.week-day-card,
 .improved-week-grid .week-day-card {
-  min-width: 0;
   width: 100%;
+  min-width: 0;
+}
+.week-title-with-nav {
+  gap: 16px;
+}
+.week-nav {
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-/* 휴무/연차 색상 일관화: 범례, 배지, 달력, 주간 카드 모두 빨간 계열 */
-.legend-dot.off,
-.legend-dot.leave {
-  background: var(--rest-bg) !important;
-  border: 1px solid var(--rest-line) !important;
-}
-.badge.off,
-.badge.leave,
-.day-code.off,
-.day-code.leave,
-.week-day-card.off .badge,
-.week-day-card.leave .badge,
-.offday-chip.off,
-.offday-chip.leave {
-  background: var(--rest-bg) !important;
-  color: var(--rest-text) !important;
-  border: 1px solid var(--rest-line) !important;
-}
-.day-cell.off,
-.day-cell.leave,
-.week-day-card.off,
-.week-day-card.leave {
-  background: #fff5f5 !important;
-}
-.month-legend span:nth-child(2),
-.month-legend span:nth-child(3) {
-  color: var(--rest-text);
-}
-
-/* 코드 설정: #codeEditor 기본 flex를 덮어써서 PC에서 카드 그리드로 표시 */
-#codeEditor.code-editor-grid {
+/* 코드 설정: 기존 ID flex 규칙을 이겨서 PC에서는 카드 그리드로 표시 */
+#codeEditor.code-editor-grid,
+#codeEditor {
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
   gap: 14px !important;
+  align-items: stretch;
 }
-#codeEditor.code-editor-grid .compact-code-card,
-#codeEditor.code-editor-grid .code-editor-row {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: stretch !important;
-  gap: 10px !important;
-  min-width: 0;
-}
-#codeEditor.code-editor-grid .compact-code-card label {
+#codeEditor .compact-code-card,
+#codeEditor .code-editor-row {
   display: grid !important;
-  grid-template-columns: 44px minmax(0, 1fr) !important;
-  gap: 8px !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+  align-content: start;
+  min-width: 0;
 }
-#codeEditor.code-editor-grid .compact-code-card input {
-  width: 100% !important;
+#codeEditor .compact-code-card label,
+#codeEditor .code-editor-row label {
+  min-width: 0;
+}
+#codeEditor .compact-code-card input,
+#codeEditor .code-editor-row input {
+  width: 100%;
   min-width: 0;
 }
 
-.button-help-text {
-  margin-top: 8px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: #f8fafc;
+/* 월간/주간/범례 색상 통일: 근무=파랑, 휴무=빨강, 연차=노랑 */
+.badge.work,
+.review-table .badge.work {
+  background-color: var(--work-bg) !important;
+  color: var(--work-text) !important;
+  border: 1px solid #bae6fd !important;
 }
-.button-help-text strong {
-  color: var(--navy);
+.badge.off,
+.review-table .badge.off,
+.week-day-card.off .badge,
+.day-cell.off .day-code,
+.offday-chip.off {
+  background-color: var(--off-bg) !important;
+  color: var(--off-text) !important;
+  border: 1px solid #fca5a5 !important;
+}
+.badge.leave,
+.review-table .badge.leave,
+.week-day-card.leave .badge,
+.day-cell.leave .day-code,
+.offday-chip.leave {
+  background-color: var(--leave-bg) !important;
+  color: var(--leave-text) !important;
+  border: 1px solid #f5d36f !important;
+}
+.day-cell.work,
+.week-day-card.work {
+  background-color: #f0f9ff !important;
+}
+.day-cell.off,
+.week-day-card.off {
+  background-color: var(--off-soft) !important;
+}
+.day-cell.leave,
+.week-day-card.leave {
+  background-color: var(--leave-soft) !important;
+}
+.legend-dot.work { background: var(--work-bg) !important; border: 1px solid #bae6fd; }
+.legend-dot.off { background: var(--off-bg) !important; border: 1px solid #fca5a5; }
+.legend-dot.leave { background: var(--leave-bg) !important; border: 1px solid #f5d36f; }
+.legend-dot.empty { background: var(--empty-bg) !important; border: 1px solid #cbd5e1; }
+.month-legend {
+  flex-wrap: wrap;
 }
 
-@media (max-width: 980px) {
+/* OCR 보조: 추출 영역 설정 입력칸이 카드 밖으로 벗어나지 않게 보정 */
+.ocr-grid {
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr) !important;
+}
+.ocr-control-card,
+.ocr-preview-card {
+  min-width: 0;
+  overflow: hidden;
+}
+.ocr-control-card .share-box,
+#ocrNamesInput {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.ocr-number-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+.ocr-number-grid label,
+.ocr-number-grid input {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 901px) {
+  .home-panel .section-title {
+    max-width: 680px;
+  }
+  .code-editor-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1100px) and (min-width: 781px) {
+  .week-grid,
+  .improved-week-grid {
+    overflow-x: auto;
+    grid-template-columns: repeat(7, minmax(132px, 1fr)) !important;
+    padding-bottom: 6px;
+  }
+}
+
+@media (max-width: 780px) {
   .summary-cards {
     grid-template-columns: 1fr;
-    max-width: none;
   }
   .week-grid,
-  .week-strip,
   .improved-week-grid {
+    overflow-x: auto;
+    grid-template-columns: repeat(7, minmax(132px, 1fr)) !important;
+    padding-bottom: 8px;
+  }
+  #codeEditor.code-editor-grid,
+  #codeEditor {
     grid-template-columns: 1fr !important;
   }
-  #codeEditor.code-editor-grid {
+  .ocr-grid {
     grid-template-columns: 1fr !important;
   }
 }
