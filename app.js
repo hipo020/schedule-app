@@ -2779,6 +2779,58 @@ function renderCoworkersCard(day) {
   `;
 }
 
+function getDailyCoworkerSummary(day) {
+  const coworkers = getCoworkersForDay(day);
+  if (!state.myName) {
+    return {
+      main: '내 이름 선택 필요',
+      sub: '보기 기준에서 이름을 고르면 같이 근무하는 사람이 보여요.',
+    };
+  }
+  if (!coworkers.targetCode || ['off', 'leave', 'empty'].includes(coworkers.targetInfo.type)) {
+    return {
+      main: '같이 근무 없음',
+      sub: '선택일에 근무 시간이 없는 일정이에요.',
+    };
+  }
+  const sameNames = coworkers.sameStart.map((p) => p.name);
+  const overlapNames = coworkers.overlap.map((p) => p.name);
+  const sameText = sameNames.length ? `같은 출근 ${sameNames.slice(0, 2).join(', ')}${sameNames.length > 2 ? ` 외 ${sameNames.length - 2}명` : ''}` : '같은 출근 없음';
+  const overlapText = overlapNames.length ? `겹침 ${overlapNames.slice(0, 2).join(', ')}${overlapNames.length > 2 ? ` 외 ${overlapNames.length - 2}명` : ''}` : '시간 겹침 없음';
+  return {
+    main: sameText,
+    sub: overlapText,
+  };
+}
+
+function renderDailyInsightCard(day, timeline, roster) {
+  const coworker = getDailyCoworkerSummary(day);
+  return `
+    <div class="info-card daily-insight-card">
+      <div class="daily-insight-head">
+        <h4>오늘 요약</h4>
+        <span>${timeline.workItems.length}명 근무</span>
+      </div>
+      <div class="daily-insight-list">
+        <div class="daily-insight-row">
+          <span>근무 / 휴무</span>
+          <strong>근무 ${timeline.workItems.length}명 · 휴무/연차 ${timeline.offPeople.length}명</strong>
+        </div>
+        <div class="daily-insight-row highlight">
+          <span>집중 시간대</span>
+          <strong>${getPeakCoverage(timeline.workItems)}</strong>
+          <small>가장 많이 겹치는 시간</small>
+        </div>
+        <div class="daily-insight-row">
+          <span>같이 근무</span>
+          <strong>${escapeHtml(coworker.main)}</strong>
+          <small>${escapeHtml(coworker.sub)}</small>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderSelectedDayDetail(day = getSelectedRosterDay()) {
   const person = getMyPerson();
   const code = person?.schedules?.[day - 1] || '';
@@ -2851,12 +2903,10 @@ function renderDaily() {
       </div>
       <div class="daily-title-actions">${renderPersonPicker()}${renderDailyViewToggle()}</div>
     </div>
-    <div class="card-grid daily-summary-grid">
-      <div class="info-card"><h4>내 스케줄</h4><div class="list-row"><strong>${state.myName || '이름 미입력'}</strong><span>${info.label}</span><span class="badge ${badgeClass(info.type)}">${code || '-'}</span></div><p>${formatTime(info) || '시간 정보 없음'}</p></div>
-      <div class="info-card"><h4>오늘 요약</h4><p>근무 ${timeline.workItems.length}명 · 휴무/연차 ${timeline.offPeople.length}명</p><p>가장 이른 출근: ${roster.earliest || '-'}</p></div>
-      <div class="info-card"><h4>집중 시간대</h4><p>${getPeakCoverage(timeline.workItems)}</p><p>근무자가 가장 많이 겹치는 시간입니다.</p></div>
+    <div class="card-grid daily-summary-grid daily-summary-grid-compact">
+      <div class="info-card daily-my-schedule-card"><h4>내 스케줄</h4><div class="list-row"><strong>${state.myName || '이름 미입력'}</strong><span>${info.label}</span><span class="badge ${badgeClass(info.type)}">${code || '-'}</span></div><p>${formatTime(info) || '시간 정보 없음'}</p></div>
+      ${renderDailyInsightCard(day, timeline, roster)}
     </div>
-    ${renderCoworkersCard(day)}
     ${dailyMain}
   `;
 }

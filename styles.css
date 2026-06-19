@@ -10727,3 +10727,186 @@ body {
     padding-right: 8px !important;
   }
 }
+
+/* =========================================
+   모바일 일간 화면 정보 압축 패치
+   - 오늘 요약 카드 안에 집중 시간대/같이 근무 정보를 합쳐서
+     근무 타임라인이 더 빨리 보이도록 정리
+========================================= */
+.daily-summary-grid-compact {
+  grid-template-columns: minmax(220px, 0.78fr) minmax(300px, 1.22fr) !important;
+  align-items: stretch !important;
+  gap: 14px !important;
+  margin-bottom: 14px !important;
+}
+
+.daily-summary-grid-compact .daily-my-schedule-card,
+.daily-summary-grid-compact .daily-insight-card {
+  min-width: 0 !important;
+}
+
+.daily-insight-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  background: #FFF9ED !important;
+  border-color: #EEE2C9 !important;
+}
+
+.daily-insight-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.daily-insight-head h4 {
+  margin: 0 !important;
+}
+
+.daily-insight-head span {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(23, 32, 51, 0.06);
+  color: #667085;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.daily-insight-list {
+  display: grid;
+  gap: 8px;
+}
+
+.daily-insight-row {
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(23, 32, 51, 0.055);
+}
+
+.daily-insight-row.highlight {
+  background: #E6F4FA;
+  border-color: #CFE7F1;
+}
+
+.daily-insight-row span,
+.daily-insight-row small {
+  display: block;
+  color: #7B8490;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.daily-insight-row strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--view-text, #172033);
+  font-size: 14px;
+  font-weight: 950;
+  line-height: 1.25;
+  word-break: keep-all;
+}
+
+.daily-insight-row small {
+  margin-top: 3px;
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .daily-summary-grid.daily-summary-grid-compact {
+    grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr) !important;
+    gap: 8px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .daily-summary-grid-compact .daily-my-schedule-card,
+  .daily-summary-grid-compact .daily-insight-card {
+    min-height: 148px !important;
+    padding: 14px 12px !important;
+    border-radius: 22px !important;
+  }
+
+  .daily-summary-grid-compact .daily-my-schedule-card h4,
+  .daily-insight-head h4 {
+    margin-bottom: 0 !important;
+    font-size: 13px !important;
+  }
+
+  .daily-summary-grid-compact .daily-my-schedule-card .list-row {
+    margin-top: 8px;
+    padding: 10px 10px !important;
+  }
+
+  .daily-summary-grid-compact .daily-my-schedule-card p:last-child {
+    margin-top: 7px !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  .daily-insight-card {
+    gap: 8px !important;
+  }
+
+  .daily-insight-head span {
+    padding: 4px 7px;
+    font-size: 10px;
+  }
+
+  .daily-insight-list {
+    gap: 6px;
+  }
+
+  .daily-insight-row {
+    padding: 7px 8px;
+    border-radius: 14px;
+  }
+
+  .daily-insight-row span,
+  .daily-insight-row small {
+    font-size: 9.5px;
+    line-height: 1.2;
+  }
+
+  .daily-insight-row strong {
+    margin-top: 3px;
+    font-size: 11.5px;
+    line-height: 1.22;
+  }
+
+  .daily-insight-row small {
+    margin-top: 2px;
+  }
+
+  .daily-timeline-card {
+    margin-top: 8px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .daily-summary-grid.daily-summary-grid-compact {
+    grid-template-columns: minmax(0, 0.84fr) minmax(0, 1.16fr) !important;
+  }
+
+  .daily-summary-grid-compact .daily-my-schedule-card,
+  .daily-summary-grid-compact .daily-insight-card {
+    min-height: 142px !important;
+    padding: 12px 10px !important;
+  }
+
+  .daily-insight-head span {
+    display: none;
+  }
+
+  .daily-insight-row {
+    padding: 7px;
+  }
+
+  .daily-insight-row strong {
+    font-size: 11px;
+  }
+}
