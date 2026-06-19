@@ -8403,3 +8403,490 @@ body {
     padding: 11px 12px !important;
   }
 }
+
+
+
+/* v4.3 보기 페이지 통합 디자인 시스템: 홈/일간/주간/월간 */
+:root {
+  --view-bg: #F8F6EF;
+  --view-card: #FFFFFF;
+  --view-text: #172033;
+  --view-sub: #667085;
+  --view-border: #E6EAF0;
+  --view-work-bg: #DFF2F8;
+  --view-work-bg-soft: #EDF8FC;
+  --view-work-text: #2F6E88;
+  --view-work-border: #BEE0EB;
+  --view-off-bg: #FDEEEE;
+  --view-off-border: #F6D2D2;
+  --view-off-text: #B94A4A;
+  --view-leave-bg: #F8F1DE;
+  --view-leave-border: #EBDDAD;
+  --view-leave-text: #8A6A2A;
+  --view-selected-bg: #D4ECF7;
+  --view-selected-border: #8FBFD8;
+  --view-beige: #F6F1E6;
+  --view-shadow-soft: 0 10px 24px rgba(23, 32, 51, 0.05);
+  --view-shadow-mid: 0 18px 38px rgba(23, 32, 51, 0.08);
+}
+
+body {
+  background: var(--view-bg) !important;
+  color: var(--view-text) !important;
+}
+
+.page-area {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid rgba(230, 234, 240, 0.9) !important;
+  box-shadow: 0 22px 54px rgba(23, 32, 51, 0.07) !important;
+}
+
+.view-title h3,
+.section-title h2,
+.home-panel h2,
+.daily-timeline-card h4,
+.timeline-sub-section h4 {
+  color: var(--view-text) !important;
+  letter-spacing: -0.03em;
+}
+
+.view-title p,
+.section-title p,
+.timeline-card-head p,
+.summary-card span,
+.summary-card small,
+.info-card p,
+.week-title p,
+.month-title p,
+.daily-summary-grid .info-card h4,
+.mini-stat span,
+.week-day-card small,
+.day-cell small,
+.month-day-main small,
+.workflow-step span,
+.roster-card p {
+  color: var(--view-sub) !important;
+}
+
+/* 공통 코드/상태 pill 규칙 */
+.badge.work,
+.day-code.work,
+.person-pill.work,
+.person-pill:not(.off):not(.leave):not(.muted),
+.list-row span:not(.off):not(.leave),
+.timeline-bar strong,
+.week-day-card.work em {
+  background: rgba(255, 255, 255, 0.56) !important;
+  color: var(--view-work-text) !important;
+  border-color: var(--view-work-border) !important;
+}
+
+.badge.off,
+.day-code.off,
+.person-pill.off,
+.week-day-card.off em,
+.list-row span.off {
+  background: #FFF8F8 !important;
+  color: var(--view-off-text) !important;
+  border-color: var(--view-off-border) !important;
+}
+
+.badge.leave,
+.day-code.leave,
+.person-pill.leave,
+.week-day-card.leave em,
+.list-row span.leave {
+  background: #FFFBF1 !important;
+  color: var(--view-leave-text) !important;
+  border-color: var(--view-leave-border) !important;
+}
+
+/* 홈: 핵심 대시보드 위계 */
+.summary-cards {
+  align-items: stretch !important;
+}
+
+.summary-cards .summary-card {
+  background: var(--view-card) !important;
+  border: 1px solid var(--view-border) !important;
+  box-shadow: var(--view-shadow-soft) !important;
+  color: var(--view-text) !important;
+}
+
+.summary-cards .summary-card:nth-child(1) {
+  background: linear-gradient(180deg, #E6F4FA 0%, #DFF2F8 100%) !important;
+  border-color: #C4DFEA !important;
+  box-shadow: 0 18px 38px rgba(143, 191, 216, 0.20) !important;
+  transform: translateY(-1px);
+}
+
+.summary-cards .summary-card:nth-child(1) strong {
+  font-size: clamp(28px, 2.2vw, 38px) !important;
+  color: var(--view-text) !important;
+}
+
+.summary-cards .summary-card:nth-child(1) span,
+.summary-cards .summary-card:nth-child(1) small {
+  color: #49687A !important;
+  font-weight: 800 !important;
+}
+
+.summary-cards .summary-card:nth-child(2),
+.summary-cards .summary-card:nth-child(4),
+.summary-cards .summary-card:nth-child(5) {
+  background: #FFFFFF !important;
+}
+
+.summary-cards .summary-card:nth-child(3) {
+  background: var(--view-beige) !important;
+  border-color: #EEE2C9 !important;
+}
+
+.summary-cards .summary-card strong {
+  color: var(--view-text) !important;
+  font-weight: 950 !important;
+}
+
+.workflow-guide-card {
+  background: #FFFFFF !important;
+  border-color: var(--view-border) !important;
+  box-shadow: var(--view-shadow-soft) !important;
+}
+
+.workflow-step-grid .workflow-step,
+.workflow-step {
+  background: #FFFFFF !important;
+  border: 1px solid var(--view-border) !important;
+  box-shadow: none !important;
+}
+
+.workflow-step::before,
+.workflow-step-number,
+.workflow-step b:first-child {
+  background: var(--view-selected-bg) !important;
+  color: var(--view-work-text) !important;
+}
+
+.workflow-step strong {
+  color: var(--view-text) !important;
+  font-weight: 900 !important;
+}
+
+/* 일간: 상단 요약 카드와 타임라인 위계 */
+.daily-summary-grid .info-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--view-border) !important;
+  box-shadow: var(--view-shadow-soft) !important;
+}
+
+.daily-summary-grid .info-card:nth-child(1) {
+  background: linear-gradient(180deg, #DFF2F8 0%, #CFE6F3 100%) !important;
+  border-color: #B5D9E7 !important;
+  box-shadow: 0 16px 34px rgba(143, 191, 216, 0.20) !important;
+}
+
+.daily-summary-grid .info-card:nth-child(2) {
+  background: var(--view-beige) !important;
+  border-color: #EEE2C9 !important;
+}
+
+.daily-summary-grid .info-card:nth-child(3) {
+  background: #FFFFFF !important;
+}
+
+.daily-summary-grid .info-card h4 {
+  color: var(--view-text) !important;
+  font-weight: 900 !important;
+}
+
+.daily-summary-grid .info-card strong {
+  color: var(--view-text) !important;
+  font-weight: 950 !important;
+}
+
+.daily-view-toggle {
+  background: #FFFFFF !important;
+  border: 1px solid var(--view-border) !important;
+  border-radius: 999px !important;
+  padding: 6px !important;
+  box-shadow: var(--view-shadow-soft) !important;
+}
+
+.daily-view-toggle .ghost-btn {
+  background: #FFFFFF !important;
+  border: 1px solid transparent !important;
+  color: var(--view-sub) !important;
+}
+
+.daily-view-toggle .ghost-btn.active {
+  background: var(--view-selected-bg) !important;
+  color: var(--view-text) !important;
+  border-color: var(--view-selected-border) !important;
+}
+
+.daily-timeline-card {
+  background: #FFFEFA !important;
+  border: 1px solid #E9EDF2 !important;
+  box-shadow: 0 14px 36px rgba(23, 32, 51, 0.06) !important;
+}
+
+.timeline-card-head > span {
+  background: #E6F4FA !important;
+  color: var(--view-work-text) !important;
+  border: 1px solid #CFEAF6 !important;
+}
+
+.timeline-scale {
+  color: #53657A !important;
+  font-weight: 900 !important;
+}
+
+.timeline-person {
+  background: #FFFFFF !important;
+  border-color: var(--view-border) !important;
+  box-shadow: 0 4px 10px rgba(23, 32, 51, 0.035) !important;
+}
+
+.timeline-track {
+  background: #F7FAFC !important;
+  border-color: #E9EDF2 !important;
+}
+
+.timeline-bar {
+  background: #CFE6F3 !important;
+  border-color: #A9D2E4 !important;
+  color: #17324A !important;
+  box-shadow: 0 8px 16px rgba(143, 191, 216, 0.20) !important;
+}
+
+.timeline-bar small {
+  color: #365B72 !important;
+}
+
+.timeline-row:hover .timeline-person,
+.timeline-row:hover .timeline-track {
+  border-color: #CFEAF6 !important;
+  background: #F7FCFE !important;
+}
+
+.timeline-sub-section {
+  border-top-color: var(--view-border) !important;
+}
+
+.timeline-sub-section .person-pill,
+.roster-pill-wrap .person-pill {
+  border: 1px solid #CFEAF6 !important;
+  background: #EDF7FD !important;
+  color: var(--view-text) !important;
+  box-shadow: none !important;
+}
+
+.timeline-sub-section .person-pill.off,
+.roster-pill-wrap .person-pill.off {
+  background: var(--view-off-bg) !important;
+  border-color: var(--view-off-border) !important;
+  color: var(--view-off-text) !important;
+}
+
+/* 주간: 패턴/선택일/상단 통계 */
+.weekly-stat-row .mini-stat,
+.mini-stat-row .mini-stat {
+  background: #FFFFFF !important;
+  border: 1px solid var(--view-border) !important;
+  box-shadow: var(--view-shadow-soft) !important;
+}
+
+.weekly-stat-row .mini-stat:nth-child(1) {
+  background: var(--view-work-bg-soft) !important;
+  border-color: #D0E7F1 !important;
+}
+
+.weekly-stat-row .mini-stat:nth-child(2) {
+  background: var(--view-off-bg) !important;
+  border-color: var(--view-off-border) !important;
+}
+
+.weekly-stat-row .mini-stat:nth-child(3) {
+  background: #FFFFFF !important;
+}
+
+.mini-stat strong {
+  color: var(--view-text) !important;
+  font-weight: 950 !important;
+}
+
+.week-day-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--view-border) !important;
+  box-shadow: var(--view-shadow-soft) !important;
+  color: var(--view-text) !important;
+}
+
+.week-day-card.work {
+  background: var(--view-work-bg) !important;
+  border-color: #C9E3ED !important;
+}
+
+.week-day-card.off {
+  background: var(--view-off-bg) !important;
+  border-color: var(--view-off-border) !important;
+}
+
+.week-day-card.leave {
+  background: var(--view-leave-bg) !important;
+  border-color: var(--view-leave-border) !important;
+}
+
+.week-day-card.selected-week-day {
+  border: 2px solid var(--view-selected-border) !important;
+  box-shadow: 0 16px 32px rgba(143, 191, 216, 0.24) !important;
+  transform: translateY(-2px);
+}
+
+.week-day-card.selected-week-day strong {
+  color: var(--view-text) !important;
+}
+
+.week-day-card strong {
+  color: var(--view-text) !important;
+  font-weight: 950 !important;
+}
+
+.week-day-card span {
+  color: #5F6F81 !important;
+  font-weight: 900 !important;
+}
+
+.week-day-card .badge {
+  border: 1px solid transparent !important;
+  font-weight: 950 !important;
+}
+
+/* 월간: 색상 규칙 통일과 분포 가독성 */
+.month-legend span {
+  color: var(--view-sub) !important;
+  font-weight: 800 !important;
+}
+
+.refined-calendar,
+.improved-month-calendar {
+  background: #FFFFFF !important;
+  border: 1px solid var(--view-border) !important;
+  box-shadow: none !important;
+}
+
+.calendar-head {
+  color: #59697B !important;
+  font-weight: 950 !important;
+}
+
+.day-cell {
+  background: #FFFFFF !important;
+  border: 1px solid #EEF1F5 !important;
+  box-shadow: none !important;
+  color: var(--view-text) !important;
+}
+
+.day-cell.work {
+  background: var(--view-work-bg) !important;
+  border-color: #C9E3ED !important;
+}
+
+.day-cell.off {
+  background: var(--view-off-bg) !important;
+  border-color: var(--view-off-border) !important;
+}
+
+.day-cell.leave {
+  background: var(--view-leave-bg) !important;
+  border-color: var(--view-leave-border) !important;
+}
+
+.day-cell.empty:not(button),
+.day-cell.empty {
+  background: #FFFFFF !important;
+  border-color: #F0F2F5 !important;
+}
+
+.day-cell.today {
+  border: 2px solid var(--view-selected-border) !important;
+  box-shadow: 0 12px 26px rgba(143, 191, 216, 0.20) !important;
+  transform: translateY(-1px);
+}
+
+.day-cell.today .day-number {
+  color: var(--view-text) !important;
+  font-weight: 950 !important;
+}
+
+.day-number {
+  color: #5D6C7F !important;
+  font-weight: 900 !important;
+}
+
+.day-cell .day-code,
+.badge.day-code {
+  border: 1px solid transparent !important;
+  font-weight: 950 !important;
+}
+
+.day-cell.work .day-code {
+  background: rgba(255,255,255,0.48) !important;
+  color: var(--view-work-text) !important;
+  border-color: #BBDCE8 !important;
+}
+
+.day-cell.off .day-code {
+  background: #FFF8F8 !important;
+  color: var(--view-off-text) !important;
+  border-color: var(--view-off-border) !important;
+}
+
+.day-cell.leave .day-code {
+  background: #FFFBF1 !important;
+  color: var(--view-leave-text) !important;
+  border-color: var(--view-leave-border) !important;
+}
+
+.day-cell.work small {
+  color: #446A82 !important;
+}
+
+.day-cell.off small {
+  color: #A85B5B !important;
+}
+
+.day-cell.leave small {
+  color: #80662F !important;
+}
+
+.day-cell:hover {
+  border-color: var(--view-selected-border) !important;
+  box-shadow: 0 10px 20px rgba(23, 32, 51, 0.06) !important;
+}
+
+/* 휴무/연차 계열 카드가 너무 강하지 않도록 */
+.week-day-card.off strong,
+.day-cell.off .day-number,
+.week-day-card.leave strong,
+.day-cell.leave .day-number {
+  color: var(--view-text) !important;
+}
+
+/* 모바일에서도 같은 색상 역할 유지 */
+@media (max-width: 780px) {
+  .summary-cards .summary-card:nth-child(1),
+  .daily-summary-grid .info-card:nth-child(1) {
+    box-shadow: 0 12px 26px rgba(143, 191, 216, 0.18) !important;
+  }
+
+  .week-day-card.selected-week-day,
+  .day-cell.today {
+    transform: none;
+  }
+
+  .workflow-step-grid .workflow-step,
+  .workflow-step {
+    background: #FFFFFF !important;
+  }
+}
