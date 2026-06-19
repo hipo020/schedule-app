@@ -2557,16 +2557,29 @@ function getTimelineWindow(items) {
   return { start, end, hours };
 }
 
-function getPeakCoverage(items) {
-  if (!items.length) return '-';
-  const window = getTimelineWindow(items);
+function getPeakCoveragePoint(items, timelineWindow = null) {
+  if (!items.length) return { count: 0, minute: 0 };
+  const window = timelineWindow || getTimelineWindow(items);
   let best = { count: 0, minute: window.start };
   for (let minute = window.start; minute < window.end; minute += 30) {
     const count = items.filter((item) => item.start <= minute && item.end > minute).length;
     if (count > best.count) best = { count, minute };
   }
+  return best;
+}
+
+function getPeakCoverage(items) {
+  const best = getPeakCoveragePoint(items);
   if (!best.count) return '-';
   return `${minutesToTimelineLabel(best.minute)} 전후 ${best.count}명`;
+}
+
+function getTimelineToneClass(code = '') {
+  const value = stripUncertaintyMarker(normalizeScheduleCodeValue(code)).toUpperCase();
+  if (/^BM/.test(value)) return 'tone-blue';
+  if (/^A[O0M]/.test(value) || value === 'AM') return 'tone-mint';
+  if (/^A[QT47]/.test(value) || /^A[4-9]/.test(value)) return 'tone-orange';
+  return 'tone-blue';
 }
 
 function renderDailyViewToggle() {
@@ -2604,32 +2617,49 @@ function renderDailyTimeline(day) {
       </div>`;
   }).join('');
 
-  const mobileHourHeight = 52;
-  const mobileTotalHeight = Math.max((window.end - window.start) / 60 * mobileHourHeight, 560);
-  const mobileLaneWidth = 42;
+  const mobileHourHeight = 58;
+  const mobileTotalHeight = Math.max((window.end - window.start) / 60 * mobileHourHeight, 620);
+  const mobileLaneWidth = 58;
+  const peakPoint = getPeakCoveragePoint(workItems, window);
+  const peakTop = peakPoint.count ? ((peakPoint.minute - window.start) / (window.end - window.start)) * mobileTotalHeight : null;
   const mobileTimeTicks = window.hours.map((minute) => {
     const top = ((minute - window.start) / (window.end - window.start)) * mobileTotalHeight;
-    const hourOnly = String(Math.floor(minute / 60) % 24);
-    return `<span style="top:${top}px">${hourOnly}</span>`;
+    const label = minutesToTimelineLabel(minute);
+    const isPeak = peakPoint.count && Math.abs(minute - peakPoint.minute) < 31;
+    return `<span class="${isPeak ? 'is-peak-time' : ''}" style="top:${top}px">${label}</span>`;
   }).join('');
-  const mobileLanePitch = 42;
-  const mobileLanesWidth = Math.max(workItems.length * mobileLanePitch, mobileLanePitch);
+  const mobileLanePitch = 66;
+  const mobileLanesWidth = Math.max(workItems.length * mobileLanePitch, 320);
   const mobileLanes = workItems.map((item) => {
     const myClass = state.myName && item.name === state.myName ? 'is-my-row' : '';
     const top = ((item.start - window.start) / (window.end - window.start)) * mobileTotalHeight;
-    const height = Math.max(((item.end - item.start) / (window.end - window.start)) * mobileTotalHeight, 84);
+    const height = Math.max(((item.end - item.start) / (window.end - window.start)) * mobileTotalHeight, 92);
+    const toneClass = getTimelineToneClass(item.code);
     return `
-      <div class="mobile-vertical-lane ${item.isUncertain ? 'uncertain' : ''} ${myClass}" style="width:${mobileLaneWidth}px;height:${mobileTotalHeight}px">
-        <span class="mobile-vertical-bar ${item.isUncertain ? 'uncertain' : ''}" style="top:${top}px;height:${height}px" title="${escapeHtml(item.name)} ${escapeHtml(item.code)} · ${item.startLabel}~${item.endLabel}">
-          <em class="mobile-vertical-label"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.code)}</small></em>
+      <div class="mobile-vertical-lane ${item.isUncertain ? 'uncertain' : ''} ${myClass} ${toneClass}" style="width:${mobileLaneWidth}px;height:${mobileTotalHeight}px">
+        <span class="mobile-vertical-bar ${item.isUncertain ? 'uncertain' : ''} ${toneClass}" style="top:${top}px;height:${height}px" title="${escapeHtml(item.name)} ${escapeHtml(item.code)} · ${item.startLabel}~${item.endLabel}">
+          <em class="mobile-vertical-label ${toneClass}"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.code)}</small></em>
         </span>
       </div>`;
   }).join('');
+  const mobilePeakLine = peakPoint.count ? `<div class="mobile-peak-line" style="top:${peakTop + 48}px"><span>피크 시간</span></div>` : '';
   const mobileRows = workItems.length ? `
     <div class="mobile-vertical-timeline" style="--mobile-timeline-height:${mobileTotalHeight}px">
-      <div class="mobile-vertical-time-scale" style="height:${mobileTotalHeight}px">${mobileTimeTicks}</div>
-      <div class="mobile-vertical-scroll">
-        <div class="mobile-vertical-lanes" style="width:${mobileLanesWidth}px">${mobileLanes}</div>
+      <div class="mobile-vertical-time-scale" style="height:${mobileTotalHeight}px"><b>시</b>${mobileTimeTicks}</div>
+      <div class="mobile-vertical-chart">
+        <div class="mobile-timeline-groups">
+          <span class="morning">오전 출근</span>
+          <span class="afternoon">오후 출근</span>
+        </div>
+        ${mobilePeakLine}
+        <div class="mobile-vertical-scroll">
+          <div class="mobile-vertical-lanes" style="width:${mobileLanesWidth}px">${mobileLanes}</div>
+        </div>
+        <div class="mobile-timeline-legend">
+          <span class="tone-mint"><i></i>A0 / AM 계열</span>
+          <span class="tone-blue"><i></i>BM 계열</span>
+          <span class="tone-orange"><i></i>A4 / A7 계열</span>
+        </div>
       </div>
     </div>
   ` : '';
