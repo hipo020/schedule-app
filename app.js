@@ -2850,7 +2850,7 @@ function renderMonthly() {
     <div class="view-title month-title">
       <div>
         <h3>${state.year}년 ${state.month}월 월간</h3>
-        <p>날짜를 누르면 선택일 기준으로 일간·공유 정보가 바뀝니다.</p>
+        <p>날짜를 누르면 해당 날짜의 일간 타임라인으로 이동합니다.</p>
       </div>
       <div class="view-title-side">${renderPersonPicker()}<span>근무 ${workCount}일 · 휴무 ${offCount - leaveCount}일 · 연차 ${leaveCount}일</span></div>
     </div>
@@ -2881,7 +2881,6 @@ function renderMonthly() {
       </button>`;
   }
   html += '</div></div>';
-  html += renderSelectedDayDetail(selectedDay || 1);
   return html;
 }
 
@@ -3295,6 +3294,7 @@ function bindViewEvents() {
     button.addEventListener('click', () => {
       const day = String(button.dataset.monthDetailDay).padStart(2, '0');
       state.selectedDate = `${state.year}-${String(state.month).padStart(2, '0')}-${day}`;
+      state.activePage = 'daily';
       syncInputs();
       renderAll();
       saveState(false);
