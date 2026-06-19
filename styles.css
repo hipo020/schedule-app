@@ -10168,3 +10168,129 @@ body {
     padding: 9px 12px !important;
   }
 }
+
+/* =========================================
+   v4.4 모바일 상단 레이아웃 보정
+   - 980px 이하에서 상위 카테고리가 1열로 쌓이던 규칙을 되돌림
+   - 모바일에서도 상위 3개 카테고리는 한 줄 3분할로 고정
+   - 하위 메뉴는 한 줄 가로 스크롤로 유지
+========================================= */
+@media (max-width: 980px) {
+  .category-shell {
+    width: 100% !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    margin: 12px 0 14px !important;
+  }
+
+  .category-tabs {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    margin: 0 !important;
+  }
+
+  .category-tab,
+  .category-tab:hover,
+  .category-tab.active,
+  .category-tab.active[data-category="view"],
+  .category-tab.active[data-category="manage"],
+  .category-tab.active[data-category="export"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+    padding: 8px 5px !important;
+    border-radius: 16px !important;
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    text-align: center !important;
+  }
+
+  .category-tab .category-icon {
+    display: none !important;
+  }
+
+  .category-tab > span:not(.category-icon) {
+    min-width: 0 !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  .category-tab strong,
+  .category-tab.active strong {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    font-size: 11.5px !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.04em !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .category-tab small,
+  .category-tab.active small {
+    display: none !important;
+  }
+
+  .sheet-nav {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    gap: 6px !important;
+    padding: 6px !important;
+    margin: 0 !important;
+    border-radius: 22px !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .sheet-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sheet-tab {
+    flex: 0 0 auto !important;
+    min-height: 36px !important;
+    padding: 0 14px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .app-shell {
+    width: 100% !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .category-tabs {
+    gap: 6px !important;
+  }
+
+  .category-tab,
+  .category-tab:hover,
+  .category-tab.active,
+  .category-tab.active[data-category="view"],
+  .category-tab.active[data-category="manage"],
+  .category-tab.active[data-category="export"] {
+    min-height: 46px !important;
+    padding-left: 3px !important;
+    padding-right: 3px !important;
+    border-radius: 15px !important;
+  }
+
+  .category-tab strong,
+  .category-tab.active strong {
+    font-size: 10.5px !important;
+  }
+}
