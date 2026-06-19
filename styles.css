@@ -7993,3 +7993,413 @@ select:focus {
     border-radius: 24px !important;
   }
 }
+
+/* v4.3 휴무 현황 정보 위계 / 가독성 강화 */
+:root {
+  --app-bg: #F8F6EF;
+  --app-card: #FFFFFF;
+  --app-primary-soft: #DDEFF8;
+  --app-primary-mid: #CFE6F3;
+  --app-primary-strong: #8FBFD8;
+  --app-text-main: #172033;
+  --app-text-sub: #667085;
+  --app-border: #E6EAF0;
+  --app-soft-beige: #F6F1E6;
+  --app-blue-text: #3F6E8C;
+}
+
+body {
+  background: var(--app-bg) !important;
+  color: var(--app-text-main) !important;
+}
+
+.hero h1,
+.section-title h2,
+.view-title h3,
+.off-card-head h4,
+.off-week-day strong,
+.off-top-day strong,
+.off-detail-main strong,
+.off-streak-item strong {
+  color: var(--app-text-main) !important;
+  letter-spacing: -0.02em !important;
+}
+
+.hero-desc,
+.view-title p,
+.section-title p + span,
+.off-week-day span,
+.off-top-day small,
+.off-detail-main small,
+.off-streak-item small,
+.off-mini-grid span,
+.off-mini-grid small {
+  color: var(--app-text-sub) !important;
+}
+
+.view-title.offday-title {
+  border-bottom-color: var(--app-border) !important;
+  margin-bottom: 26px !important;
+  padding-bottom: 18px !important;
+}
+
+.view-title.offday-title h3 {
+  font-size: 30px !important;
+  font-weight: 900 !important;
+  line-height: 1.15 !important;
+}
+
+.view-title.offday-title p {
+  margin-top: 10px !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  color: #4F5B6D !important;
+}
+
+.off-dashboard-grid {
+  gap: 20px !important;
+  margin-bottom: 22px !important;
+}
+
+.off-dashboard-grid.secondary {
+  align-items: stretch !important;
+}
+
+.off-dashboard-card {
+  background: var(--app-card) !important;
+  border-color: var(--app-border) !important;
+  box-shadow: 0 16px 34px rgba(23, 32, 51, 0.055) !important;
+}
+
+.off-card-head {
+  align-items: center !important;
+  margin-bottom: 17px !important;
+}
+
+.off-card-head span {
+  background: #F2FAFD !important;
+  border-color: #DDEFF8 !important;
+  color: var(--app-blue-text) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  font-weight: 900 !important;
+}
+
+.off-card-head h4 {
+  font-size: 18px !important;
+  font-weight: 900 !important;
+}
+
+/* 1순위: 내 휴무 요약 */
+.my-off-summary {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F7FCFE 100%) !important;
+  border-color: #CFE6F3 !important;
+  box-shadow: 0 20px 44px rgba(63, 110, 140, 0.11) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.my-off-summary::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 22px;
+  bottom: 22px;
+  width: 5px;
+  border-radius: 999px;
+  background: var(--app-primary-strong);
+}
+
+.my-off-summary .off-card-head h4 {
+  font-size: 20px !important;
+}
+
+.off-summary-line {
+  align-items: baseline !important;
+  gap: 12px !important;
+  margin: 4px 0 22px !important;
+}
+
+.off-summary-line strong {
+  font-size: 42px !important;
+  line-height: 0.95 !important;
+  letter-spacing: -0.05em !important;
+  color: #22324A !important;
+  font-weight: 950 !important;
+}
+
+.off-summary-line span {
+  color: #3F6E8C !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+
+.off-mini-grid {
+  gap: 12px !important;
+}
+
+.off-mini-grid div {
+  background: #F5FAFD !important;
+  border-color: #DDEFF8 !important;
+  border-radius: 20px !important;
+  padding: 14px !important;
+}
+
+.off-mini-grid span {
+  color: #6A7484 !important;
+  font-weight: 800 !important;
+}
+
+.off-mini-grid strong {
+  font-size: 19px !important;
+  color: #172033 !important;
+  font-weight: 900 !important;
+}
+
+/* 2순위: 오늘 휴무자 */
+.today-off-card {
+  background: #FFFFFF !important;
+  border-color: #CFE6F3 !important;
+  box-shadow: 0 16px 34px rgba(63, 110, 140, 0.075) !important;
+}
+
+.today-off-card .off-card-head h4 {
+  font-size: 19px !important;
+}
+
+.today-off-card .off-dashboard-pills {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  margin-bottom: 16px !important;
+}
+
+.today-off-card .person-pill {
+  background: #DDEFF8 !important;
+  border-color: #CFE6F3 !important;
+  color: #172033 !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  min-height: 38px !important;
+  padding: 9px 14px !important;
+}
+
+.today-off-card .person-pill small {
+  color: #4F7890 !important;
+  font-weight: 900 !important;
+}
+
+.today-off-card .slim-action {
+  background: #FFFFFF !important;
+  border: 1px solid #DDEFF8 !important;
+  color: #172033 !important;
+  font-weight: 900 !important;
+}
+
+.today-off-card .slim-action:hover {
+  background: #F2FAFD !important;
+}
+
+/* 3순위: 연속 휴무 구간 */
+.off-streak-card {
+  background: #FFFFFF !important;
+  border-color: var(--app-border) !important;
+  box-shadow: 0 14px 30px rgba(23, 32, 51, 0.045) !important;
+}
+
+.off-streak-card .off-card-head span {
+  background: var(--app-soft-beige) !important;
+  border-color: #E9DFC9 !important;
+  color: #6E6047 !important;
+}
+
+.off-streak-grid {
+  gap: 12px !important;
+}
+
+.off-streak-item {
+  background: var(--app-soft-beige) !important;
+  border-color: #E9DFC9 !important;
+  border-radius: 18px !important;
+  padding: 15px 16px !important;
+  box-shadow: none !important;
+}
+
+.off-streak-item strong {
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  color: #172033 !important;
+  margin-bottom: 7px !important;
+}
+
+.off-streak-item span {
+  color: #3F6E8C !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  margin-bottom: 3px !important;
+}
+
+.off-streak-item small {
+  color: #6F7685 !important;
+  font-weight: 800 !important;
+}
+
+/* 4순위: 이번 주 휴무를 더 중요하게 */
+.week-off-card {
+  border-color: #DDEFF8 !important;
+  box-shadow: 0 15px 32px rgba(63, 110, 140, 0.06) !important;
+}
+
+.week-off-card .off-card-head h4 {
+  font-size: 18px !important;
+}
+
+.week-off-card .off-week-day {
+  background: #F8FBFE !important;
+  border-color: #E1ECF3 !important;
+  padding: 13px 14px !important;
+}
+
+.off-week-day strong {
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  margin-bottom: 5px !important;
+}
+
+.off-week-day span {
+  font-size: 13px !important;
+  color: #5D6878 !important;
+  line-height: 1.5 !important;
+}
+
+/* 5순위: 휴무 많은 날은 통계성 보조 정보 */
+.top-off-card {
+  background: #FFFFFF !important;
+  border-color: var(--app-border) !important;
+  box-shadow: 0 10px 26px rgba(23, 32, 51, 0.035) !important;
+}
+
+.top-off-card .off-card-head h4 {
+  font-size: 17px !important;
+}
+
+.off-top-day {
+  background: #FAFBFD !important;
+  border-color: #EDF0F4 !important;
+  padding: 11px 12px !important;
+}
+
+.off-top-day em {
+  background: #EAF6FB !important;
+  border-color: #D6ECF5 !important;
+  color: #3F6E8C !important;
+  font-weight: 950 !important;
+}
+
+.off-top-day strong,
+.off-top-day span {
+  font-weight: 900 !important;
+  color: #172033 !important;
+}
+
+.off-top-day small {
+  color: #667085 !important;
+}
+
+/* 6순위: 하단 상세 휴무 리스트 */
+.off-detail-card {
+  background: #FFFFFF !important;
+  border-color: var(--app-border) !important;
+  box-shadow: 0 10px 24px rgba(23, 32, 51, 0.035) !important;
+}
+
+.off-detail-card .off-card-head h4 {
+  font-size: 17px !important;
+}
+
+.off-detail-list {
+  gap: 8px !important;
+}
+
+.off-detail-item,
+.off-detail-item.off,
+.off-detail-card.off .off-detail-item {
+  background: #F3FAFE !important;
+  border-color: #DFEEF6 !important;
+  border-radius: 16px !important;
+  padding: 11px 13px !important;
+}
+
+.off-detail-item.leave,
+.off-detail-card.leave .off-detail-item {
+  background: #F8F6EF !important;
+  border-color: #E9DFC9 !important;
+}
+
+.off-detail-main strong {
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  color: #172033 !important;
+}
+
+.off-detail-main small {
+  font-size: 12px !important;
+  color: #667085 !important;
+  line-height: 1.5 !important;
+}
+
+.off-detail-code {
+  background: #FFFFFF !important;
+  border-color: #CFE6F3 !important;
+  color: #3F6E8C !important;
+  font-weight: 950 !important;
+}
+
+/* hover는 은은하게 */
+.off-week-day:hover,
+.off-top-day:hover,
+.off-streak-item:hover,
+.off-detail-item:hover,
+.offday-chip:hover,
+.offday-streak:hover {
+  background: #FFFFFF !important;
+  box-shadow: 0 10px 20px rgba(23, 32, 51, 0.05) !important;
+  transform: translateY(-1px) !important;
+}
+
+@media (max-width: 780px) {
+  .view-title.offday-title h3 {
+    font-size: 24px !important;
+  }
+
+  .view-title.offday-title p {
+    font-size: 13px !important;
+  }
+
+  .off-dashboard-card,
+  .off-streak-card,
+  .off-detail-card {
+    padding: 16px !important;
+    border-radius: 22px !important;
+  }
+
+  .off-summary-line strong {
+    font-size: 36px !important;
+  }
+
+  .today-off-card .person-pill {
+    min-height: 34px !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+  }
+
+  .off-streak-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .off-streak-item,
+  .off-detail-item,
+  .week-off-card .off-week-day {
+    padding: 11px 12px !important;
+  }
+}
