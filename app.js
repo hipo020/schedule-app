@@ -18,6 +18,7 @@ let currentUser = null;
 let isCloudBusy = false;
 let hasUnsavedCloudChanges = false;
 let suppressDirtyFlag = false;
+let lastCloudStatus = { kind: 'checking', message: '저장 상태를 확인하고 있어요.', updatedAt: '' };
 let undoStack = [];
 const MAX_UNDO_STACK = 20;
 
@@ -78,6 +79,63 @@ function getPageCategory(page) {
   return PAGE_CATEGORY[page] || 'view';
 }
 
+function getSaveStatusLabel(kind) {
+  if (kind === 'saved') return '저장됨';
+  if (kind === 'dirty') return '수정됨 · 저장 필요';
+  if (kind === 'saving') return '저장 중...';
+  if (kind === 'loading') return '불러오는 중...';
+  if (kind === 'error') return '저장 실패';
+  if (kind === 'loaded') return '불러오기 완료';
+  return '준비됨';
+}
+
+function inferSaveStatusKind(message = '', type = '') {
+  const text = String(message || '');
+  if (type === 'error' || text.includes('실패') || text.includes('못했')) return 'error';
+  if (text.includes('저장하지 않은') || text.includes('저장 버튼') || text.includes('반영해 주세요') || text.includes('저장 필요')) return 'dirty';
+  if (text.includes('저장하는 중')) return 'saving';
+  if (text.includes('불러오는 중')) return 'loading';
+  if (text.includes('불러왔')) return 'loaded';
+  if (text.includes('저장 완료') || text.includes('저장했어요')) return 'saved';
+  if (type === 'ok') return hasUnsavedCloudChanges ? 'dirty' : 'ready';
+  if (type === 'warn') return 'dirty';
+  return hasUnsavedCloudChanges ? 'dirty' : 'ready';
+}
+
+function getStatusTimeText(value = new Date().toISOString()) {
+  const date = value ? new Date(value) : new Date();
+  if (Number.isNaN(date.getTime())) return '';
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function updateSaveActionButtons() {
+  const buttons = [el('cloudSaveButton'), el('saveButton'), el('saveCodesButton')].filter(Boolean);
+  buttons.forEach((button) => {
+    button.disabled = Boolean(isCloudBusy);
+  });
+  const cloudSave = el('cloudSaveButton');
+  if (cloudSave) cloudSave.textContent = isCloudBusy ? '저장 중' : (hasUnsavedCloudChanges ? '저장 필요' : '저장');
+}
+
+function setSaveStatus(kind, message = '', type = '') {
+  lastCloudStatus = { kind, message, type, updatedAt: new Date().toISOString() };
+  const node = el('cloudStatus');
+  if (node) {
+    const label = getSaveStatusLabel(kind);
+    const time = getStatusTimeText(lastCloudStatus.updatedAt);
+    node.className = `cloud-status ${type || ''} save-status-${kind}`.trim();
+    node.innerHTML = `
+      <div class="save-status-main">
+        <span class="save-status-dot" aria-hidden="true"></span>
+        <strong>${escapeHtml(label)}</strong>
+        <em>${escapeHtml(time)}</em>
+      </div>
+      <p>${escapeHtml(message || label)}</p>
+    `;
+  }
+  updateSaveActionButtons();
+}
+
 
 function markUnsavedChanges(message = '') {
   if (suppressDirtyFlag) return;
@@ -87,14 +145,12 @@ function markUnsavedChanges(message = '') {
 
 function markCloudSaved() {
   hasUnsavedCloudChanges = false;
+  updateSaveActionButtons();
 }
 
 function showUnsavedStatus(message) {
   if (!message) return;
-  const node = el('cloudStatus');
-  if (!node) return;
-  node.textContent = message;
-  node.className = 'cloud-status warn';
+  setSaveStatus('dirty', message, 'warn');
 }
 
 async function confirmUnsavedBeforeMove() {
@@ -717,10 +773,8 @@ function showAppShell() {
 }
 
 function showCloudStatus(message, type = '') {
-  const node = el('cloudStatus');
-  if (!node) return;
-  node.textContent = message;
-  node.className = `cloud-status ${type}`;
+  const kind = inferSaveStatusKind(message, type);
+  setSaveStatus(kind, message, type);
 }
 
 function requireUser() {
@@ -835,6 +889,7 @@ async function loadCloudInitialData(showMessage = false) {
   const user = requireUser();
   if (!user || !supabaseClient || isCloudBusy) return;
   isCloudBusy = true;
+  updateSaveActionButtons();
   try {
     if (showMessage) showCloudStatus('클라우드 데이터를 불러오는 중이에요.', 'warn');
     await loadWorkCodesFromCloud();
@@ -847,6 +902,7 @@ async function loadCloudInitialData(showMessage = false) {
     showCloudStatus(`클라우드 데이터를 불러오지 못했어요: ${error.message || error}`, 'error');
   } finally {
     isCloudBusy = false;
+    updateSaveActionButtons();
   }
 }
 
@@ -931,6 +987,7 @@ async function saveCurrentMonthToCloud(showAlert = false) {
   const user = requireUser();
   if (!user || !supabaseClient || isCloudBusy) return;
   isCloudBusy = true;
+  updateSaveActionButtons();
   try {
     showCloudStatus('현재 월 데이터를 저장하는 중이에요.', 'warn');
     saveCurrentMonthToStore();
@@ -964,6 +1021,7 @@ async function saveCurrentMonthToCloud(showAlert = false) {
     await refreshArchiveMeta();
     markCloudSaved();
     showCloudStatus('저장 완료. 다른 기기에서도 로그인하면 불러올 수 있어요.', 'ok');
+    renderAll();
     if (showAlert) alert('클라우드에 저장했어요.');
   } catch (error) {
     console.error('저장 실패', error);
@@ -971,6 +1029,7 @@ async function saveCurrentMonthToCloud(showAlert = false) {
     if (showAlert) alert(`저장 실패: ${error.message || error}`);
   } finally {
     isCloudBusy = false;
+    updateSaveActionButtons();
   }
 }
 
@@ -2725,6 +2784,53 @@ function makeShareText() {
   return makeRosterShareText(state.shareTemplate || 'detailed');
 }
 
+function getMonthPeopleCount(savedMonth) {
+  return savedMonth?.people?.filter((p) => String(p.name || '').trim()).length || 0;
+}
+
+function getReviewBadge(review, peopleCount) {
+  if (review?.status === 'done') return { label: '검수 완료', type: 'review-done' };
+  if (review?.status === 'needs_review') return { label: '재검수 필요', type: 'review-warn' };
+  if (peopleCount) return { label: '검수 전', type: 'review-pending' };
+  return null;
+}
+
+function getMonthIssueCount(savedMonth, year, month) {
+  if (!savedMonth?.people?.length) return null;
+  try {
+    return validatePeopleData(savedMonth.people, year, month).length;
+  } catch (error) {
+    console.warn('월별 상태 검사 실패', error);
+    return null;
+  }
+}
+
+function getArchiveStatusBadges(record) {
+  const savedMonth = state.monthStore?.[record.key];
+  const isCurrent = record.key === monthKey();
+  const currentPeopleCount = isCurrent ? state.people.filter((p) => String(p.name || '').trim()).length : 0;
+  const peopleCount = getMonthPeopleCount(savedMonth) || currentPeopleCount;
+  const imageExists = Boolean(record.imageName || record.thumbData || (isCurrent && state.imageData));
+  const issueCount = getMonthIssueCount(savedMonth || (isCurrent ? { people: state.people } : null), record.year, record.month);
+  const reviewBadge = getReviewBadge(savedMonth?.review, peopleCount);
+  const badges = [
+    { label: imageExists ? '이미지 있음' : '이미지 없음', type: imageExists ? 'image-ok' : 'image-empty' },
+    peopleCount ? { label: `데이터 ${peopleCount}명`, type: 'data-ok' } : { label: record.cloud ? '클라우드 저장됨' : '데이터 없음', type: record.cloud ? 'cloud-ok' : 'data-empty' },
+  ];
+  if (reviewBadge) badges.push(reviewBadge);
+  if (issueCount !== null && peopleCount) {
+    badges.push(issueCount ? { label: `확인 ${issueCount}개`, type: 'issue-warn' } : { label: '문제 없음', type: 'issue-ok' });
+  }
+  if (isCurrent && hasUnsavedCloudChanges) {
+    badges.push({ label: '저장 필요', type: 'save-dirty' });
+  } else if (record.cloud) {
+    badges.push({ label: '클라우드 저장', type: 'save-cloud' });
+  } else {
+    badges.push({ label: '브라우저 보관', type: 'save-local' });
+  }
+  return badges;
+}
+
 function renderArchive() {
   const records = state.archiveMeta || [];
   if (!records.length) {
@@ -2739,11 +2845,7 @@ function renderArchive() {
     <div class="archive-grid">
       ${records.map((record) => {
         const savedMonth = state.monthStore?.[record.key];
-        const peopleCount = savedMonth?.people?.filter((p) => p.name).length || 0;
-        const statusBadges = [
-          record.imageName || record.thumbData ? '이미지 있음' : '이미지 없음',
-          peopleCount ? `데이터 ${peopleCount}명` : (record.cloud ? '클라우드 저장됨' : '데이터 없음'),
-        ];
+        const statusBadges = getArchiveStatusBadges(record);
         const activeClass = record.key === monthKey() ? 'active' : '';
         return `
           <article class="archive-card ${activeClass}">
@@ -2751,7 +2853,7 @@ function renderArchive() {
             <div class="archive-body">
               <strong>${record.year}년 ${record.month}월</strong>
               <span>${escapeHtml(record.imageName || '스케줄표 이미지')}</span>
-              <div class="archive-status">${statusBadges.map((badge) => `<em>${escapeHtml(badge)}</em>`).join('')}</div><small>저장 ${formatSavedDate(record.updatedAt)}</small>
+              <div class="archive-status">${statusBadges.map((badge) => `<em class="status-${escapeHtml(badge.type)}">${escapeHtml(badge.label)}</em>`).join('')}</div><small>저장 ${formatSavedDate(record.updatedAt)}</small>
             </div>
             <div class="archive-actions">
               <button class="primary-btn load-month" data-month-key="${record.key}">불러오기</button>

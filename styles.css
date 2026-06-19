@@ -6096,3 +6096,113 @@ body::after,
     align-items: flex-start;
   }
 }
+
+/* v2.12 저장 상태 표시 / 월별 상태 배지 강화 */
+.cloud-status {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+}
+.save-status-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.save-status-main strong {
+  font-size: 13px;
+  line-height: 1.2;
+  color: inherit;
+}
+.save-status-main em {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 800;
+  opacity: .65;
+  margin-left: auto;
+}
+.save-status-dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #9ca3af;
+  box-shadow: 0 0 0 4px rgba(156, 163, 175, .12);
+}
+.cloud-status p {
+  margin: 0 !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+  color: inherit;
+  opacity: .86;
+}
+.cloud-status.save-status-saved,
+.cloud-status.save-status-loaded {
+  background: #EEF8E8 !important;
+  color: #35542f !important;
+}
+.cloud-status.save-status-saved .save-status-dot,
+.cloud-status.save-status-loaded .save-status-dot {
+  background: #73a96d;
+  box-shadow: 0 0 0 4px rgba(115, 169, 109, .18);
+}
+.cloud-status.save-status-dirty,
+.cloud-status.save-status-saving,
+.cloud-status.save-status-loading {
+  background: #FFF3BF !important;
+  color: #7a661b !important;
+}
+.cloud-status.save-status-dirty .save-status-dot,
+.cloud-status.save-status-saving .save-status-dot,
+.cloud-status.save-status-loading .save-status-dot {
+  background: #e0a81a;
+  box-shadow: 0 0 0 4px rgba(224, 168, 26, .18);
+}
+.cloud-status.save-status-error {
+  background: #FFE8E8 !important;
+  color: #9a3412 !important;
+}
+.cloud-status.save-status-error .save-status-dot {
+  background: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, .14);
+}
+.archive-status em {
+  border: 1px solid rgba(15, 23, 42, 0.04);
+}
+.archive-status em.status-review-done,
+.archive-status em.status-issue-ok,
+.archive-status em.status-save-cloud {
+  background: #E9F7DF !important;
+  color: #31572c !important;
+}
+.archive-status em.status-review-warn,
+.archive-status em.status-issue-warn,
+.archive-status em.status-save-dirty {
+  background: #FFF3BF !important;
+  color: #7a661b !important;
+}
+.archive-status em.status-review-pending,
+.archive-status em.status-image-empty,
+.archive-status em.status-data-empty {
+  background: #EEF1F5 !important;
+  color: #64748b !important;
+}
+.archive-status em.status-image-ok,
+.archive-status em.status-data-ok {
+  background: #DDEEEE !important;
+  color: #2f5d5f !important;
+}
+.archive-status em.status-save-local {
+  background: #F5E7C8 !important;
+  color: #7c5e24 !important;
+}
+
+@media (max-width: 780px) {
+  .cloud-status { padding: 10px 13px !important; border-radius: 18px !important; }
+  .save-status-main strong { font-size: 12px; }
+  .save-status-main em { font-size: 10px; }
+  .cloud-status p { font-size: 11px !important; }
+  .archive-status { gap: 5px; }
+  .archive-status em { padding: 4px 7px; font-size: 10px; }
+}
