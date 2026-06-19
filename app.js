@@ -2617,9 +2617,9 @@ function renderDailyTimeline(day) {
       </div>`;
   }).join('');
 
-  const mobileHourHeight = 58;
-  const mobileTotalHeight = Math.max((window.end - window.start) / 60 * mobileHourHeight, 620);
-  const mobileLaneWidth = 58;
+  const mobileHourHeight = 36;
+  const mobileTotalHeight = Math.max((window.end - window.start) / 60 * mobileHourHeight, 440);
+  const mobileLaneWidth = 48;
   const peakPoint = getPeakCoveragePoint(workItems, window);
   const peakTop = peakPoint.count ? ((peakPoint.minute - window.start) / (window.end - window.start)) * mobileTotalHeight : null;
   const mobileTimeTicks = window.hours.map((minute) => {
@@ -2628,8 +2628,8 @@ function renderDailyTimeline(day) {
     const isPeak = peakPoint.count && Math.abs(minute - peakPoint.minute) < 31;
     return `<span class="${isPeak ? 'is-peak-time' : ''}" style="top:${top}px">${label}</span>`;
   }).join('');
-  const mobileLanePitch = 66;
-  const mobileLanesWidth = Math.max(workItems.length * mobileLanePitch, 320);
+  const mobileLanePitch = 54;
+  const mobileLanesWidth = Math.max(workItems.length * mobileLanePitch, 270);
   const mobileLanes = workItems.map((item) => {
     const myClass = state.myName && item.name === state.myName ? 'is-my-row' : '';
     const top = ((item.start - window.start) / (window.end - window.start)) * mobileTotalHeight;
@@ -2642,7 +2642,7 @@ function renderDailyTimeline(day) {
         </span>
       </div>`;
   }).join('');
-  const mobilePeakLine = peakPoint.count ? `<div class="mobile-peak-line" style="top:${peakTop + 48}px"><span>피크 시간</span></div>` : '';
+  const mobilePeakLine = peakPoint.count ? `<div class="mobile-peak-line" style="top:${peakTop + 40}px"><span>피크</span></div>` : '';
   const mobileRows = workItems.length ? `
     <div class="mobile-vertical-timeline" style="--mobile-timeline-height:${mobileTotalHeight}px">
       <div class="mobile-vertical-time-scale" style="height:${mobileTotalHeight}px"><b>시</b>${mobileTimeTicks}</div>

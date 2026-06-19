@@ -10414,3 +10414,316 @@ body {
     font-size: 25px !important;
   }
 }
+
+/* =========================================
+   v4.5 모바일 일간 보기 정돈
+   - 상단 선택 영역은 세로 흐름으로 분리
+   - 요약 카드는 2열 + 집중 시간대 전체 폭
+   - 모바일 타임라인 높이와 여백을 압축
+========================================= */
+@media (max-width: 720px) {
+  .app-page[data-page="daily"] .view-title.with-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+  }
+
+  .app-page[data-page="daily"] .view-title.with-actions > div:first-child {
+    min-width: 0 !important;
+  }
+
+  .app-page[data-page="daily"] .view-title.with-actions h3 {
+    font-size: 20px !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.05em !important;
+  }
+
+  .daily-title-actions {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    justify-content: stretch !important;
+  }
+
+  .daily-title-actions .person-view-picker {
+    width: 100% !important;
+    min-height: 48px !important;
+    padding: 8px 12px 8px 14px !important;
+    border-radius: 20px !important;
+    background: #FFFFFF !important;
+  }
+
+  .daily-title-actions .person-view-picker select {
+    text-align: right !important;
+    min-width: 0 !important;
+  }
+
+  .daily-view-toggle {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    padding: 6px !important;
+    border-radius: 18px !important;
+    background: #F7FAFB !important;
+    box-shadow: inset 0 0 0 1px rgba(11, 11, 20, 0.04) !important;
+  }
+
+  .daily-view-toggle .ghost-btn {
+    width: 100% !important;
+    min-height: 36px !important;
+    padding: 0 8px !important;
+    border-radius: 14px !important;
+    font-size: 12px !important;
+  }
+
+  .daily-summary-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .daily-summary-grid .info-card {
+    min-height: 122px !important;
+    padding: 16px 14px !important;
+    border-radius: 22px !important;
+  }
+
+  .daily-summary-grid .info-card h4 {
+    margin-bottom: 10px !important;
+    font-size: 14px !important;
+  }
+
+  .daily-summary-grid .info-card p {
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+  }
+
+  .daily-summary-grid .info-card:nth-child(1) .list-row {
+    grid-template-columns: 1fr !important;
+    gap: 6px !important;
+    padding: 11px 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .daily-summary-grid .info-card:nth-child(1) .list-row span:not(.badge) {
+    grid-column: auto !important;
+  }
+
+  .daily-summary-grid .info-card:nth-child(1) .badge {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .daily-summary-grid .info-card:nth-child(3) {
+    grid-column: 1 / -1 !important;
+    min-height: 82px !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    align-content: center !important;
+    background: #FFFEFA !important;
+  }
+
+  .daily-summary-grid .info-card:nth-child(3) p:last-child {
+    margin-top: 2px !important;
+    color: #7B8490 !important;
+  }
+
+  .coworker-card {
+    margin: 2px 0 14px !important;
+    padding: 18px 16px !important;
+    border-radius: 24px !important;
+  }
+
+  .coworker-card h4 {
+    font-size: 15px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .coworker-card p {
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+  }
+
+  .daily-timeline-card {
+    margin-top: 14px !important;
+    padding: 18px 15px 20px !important;
+    border-radius: 26px !important;
+  }
+
+  .timeline-card-head {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .timeline-card-head h4 {
+    font-size: 20px !important;
+    line-height: 1.15 !important;
+  }
+
+  .timeline-card-head p {
+    margin-top: 5px !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+
+  .timeline-card-head > span {
+    justify-self: start !important;
+    padding: 9px 12px !important;
+    font-size: 11px !important;
+    white-space: normal !important;
+  }
+
+  .mobile-vertical-timeline {
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    gap: 8px !important;
+    margin-top: 2px !important;
+  }
+
+  .mobile-vertical-time-scale {
+    margin-top: 38px !important;
+    font-size: 10px !important;
+  }
+
+  .mobile-vertical-time-scale b {
+    top: -24px !important;
+    right: 8px !important;
+    font-size: 10px !important;
+  }
+
+  .mobile-vertical-time-scale span {
+    right: 7px !important;
+  }
+
+  .mobile-timeline-groups {
+    height: 32px !important;
+    padding: 0 12px 6px 12px !important;
+    gap: 12px !important;
+    font-size: 12px !important;
+  }
+
+  .mobile-peak-line {
+    left: 4px !important;
+    right: 4px !important;
+  }
+
+  .mobile-peak-line span {
+    right: 2px !important;
+    top: -11px !important;
+    padding: 3px 7px !important;
+    font-size: 9px !important;
+  }
+
+  .mobile-vertical-scroll {
+    padding: 0 20px 48px 0 !important;
+    border-radius: 20px !important;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 35px,
+      rgba(102, 112, 133, 0.12) 36px,
+      transparent 37px
+    ) !important;
+  }
+
+  .mobile-vertical-lanes {
+    gap: 6px !important;
+    padding: 0 14px 0 4px !important;
+  }
+
+  .mobile-vertical-lane {
+    width: 48px !important;
+    min-width: 48px !important;
+    flex-basis: 48px !important;
+  }
+
+  .mobile-vertical-bar {
+    width: 14px !important;
+    min-width: 14px !important;
+  }
+
+  .mobile-vertical-bar::before,
+  .mobile-vertical-bar::after {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  .mobile-vertical-label {
+    top: -36px !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    padding: 6px 4px 5px !important;
+    border-radius: 11px !important;
+  }
+
+  .mobile-vertical-label::before {
+    height: 10px !important;
+  }
+
+  .mobile-vertical-label::after {
+    top: calc(100% + 8px) !important;
+    width: 6px !important;
+    height: 6px !important;
+  }
+
+  .mobile-vertical-label strong,
+  .mobile-vertical-bar .mobile-vertical-label strong {
+    font-size: 9px !important;
+  }
+
+  .mobile-vertical-label small,
+  .mobile-vertical-bar .mobile-vertical-label small {
+    margin-top: 4px !important;
+    padding: 2px 4px !important;
+    font-size: 8px !important;
+  }
+
+  .mobile-timeline-legend {
+    margin-top: 14px !important;
+    padding: 9px 11px !important;
+    gap: 7px 10px !important;
+    border-radius: 18px !important;
+  }
+
+  .mobile-timeline-legend span {
+    font-size: 9px !important;
+    gap: 4px !important;
+  }
+
+  .timeline-sub-section {
+    margin-top: 16px !important;
+    padding-top: 14px !important;
+  }
+
+  .timeline-sub-section h4 {
+    font-size: 15px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .daily-summary-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .daily-summary-grid .info-card:nth-child(3) {
+    grid-column: auto !important;
+  }
+
+  .mobile-vertical-timeline {
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+    gap: 7px !important;
+  }
+
+  .mobile-timeline-groups {
+    font-size: 11px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
