@@ -244,6 +244,39 @@
             </div>
           </div>
 
+
+          <section class="memo-extract-card">
+            <div class="section-title with-actions">
+              <div>
+                <p>MEMO</p>
+                <h2>메모 영역 추출</h2>
+              </div>
+              <div class="action-row">
+                <button id="useMemoPresetButton" class="secondary-btn" type="button">메모 기본 영역</button>
+                <button id="runMemoOcrButton" class="primary-btn" type="button">메모 추출</button>
+              </div>
+            </div>
+            <div class="notice">
+              <strong>노란 메모 활용</strong>
+              <span>이미지 안의 특이사항, 안내 문구, 메모 영역을 따로 저장합니다. OCR 결과가 애매하면 직접 수정해 주세요.</span>
+            </div>
+            <div class="memo-extract-grid">
+              <div class="ocr-number-grid memo-rect-grid">
+                <label>X %<input id="memoXInput" type="number" step="0.1" /></label>
+                <label>Y %<input id="memoYInput" type="number" step="0.1" /></label>
+                <label>W %<input id="memoWInput" type="number" step="0.1" /></label>
+                <label>H %<input id="memoHInput" type="number" step="0.1" /></label>
+              </div>
+              <div>
+                <textarea id="memoTextInput" class="share-box memo-text-box" rows="6" placeholder="메모 영역 OCR 결과 또는 직접 입력한 메모가 여기에 저장됩니다."></textarea>
+                <div class="action-row memo-actions">
+                  <button id="saveMemoButton" class="secondary-btn" type="button">메모 저장</button>
+                  <small id="memoOcrStatus" class="helper-text">영역을 조정한 뒤 메모 추출을 눌러 주세요.</small>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <div class="ocr-result-card">
             <div class="section-title with-actions">
               <div>

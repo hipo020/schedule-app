@@ -41,6 +41,7 @@ const state = {
   shareTemplate: 'detailed',
   dailyView: 'timeline',
   reviewCompareOpen: false,
+  memo: getDefaultMemoState(),
   defaultNames: getInitialDefaultNames(),
 };
 
@@ -563,6 +564,14 @@ function getDefaultOcrState() {
   };
 }
 
+function getDefaultMemoState() {
+  return {
+    text: '',
+    rect: { x: 67, y: 66, w: 30, h: 19 },
+    updatedAt: '',
+  };
+}
+
 function normalizeOcrDefaultNames() {
   const currentDefault = getDefaultNamesText();
   const legacyDefaults = [
@@ -831,6 +840,7 @@ function saveCurrentMonthToStore() {
     ocr: sanitizeOcrForStorage(state.ocr),
     imageName: state.imageName || state.monthStore[key]?.imageName || '',
     imageUpdatedAt: state.imageUpdatedAt || state.monthStore[key]?.imageUpdatedAt || '',
+    memo: clonePlain(state.memo || getDefaultMemoState()),
     review: state.monthStore[key]?.review || null,
     updatedAt: new Date().toISOString(),
   };
@@ -842,11 +852,13 @@ function loadMonthDataFromStore(key = monthKey()) {
   if (saved) {
     state.people = clonePlain(saved.people || []);
     state.ocr = { ...getDefaultOcrState(), ...(saved.ocr || {}) };
+    state.memo = { ...getDefaultMemoState(), ...(saved.memo || {}) };
     state.imageName = saved.imageName || '';
     state.imageUpdatedAt = saved.imageUpdatedAt || '';
   } else {
     state.people = [makePerson(''), makePerson(''), makePerson(''), makePerson(''), makePerson('')];
     state.ocr = getDefaultOcrState();
+    state.memo = getDefaultMemoState();
     state.imageName = '';
     state.imageUpdatedAt = '';
   }
@@ -1069,6 +1081,7 @@ async function loadCloudMonthData(year = state.year, month = state.month) {
   state.people = Array.from(peopleMap.values());
   ensurePeople();
   normalizePeopleDays();
+  state.memo = { ...getDefaultMemoState(), ...(state.monthStore?.[monthKey(year, month)]?.memo || {}) };
 
   if (monthRow.image_path) {
     state.imageData = await loadImageDataFromCloud(monthRow.image_path);
@@ -1748,6 +1761,30 @@ function bindOcrEvents() {
   el('drawOcrPreviewButton')?.addEventListener('click', drawOcrPreview);
   el('runOcrButton')?.addEventListener('click', runOcrExtraction);
   el('applyOcrToEditorButton')?.addEventListener('click', applyOcrResultsToEditor);
+
+  ['memoTextInput', 'memoXInput', 'memoYInput', 'memoWInput', 'memoHInput'].forEach((id) => {
+    const node = el(id);
+    if (!node) return;
+    node.addEventListener('input', () => {
+      updateMemoStateFromInputs();
+      state.memo.updatedAt = new Date().toISOString();
+      markUnsavedChanges('메모 내용이 변경됐어요. 저장 버튼을 눌러 반영해 주세요.');
+      saveState(false);
+    });
+  });
+  el('useMemoPresetButton')?.addEventListener('click', () => {
+    state.memo = { ...getDefaultMemoState(), ...(state.memo || {}), rect: getDefaultMemoState().rect };
+    syncMemoInputs();
+    saveState(false);
+  });
+  el('runMemoOcrButton')?.addEventListener('click', runMemoExtraction);
+  el('saveMemoButton')?.addEventListener('click', () => {
+    updateMemoStateFromInputs();
+    state.memo.updatedAt = new Date().toISOString();
+    markUnsavedChanges('메모를 저장했어요. 클라우드 저장 버튼을 눌러 현재 월에 반영해 주세요.');
+    saveState(false);
+    alert('메모를 현재 월에 저장했어요.');
+  });
 }
 
 function syncOcrInputs() {
@@ -1758,6 +1795,17 @@ function syncOcrInputs() {
   if (el('ocrYInput')) el('ocrYInput').value = rect.y;
   if (el('ocrWInput')) el('ocrWInput').value = rect.w;
   if (el('ocrHInput')) el('ocrHInput').value = rect.h;
+  syncMemoInputs();
+}
+
+function syncMemoInputs() {
+  state.memo = { ...getDefaultMemoState(), ...(state.memo || {}) };
+  const memoRect = state.memo.rect || getDefaultMemoState().rect;
+  if (el('memoTextInput')) el('memoTextInput').value = state.memo.text || '';
+  if (el('memoXInput')) el('memoXInput').value = memoRect.x;
+  if (el('memoYInput')) el('memoYInput').value = memoRect.y;
+  if (el('memoWInput')) el('memoWInput').value = memoRect.w;
+  if (el('memoHInput')) el('memoHInput').value = memoRect.h;
 }
 
 function updateOcrStateFromInputs() {
@@ -1768,6 +1816,17 @@ function updateOcrStateFromInputs() {
     y: clampNumber(Number(el('ocrYInput')?.value || 0), 0, 99),
     w: clampNumber(Number(el('ocrWInput')?.value || 1), 1, 100),
     h: clampNumber(Number(el('ocrHInput')?.value || 1), 1, 100),
+  };
+}
+
+function updateMemoStateFromInputs() {
+  state.memo = { ...getDefaultMemoState(), ...(state.memo || {}) };
+  if (el('memoTextInput')) state.memo.text = el('memoTextInput').value;
+  state.memo.rect = {
+    x: clampNumber(Number(el('memoXInput')?.value || 0), 0, 99),
+    y: clampNumber(Number(el('memoYInput')?.value || 0), 0, 99),
+    w: clampNumber(Number(el('memoWInput')?.value || 1), 1, 100),
+    h: clampNumber(Number(el('memoHInput')?.value || 1), 1, 100),
   };
 }
 
@@ -1974,6 +2033,57 @@ function applyOcrResultsToEditor() {
   markUnsavedChanges('OCR 결과가 검수표에 반영됐어요. 확인 후 저장해 주세요.');
   saveState(true);
   switchPage('editor', true);
+}
+
+async function runMemoExtraction() {
+  updateMemoStateFromInputs();
+  if (!state.imageData) {
+    alert('먼저 설정·이미지 페이지에서 스케줄표 이미지를 업로드해 주세요.');
+    switchPage('setup', true);
+    return;
+  }
+  if (!window.Tesseract) {
+    alert('OCR 라이브러리를 불러오지 못했어요. 인터넷 연결 상태를 확인한 뒤 새로고침해 주세요.');
+    return;
+  }
+  const progress = el('memoOcrStatus');
+  try {
+    if (progress) progress.textContent = '메모 영역을 읽는 중이에요...';
+    const img = await loadImage(state.imageData);
+    const cropDataUrl = cropImageByPercentRect(img, state.memo.rect || getDefaultMemoState().rect, 3);
+    const result = await Tesseract.recognize(cropDataUrl, 'kor+eng', {
+      logger: (m) => {
+        if (m.status === 'recognizing text' && progress) {
+          progress.textContent = `메모 OCR 진행 중 · ${Math.round((m.progress || 0) * 100)}%`;
+        }
+      },
+    });
+    const text = String(result?.data?.text || '').replace(/\n{3,}/g, '\n\n').trim();
+    state.memo.text = text;
+    state.memo.updatedAt = new Date().toISOString();
+    syncMemoInputs();
+    markUnsavedChanges('메모 영역 추출 결과가 저장됐어요. 필요하면 수정 후 저장해 주세요.');
+    saveState(false);
+    if (progress) progress.textContent = text ? '메모 추출 완료. 내용을 확인해 주세요.' : '읽힌 메모가 없어요. 영역을 조정해 다시 시도해 주세요.';
+  } catch (error) {
+    console.warn('메모 OCR 실패', error);
+    if (progress) progress.textContent = '메모 추출 실패. 영역을 조정하거나 직접 입력해 주세요.';
+    alert(`메모 추출 실패: ${error.message || error}`);
+  }
+}
+
+function cropImageByPercentRect(img, rect, scale = 2) {
+  const sx = img.naturalWidth * rect.x / 100;
+  const sy = img.naturalHeight * rect.y / 100;
+  const sw = img.naturalWidth * rect.w / 100;
+  const sh = img.naturalHeight * rect.h / 100;
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(sw * scale));
+  canvas.height = Math.max(1, Math.round(sh * scale));
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL('image/png');
 }
 
 function loadImage(src) {
@@ -2255,10 +2365,14 @@ function renderSummary() {
   const offCount = rows.filter((row) => row.type === 'off').length;
   const leaveCount = rows.filter((row) => row.type === 'leave').length;
 
+  const stats = getMonthlyWorkStats(person);
+  const memoText = getCurrentMemoText();
   el('summaryCards').innerHTML = `
     <div class="summary-card"><p>선택일 내 일정</p><strong>${todayCode || '-'}</strong><span>${formatTime(todayInfo) || todayInfo.label}</span></div>
     <div class="summary-card"><p>다음 휴무</p><strong>${nextOff ? nextOff.dateText : '-'}</strong><span>${nextOff ? `${nextOff.code} ${nextOff.label}` : '이번 달 남은 휴무가 없어요.'}</span></div>
     <div class="summary-card"><p>이번 달 요약</p><strong>${workCount}일 근무</strong><span>휴무 ${offCount}일 · 연차 ${leaveCount}일</span></div>
+    <div class="summary-card"><p>근무 통계</p><strong>${stats.mostCode || '-'}</strong><span>${stats.summaryText}</span></div>
+    <div class="summary-card memo-summary-card"><p>메모</p><strong>${memoText ? '메모 있음' : '메모 없음'}</strong><span>${escapeHtml(memoText ? compactText(memoText, 42) : 'OCR 보조에서 메모를 입력/추출해 주세요.')}</span></div>
   `;
 }
 
@@ -2478,6 +2592,153 @@ function renderDailyTimeline(day) {
   `;
 }
 
+
+function getCurrentMemoText() {
+  return String(state.memo?.text || '').trim();
+}
+
+function compactText(value, maxLength = 60) {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+}
+
+function getMonthlyWorkStats(person = getMyPerson()) {
+  const rows = person ? getScheduleRowsForPerson(person) : [];
+  const workRows = rows.filter((row) => row.type === 'work');
+  const offRows = rows.filter((row) => row.type === 'off');
+  const leaveRows = rows.filter((row) => row.type === 'leave');
+  const codeCounts = workRows.reduce((acc, row) => {
+    const code = row.code || '-';
+    acc[code] = (acc[code] || 0) + 1;
+    return acc;
+  }, {});
+  const mostCode = Object.entries(codeCounts).sort((a, b) => b[1] - a[1])[0];
+  const startTimes = workRows.map((row) => row.start).filter(Boolean).sort();
+  const nightCount = workRows.filter((row) => {
+    const start = timeToMinutes(row.start);
+    const end = timeToMinutes(row.end);
+    return start !== null && (start >= 21 * 60 || (end !== null && end <= 9 * 60));
+  }).length;
+  return {
+    workCount: workRows.length,
+    offCount: offRows.length,
+    leaveCount: leaveRows.length,
+    mostCode: mostCode ? `${mostCode[0]} ${mostCode[1]}회` : '',
+    earliest: startTimes[0] || '-',
+    nightCount,
+    summaryText: `근무 ${workRows.length}일 · 휴무 ${offRows.length}일 · 연차 ${leaveRows.length}일 · 야간 ${nightCount}일`,
+  };
+}
+
+function getTeamDaySummary(day) {
+  const roster = getDayRoster(day);
+  const workNames = Object.values(roster.byStart).flat().map((p) => p.name);
+  return { roster, workNames, offNames: roster.offPeople.map((p) => p.name) };
+}
+
+function getCoworkersForDay(day, targetName = state.myName) {
+  const target = state.people.find((person) => person.name === targetName);
+  if (!target) return { sameStart: [], overlap: [], targetCode: '', targetInfo: { type: 'empty' } };
+  const targetCode = target.schedules?.[day - 1] || '';
+  const targetInfo = getCodeInfo(targetCode);
+  const targetStart = timeToMinutes(targetInfo.start);
+  let targetEnd = timeToMinutes(targetInfo.end);
+  if (targetStart === null || targetEnd === null || ['off', 'leave', 'empty'].includes(targetInfo.type)) {
+    return { sameStart: [], overlap: [], targetCode, targetInfo };
+  }
+  if (targetEnd <= targetStart) targetEnd += 1440;
+  const sameStart = [];
+  const overlap = [];
+  state.people.filter((person) => person.name && person.name !== targetName).forEach((person) => {
+    const code = person.schedules?.[day - 1] || '';
+    const info = getCodeInfo(code);
+    let start = timeToMinutes(info.start);
+    let end = timeToMinutes(info.end);
+    if (start === null || end === null || ['off', 'leave', 'empty'].includes(info.type)) return;
+    if (end <= start) end += 1440;
+    const overlaps = Math.max(targetStart, start) < Math.min(targetEnd, end);
+    const item = { name: person.name, code, info, start, end };
+    if (info.start === targetInfo.start) sameStart.push(item);
+    else if (overlaps) overlap.push(item);
+  });
+  return { sameStart, overlap, targetCode, targetInfo };
+}
+
+function renderCoworkersCard(day) {
+  const coworkers = getCoworkersForDay(day);
+  const sameHtml = coworkers.sameStart.map((p) => `<span class="person-pill">${escapeHtml(p.name)} <small>${escapeHtml(p.code)}</small></span>`).join('');
+  const overlapHtml = coworkers.overlap.map((p) => `<span class="person-pill muted">${escapeHtml(p.name)} <small>${escapeHtml(p.code)}</small></span>`).join('');
+  if (!state.myName) {
+    return `<section class="info-card coworker-card"><h4>같이 근무하는 사람</h4><p>내 이름을 선택하면 같은 시간대에 근무하는 사람을 보여줘요.</p></section>`;
+  }
+  if (!coworkers.targetCode || ['off', 'leave', 'empty'].includes(coworkers.targetInfo.type)) {
+    return `<section class="info-card coworker-card"><h4>같이 근무하는 사람</h4><p>${escapeHtml(state.myName)}님은 선택일에 근무 시간이 없어요.</p></section>`;
+  }
+  return `
+    <section class="info-card coworker-card">
+      <h4>같이 근무하는 사람</h4>
+      <p>${escapeHtml(state.myName)} · ${escapeHtml(coworkers.targetCode)} ${formatTime(coworkers.targetInfo) || coworkers.targetInfo.label}</p>
+      <div class="coworker-group"><strong>같은 출근</strong><div class="roster-pill-wrap">${sameHtml || '<span class="person-pill">없음</span>'}</div></div>
+      <div class="coworker-group"><strong>시간 겹침</strong><div class="roster-pill-wrap">${overlapHtml || '<span class="person-pill muted">없음</span>'}</div></div>
+    </section>
+  `;
+}
+
+function renderSelectedDayDetail(day = getSelectedRosterDay()) {
+  const person = getMyPerson();
+  const code = person?.schedules?.[day - 1] || '';
+  const info = getCodeInfo(code);
+  const { roster, workNames, offNames } = getTeamDaySummary(day);
+  const coworker = getCoworkersForDay(day);
+  const sameNames = coworker.sameStart.map((p) => `${p.name} ${p.code}`).join(', ') || '없음';
+  const overlapNames = coworker.overlap.map((p) => `${p.name} ${p.code}`).join(', ') || '없음';
+  const workGroups = Object.entries(roster.byStart).sort(([a], [b]) => a.localeCompare(b)).map(([time, people]) => `
+    <div class="day-detail-group"><strong>${time}</strong><span>${people.map((p) => `${escapeHtml(p.name)} ${escapeHtml(p.code)}`).join(', ')}</span></div>
+  `).join('') || '<p>출근자가 없어요.</p>';
+  return `
+    <section class="day-detail-card">
+      <div class="day-detail-head">
+        <div><h4>${state.month}/${day}(${dayNames[getDateObj(day).getDay()]}) 상세 보기</h4><p>월간에서 날짜를 누르면 이 영역이 바뀝니다.</p></div>
+        <button class="secondary-btn go-daily-day" data-go-daily-day="${day}" type="button">일간 타임라인 보기</button>
+      </div>
+      <div class="day-detail-grid">
+        <div><span>내 일정</span><strong>${escapeHtml(code || '-')}</strong><small>${escapeHtml(formatTime(info) || info.label || '시간 정보 없음')}</small></div>
+        <div><span>출근자</span><strong>${workNames.length}명</strong><small>${escapeHtml(workNames.join(', ') || '없음')}</small></div>
+        <div><span>휴무/연차</span><strong>${offNames.length}명</strong><small>${escapeHtml(offNames.join(', ') || '없음')}</small></div>
+      </div>
+      <div class="day-detail-split">
+        <div><h5>출근 시간별</h5>${workGroups}</div>
+        <div><h5>같이 근무</h5><p><strong>같은 출근</strong> ${escapeHtml(sameNames)}</p><p><strong>시간 겹침</strong> ${escapeHtml(overlapNames)}</p></div>
+      </div>
+    </section>
+  `;
+}
+
+function renderTeamOffOnlySection() {
+  const day = getSelectedRosterDay();
+  const roster = getDayRoster(day);
+  const days = daysInMonth(state.year, state.month);
+  const monthly = [];
+  for (let d = 1; d <= days; d++) {
+    const offPeople = getDayRoster(d).offPeople;
+    if (offPeople.length) monthly.push({ day: d, offPeople });
+  }
+  return `
+    <section class="team-off-card">
+      <div class="section-title compact-title"><div><p>TEAM OFF</p><h3>휴무자만 보기</h3></div><span>${state.month}/${day} 기준 ${roster.offPeople.length}명</span></div>
+      <div class="roster-pill-wrap off-only-selected">
+        ${roster.offPeople.length ? roster.offPeople.map((p) => `<span class="person-pill ${badgeClass(p.info.type)}">${escapeHtml(p.name)} <small>${escapeHtml(p.code)}</small></span>`).join('') : '<span class="person-pill">선택일 휴무자가 없어요.</span>'}
+      </div>
+      <details class="off-only-details">
+        <summary>이번 달 휴무자 전체 보기</summary>
+        <div class="off-only-month-list">
+          ${monthly.map((item) => `<button class="off-only-day" data-pick-day="${item.day}"><strong>${state.month}/${item.day}</strong><span>${item.offPeople.map((p) => `${escapeHtml(p.name)} ${escapeHtml(p.code)}`).join(', ')}</span></button>`).join('') || '<p>이번 달 휴무자가 없어요.</p>'}
+        </div>
+      </details>
+    </section>
+  `;
+}
+
 function renderDaily() {
   const person = getMyPerson();
   const selected = new Date(state.selectedDate || Date.now());
@@ -2500,6 +2761,7 @@ function renderDaily() {
       <div class="info-card"><h4>오늘 요약</h4><p>근무 ${timeline.workItems.length}명 · 휴무/연차 ${timeline.offPeople.length}명</p><p>가장 이른 출근: ${roster.earliest || '-'}</p></div>
       <div class="info-card"><h4>집중 시간대</h4><p>${getPeakCoverage(timeline.workItems)}</p><p>근무자가 가장 많이 겹치는 시간입니다.</p></div>
     </div>
+    ${renderCoworkersCard(day)}
     ${dailyMain}
   `;
 }
@@ -2610,7 +2872,7 @@ function renderMonthly() {
     const dow = getDateObj(day).getDay();
     const weekendClass = dow === 0 ? 'sun' : dow === 6 ? 'sat' : '';
     html += `
-      <button class="day-cell ${typeClass} ${todayClass} ${weekendClass}" data-pick-day="${day}">
+      <button class="day-cell ${typeClass} ${todayClass} ${weekendClass}" data-month-detail-day="${day}">
         <span class="day-number">${day}</span>
         <span class="month-day-main">
           <span class="badge day-code ${typeClass}">${code || '-'}</span>
@@ -2619,6 +2881,7 @@ function renderMonthly() {
       </button>`;
   }
   html += '</div></div>';
+  html += renderSelectedDayDetail(selectedDay || 1);
   return html;
 }
 
@@ -2682,6 +2945,7 @@ function renderOffDays() {
       </div>
       <div class="view-title-side">${renderPersonPicker()}<span>총 ${rows.length}일</span></div>
     </div>
+    ${renderTeamOffOnlySection()}
     <div class="offday-summary-grid">
       <button class="offday-summary-card next" data-pick-day="${nextOff.day}">
         <span>다음 휴무</span>
@@ -3027,6 +3291,25 @@ function bindViewEvents() {
     saveState(false);
     alert('기본 직원 목록을 저장했어요.');
   });
+  document.querySelectorAll('[data-month-detail-day]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const day = String(button.dataset.monthDetailDay).padStart(2, '0');
+      state.selectedDate = `${state.year}-${String(state.month).padStart(2, '0')}-${day}`;
+      syncInputs();
+      renderAll();
+      saveState(false);
+    });
+  });
+  document.querySelectorAll('[data-go-daily-day]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const day = String(button.dataset.goDailyDay).padStart(2, '0');
+      state.selectedDate = `${state.year}-${String(state.month).padStart(2, '0')}-${day}`;
+      syncInputs();
+      switchPage('daily', true);
+      renderAll();
+      saveState(false);
+    });
+  });
   document.querySelectorAll('[data-pick-day]').forEach((button) => {
     button.addEventListener('click', () => {
       const day = String(button.dataset.pickDay).padStart(2, '0');
@@ -3170,6 +3453,16 @@ function downloadExcel() {
   });
   const offRows = myRows.filter((row) => ['휴무', '연차', '남은휴무', '예비군', '경조휴가'].includes(row.의미));
   const codeRows = Object.entries(state.codes).map(([코드, info]) => ({ 코드, 의미: info.label, 출근: info.start, 퇴근: info.end, 유형: info.type }));
+  const stats = getMonthlyWorkStats(person);
+  const statsRows = [
+    { 항목: '근무일', 값: stats.workCount },
+    { 항목: '휴무일', 값: stats.offCount },
+    { 항목: '연차일', 값: stats.leaveCount },
+    { 항목: '가장 많은 코드', 값: stats.mostCode || '-' },
+    { 항목: '가장 이른 출근', 값: stats.earliest || '-' },
+    { 항목: '야간/심야성 근무', 값: stats.nightCount },
+    { 항목: '메모', 값: getCurrentMemoText() || '-' },
+  ];
   const rosterDay = getSelectedRosterDay();
   const roster = getDayRoster(rosterDay);
   const rosterRows = [];
@@ -3182,6 +3475,7 @@ function downloadExcel() {
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(allRows), '전체 데이터');
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rosterRows), '출근 현황');
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(codeRows), '코드표');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(statsRows), '근무 통계');
   XLSX.writeFile(wb, `schedule_${state.year}_${String(state.month).padStart(2, '0')}_${state.myName || 'me'}.xlsx`);
 }
 
@@ -3272,6 +3566,7 @@ function loadState() {
     state.monthStore = parsed.monthStore || {};
     state.archiveMeta = Array.isArray(parsed.archiveMeta) ? parsed.archiveMeta : [];
     state.ocr = { ...getDefaultOcrState(), ...(parsed.ocr || {}) };
+    state.memo = { ...getDefaultMemoState(), ...(parsed.memo || {}) };
     state.defaultNames = Array.isArray(parsed.defaultNames) && parsed.defaultNames.length ? parsed.defaultNames : getInitialDefaultNames();
     state.editorFilter = parsed.editorFilter || 'all';
     state.shareTemplate = parsed.shareTemplate || 'detailed';

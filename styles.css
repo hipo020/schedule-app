@@ -6206,3 +6206,202 @@ body::after,
   .archive-status { gap: 5px; }
   .archive-status em { padding: 4px 7px; font-size: 10px; }
 }
+
+/* v3.1 상세 보기 · 휴무자 · 같이 근무 · 메모 · 통계 */
+.coworker-card,
+.day-detail-card,
+.team-off-card,
+.memo-extract-card {
+  border-radius: 28px;
+  background: #fffaf3;
+  border: 1px solid rgba(31, 48, 71, 0.08);
+  box-shadow: 0 18px 42px rgba(31, 48, 71, 0.08);
+}
+
+.coworker-card {
+  margin: 14px 0;
+  padding: 20px;
+}
+.coworker-card h4,
+.coworker-card p { margin: 0 0 10px; }
+.coworker-group { margin-top: 12px; }
+.coworker-group > strong {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: #58677c;
+}
+.person-pill.muted { opacity: .78; background: #f7f1e8; }
+
+.day-detail-card {
+  margin-top: 18px;
+  padding: 22px;
+}
+.day-detail-head,
+.day-detail-grid,
+.day-detail-split {
+  display: grid;
+  gap: 14px;
+}
+.day-detail-head {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+.day-detail-head h4,
+.day-detail-head p { margin: 0; }
+.day-detail-head p { color: #69758a; font-size: 13px; margin-top: 4px; }
+.day-detail-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 16px;
+}
+.day-detail-grid > div {
+  padding: 15px;
+  border-radius: 22px;
+  background: #fff;
+  border: 1px solid rgba(31, 48, 71, 0.07);
+}
+.day-detail-grid span,
+.day-detail-grid small {
+  display: block;
+  color: #6d788a;
+  font-size: 12px;
+}
+.day-detail-grid strong {
+  display: block;
+  margin: 6px 0 4px;
+  font-size: 20px;
+  color: #1f3047;
+}
+.day-detail-split {
+  grid-template-columns: 1.2fr .8fr;
+  margin-top: 16px;
+}
+.day-detail-split > div {
+  padding: 16px;
+  border-radius: 22px;
+  background: #fff7e8;
+}
+.day-detail-split h5 { margin: 0 0 10px; font-size: 14px; }
+.day-detail-group {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 8px;
+  font-size: 13px;
+  padding: 7px 0;
+  border-bottom: 1px dashed rgba(31, 48, 71, 0.1);
+}
+.day-detail-group:last-child { border-bottom: 0; }
+
+.team-off-card {
+  margin: 0 0 18px;
+  padding: 20px;
+}
+.compact-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.compact-title h3,
+.compact-title p { margin: 0; }
+.compact-title > span {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 12px;
+  color: #59677a;
+  white-space: nowrap;
+}
+.off-only-details { margin-top: 12px; }
+.off-only-details summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #40516a;
+}
+.off-only-month-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  max-height: 260px;
+  overflow: auto;
+}
+.off-only-day {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 11px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(31, 48, 71, 0.08);
+  background: #fff;
+  color: #1f3047;
+  text-align: left;
+}
+.off-only-day span {
+  font-size: 13px;
+  color: #5d6b7d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.memo-extract-card {
+  padding: 22px;
+  margin: 18px 0;
+}
+.memo-extract-grid {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.memo-rect-grid {
+  align-self: stretch;
+  background: #fff7e8;
+  border-radius: 22px;
+  padding: 14px;
+}
+.memo-text-box {
+  min-height: 132px;
+  background: #fff;
+}
+.memo-actions {
+  margin-top: 10px;
+  align-items: center;
+}
+.memo-summary-card span {
+  line-height: 1.35;
+}
+
+.summary-card:nth-child(4) {
+  background: #f2f7ff;
+}
+.summary-card:nth-child(5) {
+  background: #fff5de;
+}
+
+@media (max-width: 720px) {
+  .day-detail-head,
+  .day-detail-grid,
+  .day-detail-split,
+  .memo-extract-grid {
+    grid-template-columns: 1fr;
+  }
+  .day-detail-card,
+  .team-off-card,
+  .memo-extract-card,
+  .coworker-card {
+    border-radius: 22px;
+    padding: 16px;
+  }
+  .compact-title {
+    flex-direction: column;
+  }
+  .day-detail-grid > div {
+    padding: 13px;
+  }
+  .off-only-day {
+    grid-template-columns: 50px minmax(0, 1fr);
+  }
+}
