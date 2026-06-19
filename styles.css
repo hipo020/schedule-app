@@ -8890,3 +8890,392 @@ body {
     background: #FFFFFF !important;
   }
 }
+
+/* ===== Final view pages refinement: clearer hierarchy + lighter weekly/monthly cards ===== */
+
+.category-shell[data-active-category="view"] .sheet-tab.active,
+.sheet-nav .sheet-tab.active {
+  background: var(--view-selected-bg) !important;
+  border: 1px solid var(--view-selected-border) !important;
+  color: var(--view-text) !important;
+  box-shadow: 0 8px 18px rgba(143, 191, 216, 0.18) !important;
+}
+
+.sheet-nav .sheet-tab,
+.category-shell[data-active-category="view"] .sheet-tab {
+  border-color: transparent !important;
+}
+
+.sheet-nav .sheet-tab:hover {
+  background: #F4F9FC !important;
+  border-color: #DCEAF1 !important;
+}
+
+.summary-cards .summary-card,
+.daily-summary-grid .info-card,
+.weekly-stat-row .mini-stat,
+.workflow-guide-card,
+.workflow-step,
+.daily-timeline-card,
+.refined-calendar,
+.improved-month-calendar,
+.week-day-card,
+.day-cell,
+.roster-card,
+.coworkers-card,
+.team-off-card,
+.day-detail-card {
+  border-radius: 24px !important;
+}
+
+.summary-cards .summary-card,
+.daily-summary-grid .info-card,
+.weekly-stat-row .mini-stat,
+.workflow-guide-card,
+.workflow-step,
+.daily-timeline-card,
+.week-day-card,
+.day-cell {
+  box-shadow: 0 10px 28px rgba(23, 32, 51, 0.05) !important;
+}
+
+.workflow-guide-card {
+  padding: 18px 18px 16px !important;
+}
+
+.workflow-step-grid {
+  gap: 12px !important;
+}
+
+.workflow-step-grid .workflow-step,
+.workflow-step {
+  min-height: 92px !important;
+  padding: 16px !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  border-radius: 18px !important;
+}
+
+.workflow-step strong {
+  font-size: 15px !important;
+  margin-bottom: 8px !important;
+}
+
+.workflow-step span {
+  line-height: 1.5 !important;
+  color: var(--view-sub) !important;
+}
+
+.daily-summary-grid {
+  align-items: stretch !important;
+}
+
+.daily-summary-grid .info-card,
+.summary-cards .summary-card,
+.weekly-stat-row .mini-stat {
+  padding: 24px 24px 22px !important;
+}
+
+.daily-summary-grid .info-card h4,
+.summary-cards .summary-card p,
+.weekly-stat-row .mini-stat span {
+  letter-spacing: -0.01em !important;
+}
+
+.daily-summary-grid .info-card:nth-child(1) .list-row {
+  background: rgba(255,255,255,0.78) !important;
+  border: 1px solid #D9E9F1 !important;
+  border-radius: 16px !important;
+  padding: 12px 14px !important;
+}
+
+.daily-summary-grid .info-card:nth-child(1) p:last-child,
+.daily-summary-grid .info-card:nth-child(2) p,
+.daily-summary-grid .info-card:nth-child(3) p {
+  color: #667085 !important;
+}
+
+.daily-view-toggle {
+  padding: 5px !important;
+}
+
+.daily-view-toggle .ghost-btn,
+.week-nav-btn,
+.person-view-picker select,
+.view-title-side span,
+.week-nav span {
+  border-radius: 999px !important;
+}
+
+.daily-view-toggle .ghost-btn.active,
+.week-nav .week-nav-btn:hover,
+.view-title .ghost-btn:hover,
+.person-view-picker select:focus {
+  box-shadow: 0 0 0 3px rgba(212, 236, 247, 0.45) !important;
+}
+
+/* Weekly: simplify inner structure and align with off-day page */
+.improved-week-grid.simplified-week-grid {
+  gap: 16px !important;
+}
+
+.weekly-stat-row .mini-stat.week-summary-block.work {
+  background: var(--view-work-bg-soft) !important;
+}
+
+.weekly-stat-row .mini-stat.week-summary-block.off {
+  background: var(--view-off-bg) !important;
+}
+
+.weekly-stat-row .mini-stat.week-summary-block.neutral {
+  background: #FFFFFF !important;
+}
+
+.week-day-card,
+.improved-week-grid .week-day-card {
+  min-height: 172px !important;
+  padding: 16px 16px 18px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+  text-align: left !important;
+}
+
+.week-day-card .week-day-name {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #6A788A !important;
+}
+
+.week-day-card strong {
+  margin: 0 0 8px !important;
+  font-size: 19px !important;
+  line-height: 1.15 !important;
+}
+
+.week-day-card .week-code-line {
+  margin-top: 2px !important;
+}
+
+.week-code-text {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  font-weight: 900 !important;
+  color: var(--view-text) !important;
+  letter-spacing: 0.02em !important;
+}
+
+.week-code-text.work { color: var(--view-work-text) !important; }
+.week-code-text.off { color: var(--view-off-text) !important; }
+.week-code-text.leave { color: var(--view-leave-text) !important; }
+.week-code-text.empty,
+.week-code-text.unknown,
+.week-code-text.uncertain { color: #6F7E90 !important; }
+
+.week-time-text,
+.week-day-card small {
+  margin-top: auto !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+  color: #6F7E90 !important;
+  text-align: left !important;
+}
+
+.week-day-card.work {
+  background: linear-gradient(180deg, #E8F6FB 0%, #DFF2F8 100%) !important;
+}
+
+.week-day-card.off {
+  background: linear-gradient(180deg, #FFF7F7 0%, #FDEEEE 100%) !important;
+}
+
+.week-day-card.leave {
+  background: linear-gradient(180deg, #FFFBEF 0%, #F8F1DE 100%) !important;
+}
+
+.week-day-card.selected-week-day {
+  border: 1px solid var(--view-selected-border) !important;
+  box-shadow: 0 12px 28px rgba(143, 191, 216, 0.22) !important;
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.0)) !important;
+  transform: translateY(-1px) !important;
+}
+
+.week-day-card.selected-week-day::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.52);
+  pointer-events: none;
+}
+
+.week-day-card.other-month {
+  background: #FAFBFC !important;
+  opacity: 0.6 !important;
+}
+
+.week-day-card .badge,
+.week-day-card em {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Monthly: remove box-in-box look */
+.improved-month-calendar.simplified-month-calendar {
+  padding: 14px !important;
+  gap: 12px !important;
+}
+
+.simplified-month-calendar .calendar-head {
+  margin-bottom: 2px !important;
+}
+
+.simplified-month-calendar .day-cell {
+  min-height: 126px !important;
+  padding: 12px 12px 10px !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+}
+
+.simplified-month-calendar .day-cell.empty {
+  min-height: 126px !important;
+  border-style: dashed !important;
+  box-shadow: none !important;
+}
+
+.day-top-line {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+
+.selected-date-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+  background: var(--view-work-text) !important;
+  opacity: 0.55 !important;
+  flex: 0 0 auto !important;
+}
+
+.month-day-main.simplified {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  margin-top: auto !important;
+}
+
+.month-code-text {
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--view-text) !important;
+}
+
+.month-code-text.work { color: var(--view-work-text) !important; }
+.month-code-text.off { color: var(--view-off-text) !important; }
+.month-code-text.leave { color: var(--view-leave-text) !important; }
+.month-code-text.empty,
+.month-code-text.unknown,
+.month-code-text.uncertain { color: #738295 !important; }
+
+.month-time-text,
+.simplified-month-calendar .day-cell small {
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+  color: #718196 !important;
+  text-align: left !important;
+}
+
+.simplified-month-calendar .day-cell .badge,
+.simplified-month-calendar .day-cell .day-code {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  min-width: auto !important;
+  box-shadow: none !important;
+}
+
+.simplified-month-calendar .day-cell.today {
+  border: 1px solid var(--view-selected-border) !important;
+  box-shadow: 0 12px 26px rgba(143, 191, 216, 0.18) !important;
+}
+
+.simplified-month-calendar .day-cell:hover {
+  transform: translateY(-1px) !important;
+}
+
+.simplified-month-calendar .day-cell.work {
+  background: linear-gradient(180deg, #EDF8FC 0%, #DFF2F8 100%) !important;
+}
+
+.simplified-month-calendar .day-cell.off {
+  background: linear-gradient(180deg, #FFF7F7 0%, #FDEEEE 100%) !important;
+}
+
+.simplified-month-calendar .day-cell.leave {
+  background: linear-gradient(180deg, #FFFBEF 0%, #F8F1DE 100%) !important;
+}
+
+.simplified-month-calendar .day-number {
+  font-size: 16px !important;
+  color: #59697B !important;
+}
+
+/* Keep home and daily closer to offday visual system */
+.home-panel .section-title,
+.daily-title-actions,
+.week-title-with-nav,
+.month-title {
+  gap: 16px !important;
+}
+
+.summary-cards .memo-summary-card {
+  background: #FFFFFF !important;
+}
+
+.workflow-help-btn,
+.page-shortcut,
+.week-nav-btn,
+.view-title .ghost-btn,
+.view-title .secondary-btn {
+  border: 1px solid var(--view-border) !important;
+  background: #FFFFFF !important;
+  color: var(--view-text) !important;
+}
+
+.workflow-help-btn:hover,
+.page-shortcut:hover,
+.week-nav-btn:hover,
+.view-title .ghost-btn:hover,
+.view-title .secondary-btn:hover {
+  border-color: var(--view-selected-border) !important;
+  background: #F7FBFD !important;
+}
+
+@media (max-width: 900px) {
+  .week-day-card,
+  .improved-week-grid .week-day-card {
+    min-height: 156px !important;
+  }
+
+  .simplified-month-calendar .day-cell,
+  .simplified-month-calendar .day-cell.empty {
+    min-height: 112px !important;
+  }
+}
+.week-day-card,
+.simplified-month-calendar .day-cell {
+  position: relative !important;
+}

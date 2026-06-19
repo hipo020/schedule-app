@@ -2858,11 +2858,11 @@ function renderWeekly() {
       </div>
     </div>
     <div class="mini-stat-row weekly-stat-row">
-      <div class="mini-stat"><span>근무</span><strong>${workCount}일</strong></div>
-      <div class="mini-stat"><span>휴무/연차</span><strong>${offCount}일</strong></div>
-      <div class="mini-stat"><span>가장 이른 출근</span><strong>${earliest}</strong></div>
+      <div class="mini-stat week-summary-block work"><span>근무</span><strong>${workCount}일</strong></div>
+      <div class="mini-stat week-summary-block off"><span>휴무/연차</span><strong>${offCount}일</strong></div>
+      <div class="mini-stat week-summary-block neutral"><span>가장 이른 출근</span><strong>${earliest}</strong></div>
     </div>
-    <div class="week-grid improved-week-grid">
+    <div class="week-grid improved-week-grid simplified-week-grid">
       ${rows.map(({ day, date, inMonth, code, info }) => {
         const dayLabel = `${date.getMonth() + 1}/${day}`;
         const selectedClass = inMonth && day === baseDay ? 'selected-week-day' : '';
@@ -2870,10 +2870,12 @@ function renderWeekly() {
         const dataAttr = inMonth ? `data-pick-day="${day}"` : '';
         return `
           <button class="week-day-card ${badgeClass(info.type)} ${selectedClass} ${inMonth ? '' : 'other-month'}" ${dataAttr} ${disabled}>
-            <span>${dayNames[date.getDay()]}</span>
+            <span class="week-day-name">${dayNames[date.getDay()]}</span>
             <strong>${dayLabel}</strong>
-            <em class="badge ${badgeClass(info.type)}">${inMonth ? (code || '-') : '-'}</em>
-            <small>${inMonth ? (formatTime(info) || info.label) : '이번 달 외'}</small>
+            <div class="week-code-line">
+              <span class="week-code-text ${badgeClass(info.type)}">${inMonth ? (code || '미입력') : '-'}</span>
+            </div>
+            <small class="week-time-text">${inMonth ? (formatTime(info) || info.label) : '이번 달 외'}</small>
           </button>
         `;
       }).join('')}
@@ -2906,7 +2908,7 @@ function renderMonthly() {
       <span><i class="legend-dot empty"></i>미입력</span>
     </div>
     <div class="monthly-calendar-wrap">
-      <div class="calendar refined-calendar improved-month-calendar">`;
+      <div class="calendar refined-calendar improved-month-calendar simplified-month-calendar">`;
   dayNames.forEach((name, index) => html += `<div class="calendar-head ${index === 0 ? 'sun' : index === 6 ? 'sat' : ''}">${name}</div>`);
   for (let i = 0; i < first; i++) html += `<div class="day-cell empty"></div>`;
   for (let day = 1; day <= days; day++) {
@@ -2918,10 +2920,13 @@ function renderMonthly() {
     const weekendClass = dow === 0 ? 'sun' : dow === 6 ? 'sat' : '';
     html += `
       <button class="day-cell ${typeClass} ${todayClass} ${weekendClass}" data-month-detail-day="${day}">
-        <span class="day-number">${day}</span>
-        <span class="month-day-main">
-          <span class="badge day-code ${typeClass}">${code || '-'}</span>
-          <small>${formatTime(info) || info.label}</small>
+        <div class="day-top-line">
+          <span class="day-number">${day}</span>
+          ${day === selectedDay ? '<span class="selected-date-dot" aria-hidden="true"></span>' : ''}
+        </div>
+        <span class="month-day-main simplified">
+          <strong class="month-code-text ${typeClass}">${code || '미입력'}</strong>
+          <small class="month-time-text">${formatTime(info) || info.label}</small>
         </span>
       </button>`;
   }
