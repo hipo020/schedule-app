@@ -142,7 +142,7 @@ function setSaveStatus(kind, message = '', type = '') {
 function markUnsavedChanges(message = '') {
   if (suppressDirtyFlag) return;
   hasUnsavedCloudChanges = true;
-  showUnsavedStatus(message || '저장하지 않은 변경사항이 있어요. 저장 버튼을 눌러 클라우드에 반영해 주세요.');
+  showUnsavedStatus(message || '저장하지 않은 변경사항이 있어요. 저장 버튼을 눌러 반영해 주세요.');
 }
 
 function markCloudSaved() {
@@ -1672,7 +1672,7 @@ async function handleImageUpload(e) {
     renderUploadedImage();
     drawOcrPreview();
     renderAll();
-    markUnsavedChanges('이미지가 변경됐어요. 저장 버튼을 눌러 클라우드에 반영해 주세요.');
+    markUnsavedChanges('이미지가 변경됐어요. 저장 버튼을 눌러 반영해 주세요.');
     saveState(false);
   } catch (error) {
     console.error('이미지 업로드 실패', error);
@@ -2108,7 +2108,7 @@ function bindDataInputEvents() {
     button.addEventListener('click', async () => {
       try {
         await copyTextToClipboard(getExtractionPrompt());
-        setPromptCopyStatus('추출 프롬프트를 복사했어요. AI 채팅창에 이미지와 함께 붙여넣어 주세요.', 'ok');
+        setPromptCopyStatus('추출 프롬프트를 복사했어요. 이미지와 함께 붙여넣어 주세요.', 'ok');
       } catch (error) {
         setPromptCopyStatus('복사에 실패했어요. 브라우저 권한을 확인해 주세요.', 'error');
       }
@@ -2373,7 +2373,7 @@ function renderSummary() {
     <div class="summary-card"><p>다음 휴무</p><strong>${nextOff ? nextOff.dateText : '-'}</strong><span>${nextOff ? `${nextOff.code} ${nextOff.label}` : '이번 달 남은 휴무가 없어요.'}</span></div>
     <div class="summary-card"><p>이번 달 요약</p><strong>${workCount}일 근무</strong><span>휴무 ${offCount}일 · 연차 ${leaveCount}일</span></div>
     <div class="summary-card"><p>근무 통계</p><strong>${stats.mostCode || '-'}</strong><span>${stats.summaryText}</span></div>
-    <div class="summary-card memo-summary-card"><p>메모</p><strong>${memoText ? '메모 있음' : '메모 없음'}</strong><span>${escapeHtml(memoText ? compactText(memoText, 42) : 'OCR 보조에서 메모를 입력/추출해 주세요.')}</span></div>
+    <div class="summary-card memo-summary-card"><p>메모</p><strong>${memoText ? '메모 있음' : '메모 없음'}</strong><span>${escapeHtml(memoText ? compactText(memoText, 42) : '메모를 입력해 주세요.')}</span></div>
   `;
   const guide = el('workflowGuide');
   if (guide) guide.innerHTML = renderWorkflowGuide();
@@ -2395,16 +2395,16 @@ function renderWorkflowGuide() {
   const status = getWorkflowStepStatus();
   const steps = [
     { title: '1. 이미지 업로드', page: 'setup', desc: status.hasImage ? '원본 이미지가 저장되어 있어요.' : '기준 월을 맞추고 근무표 이미지를 올려 주세요.', state: status.hasImage ? 'done' : 'todo' },
-    { title: '2. 데이터 입력', page: 'dataInput', desc: status.hasPeople ? `${(state.people || []).filter((p) => p.name).length}명의 데이터가 있어요.` : 'AI가 추출한 CSV를 붙여넣어 주세요.', state: status.hasPeople ? 'done' : 'todo' },
+    { title: '2. 데이터 입력', page: 'dataInput', desc: status.hasPeople ? `${(state.people || []).filter((p) => p.name).length}명의 데이터가 있어요.` : 'CSV를 붙여넣어 주세요.', state: status.hasPeople ? 'done' : 'todo' },
     { title: '3. 데이터 확인', page: 'editor', desc: status.issueCount ? `확인할 항목 ${status.issueCount}개가 있어요.` : '검수할 항목이 없거나 아직 데이터가 없어요.', state: status.reviewStatus === 'done' ? 'done' : (status.issueCount ? 'warn' : 'todo') },
-    { title: '4. 저장·공유', page: 'share', desc: status.isSaved ? '현재 변경사항은 저장된 상태예요.' : '저장 버튼을 눌러 클라우드에 반영해 주세요.', state: status.isSaved ? 'done' : 'warn' },
+    { title: '4. 저장·공유', page: 'share', desc: status.isSaved ? '현재 변경사항은 저장된 상태예요.' : '저장 버튼을 눌러 반영해 주세요.', state: status.isSaved ? 'done' : 'warn' },
   ];
   return `
     <section class="workflow-guide-card" aria-label="사용 흐름 안내">
       <div class="workflow-guide-head">
         <div>
           <p>QUICK FLOW</p>
-          <h3>데이터 입력부터 저장까지</h3>
+          <h3>입력부터 저장까지</h3>
         </div>
         <button class="ghost-btn workflow-help-btn" data-help-page="help" type="button">사용법 보기</button>
       </div>
@@ -2951,14 +2951,18 @@ function getSameOffPeopleText(day) {
 
 function renderOffDays() {
   const person = getMyPerson();
-  const rows = person ? getScheduleRowsForPerson(person).filter((row) => ['off', 'leave'].includes(row.type)) : [];
-  if (!rows.length) {
-    return `<div class="empty-archive"><h3>휴무일 데이터가 없어요.</h3><p>내 이름을 선택하고 스케줄 데이터를 입력하면 휴무와 연차만 따로 모아 보여줘요.</p></div>`;
+  if (!state.people.length) {
+    return `<div class="empty-archive"><h3>휴무 현황 데이터가 없어요.</h3><p>스케줄 데이터를 입력하면 내 휴무와 팀 휴무 현황을 한눈에 확인할 수 있어요.</p></div>`;
   }
 
+  const rows = person ? getScheduleRowsForPerson(person).filter((row) => ['off', 'leave'].includes(row.type)) : [];
+  const days = daysInMonth(state.year, state.month);
   const today = new Date();
-  const currentDay = today.getFullYear() === state.year && today.getMonth() + 1 === state.month ? today.getDate() : 1;
-  const nextOff = rows.find((row) => row.day >= currentDay) || rows[0];
+  const selected = new Date(state.selectedDate || `${state.year}-${String(state.month).padStart(2, '0')}-01`);
+  const focusDay = today.getFullYear() === state.year && today.getMonth() + 1 === state.month
+    ? today.getDate()
+    : (isSameMonth(selected) ? selected.getDate() : 1);
+  const nextOff = rows.find((row) => row.day >= focusDay) || rows[0] || null;
   const leaveRows = rows.filter((row) => row.type === 'leave');
   const pureOffRows = rows.filter((row) => row.type === 'off');
 
@@ -2974,6 +2978,37 @@ function renderOffDays() {
   });
   const usefulStreaks = streaks.filter((streak) => streak.items.length >= 2).slice(0, 4);
 
+  const getPills = (people, emptyText = '없음') => people.length
+    ? people.map((p) => `<span class="person-pill ${badgeClass(p.info?.type || 'off')}">${escapeHtml(p.name)} <small>${escapeHtml(p.code || '')}</small></span>`).join('')
+    : `<span class="person-pill muted">${emptyText}</span>`;
+
+  const focusRoster = getDayRoster(focusDay);
+  const focusLabel = `${state.month}/${focusDay}(${dayNames[getDateObj(focusDay).getDay()]})`;
+
+  const mondayOffset = (getDateObj(focusDay).getDay() + 6) % 7;
+  const mondayDate = getDateObj(focusDay);
+  mondayDate.setDate(mondayDate.getDate() - mondayOffset);
+  const weekRows = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(mondayDate);
+    date.setDate(mondayDate.getDate() + i);
+    const inMonth = date.getFullYear() === state.year && date.getMonth() + 1 === state.month;
+    if (!inMonth) return null;
+    const day = date.getDate();
+    const roster = getDayRoster(day);
+    return { day, date, roster };
+  }).filter(Boolean);
+  const weekOffRows = weekRows.filter((item) => item.roster.offPeople.length);
+
+  const monthlyOffRows = [];
+  for (let d = 1; d <= days; d++) {
+    const roster = getDayRoster(d);
+    if (roster.offPeople.length) monthlyOffRows.push({ day: d, roster });
+  }
+  const topOffDays = monthlyOffRows
+    .slice()
+    .sort((a, b) => b.roster.offPeople.length - a.roster.offPeople.length || a.day - b.day)
+    .slice(0, 3);
+
   const grouped = rows.reduce((acc, row) => {
     const key = row.type === 'leave' ? '연차' : '휴무';
     if (!acc[key]) acc[key] = [];
@@ -2984,49 +3019,79 @@ function renderOffDays() {
   return `
     <div class="view-title offday-title">
       <div>
-        <h3>휴무일 모아보기</h3>
-        <p>${state.myName || '내 이름 미입력'} 기준 · 이번 달 쉬는 날을 계획용으로 다시 정리합니다.</p>
+        <h3>휴무 현황</h3>
+        <p>내 휴무와 팀 휴무자를 오늘 기준으로 빠르게 확인해요.</p>
       </div>
-      <div class="view-title-side">${renderPersonPicker()}<span>총 ${rows.length}일</span></div>
+      <div class="view-title-side">${renderPersonPicker()}<span>내 휴무 ${rows.length}일</span></div>
     </div>
-    ${renderTeamOffOnlySection()}
-    <div class="offday-summary-grid">
-      <button class="offday-summary-card next" data-pick-day="${nextOff.day}">
-        <span>다음 휴무</span>
-        <strong>${nextOff.dateText}</strong>
-        <em>${nextOff.code} · ${nextOff.label}${getSameOffPeopleText(nextOff.day)}</em>
-      </button>
-      <div class="offday-summary-card">
-        <span>휴무</span>
-        <strong>${pureOffRows.length}일</strong>
-        <em>DO/PH/SD/RT 등</em>
-      </div>
-      <div class="offday-summary-card leave">
-        <span>연차</span>
-        <strong>${leaveRows.length}일</strong>
-        <em>AL 기준</em>
-      </div>
+
+    <div class="off-dashboard-grid">
+      <section class="off-dashboard-card my-off-summary">
+        <div class="off-card-head"><span>MY OFF</span><h4>내 휴무 요약</h4></div>
+        <div class="off-summary-line"><strong>${rows.length}일</strong><span>이번 달 휴무/연차</span></div>
+        <div class="off-mini-grid">
+          <div><span>다음 휴무</span><strong>${nextOff ? nextOff.dateText : '-'}</strong><small>${nextOff ? `${nextOff.code} · ${nextOff.label}` : '남은 휴무가 없어요.'}</small></div>
+          <div><span>휴무</span><strong>${pureOffRows.length}일</strong><small>DO/PH/SD 등</small></div>
+          <div><span>연차</span><strong>${leaveRows.length}일</strong><small>AL 기준</small></div>
+        </div>
+      </section>
+
+      <section class="off-dashboard-card today-off-card">
+        <div class="off-card-head"><span>TODAY</span><h4>${focusLabel} 휴무자</h4></div>
+        <div class="roster-pill-wrap off-dashboard-pills">${getPills(focusRoster.offPeople, '선택일 휴무자가 없어요.')}</div>
+        <button class="ghost-btn slim-action" data-pick-day="${focusDay}" type="button">일간 보기로 이동</button>
+      </section>
     </div>
-    <section class="offday-planner-card">
+
+    <div class="off-dashboard-grid secondary">
+      <section class="off-dashboard-card week-off-card">
+        <div class="off-card-head"><span>WEEK</span><h4>이번 주 휴무</h4></div>
+        <div class="off-week-list">
+          ${weekOffRows.length ? weekOffRows.map((item) => `
+            <button class="off-week-day" data-pick-day="${item.day}" type="button">
+              <strong>${state.month}/${item.day}(${dayNames[item.date.getDay()]})</strong>
+              <span>${item.roster.offPeople.map((p) => `${escapeHtml(p.name)} ${escapeHtml(p.code)}`).join(', ')}</span>
+            </button>
+          `).join('') : '<p class="offday-empty-note">이번 주 휴무자가 없어요.</p>'}
+        </div>
+      </section>
+
+      <section class="off-dashboard-card top-off-card">
+        <div class="off-card-head"><span>MONTH</span><h4>휴무 많은 날</h4></div>
+        <div class="off-top-list">
+          ${topOffDays.length ? topOffDays.map((item, index) => `
+            <button class="off-top-day" data-pick-day="${item.day}" type="button">
+              <em>${index + 1}</em>
+              <strong>${state.month}/${item.day}</strong>
+              <span>${item.roster.offPeople.length}명</span>
+              <small>${item.roster.offPeople.map((p) => escapeHtml(p.name)).join(', ')}</small>
+            </button>
+          `).join('') : '<p class="offday-empty-note">이번 달 휴무자가 없어요.</p>'}
+        </div>
+      </section>
+    </div>
+
+    <section class="offday-planner-card compact-planner-card">
       <h4>연속으로 쉬는 구간</h4>
       ${usefulStreaks.length ? `
         <div class="offday-streak-list">
           ${usefulStreaks.map((streak) => `
-            <button class="offday-streak" data-pick-day="${streak.start.day}">
+            <button class="offday-streak" data-pick-day="${streak.start.day}" type="button">
               <strong>${streak.start.dateText} ~ ${streak.end.dateText}</strong>
               <span>${streak.items.length}일 연속 · ${streak.items.map((item) => item.code).join(' / ')}</span>
             </button>
           `).join('')}
         </div>
-      ` : `<p class="offday-empty-note">2일 이상 이어지는 휴무/연차 구간은 없어요. 여행이나 긴 휴식 계획이 필요할 때 이 영역에서 바로 확인할 수 있어요.</p>`}
+      ` : `<p class="offday-empty-note">2일 이상 이어지는 휴무/연차 구간은 없어요.</p>`}
     </section>
-    <div class="offday-grid improved-offday-grid">
+
+    <div class="offday-grid improved-offday-grid compact-offday-grid">
       ${Object.entries(grouped).map(([group, items]) => `
         <section class="offday-group">
           <h4>${group} <span>${items.length}일</span></h4>
-          <div class="offday-chip-list">${items.map((row) => `<button class="offday-chip ${badgeClass(row.type)}" data-pick-day="${row.day}"><strong>${row.dateText}</strong><small>${getSameOffPeopleText(row.day) || '같이 쉬는 사람 없음'}</small><span>${row.code}</span></button>`).join('')}</div>
+          <div class="offday-chip-list">${items.map((row) => `<button class="offday-chip ${badgeClass(row.type)}" data-pick-day="${row.day}" type="button"><strong>${row.dateText}</strong><small>${getSameOffPeopleText(row.day) || '같이 쉬는 사람 없음'}</small><span>${row.code}</span></button>`).join('')}</div>
         </section>
-      `).join('')}
+      `).join('') || '<section class="offday-group"><h4>내 휴무 없음</h4><p class="offday-empty-note">이번 달 내 휴무/연차가 아직 없어요.</p></section>'}
     </div>
   `;
 }
@@ -3220,7 +3285,7 @@ function renderSettings() {
         <h3>코드표 상태</h3>
         <p>미등록 코드가 생기면 앱이 먼저 기본 코드 누락을 자동으로 보정합니다. 자세한 확인은 필요할 때만 고급 설정을 열어 주세요.</p>
         <div id="codeCheckStatus" class="code-check-status">
-          <span>기본 코드는 자동 보정됩니다. 코드 수정 후에는 저장 버튼을 눌러 클라우드에 반영해 주세요.</span>
+          <span>기본 코드는 자동 보정됩니다. 코드 수정 후에는 저장 버튼을 눌러 반영해 주세요.</span>
         </div>
         <details class="advanced-code-details">
           <summary>고급 설정 열기</summary>
@@ -3267,19 +3332,19 @@ function renderHelp() {
       <article>
         <b>2</b>
         <h4>데이터 입력</h4>
-        <p>프롬프트를 복사해 ChatGPT/Gemini에 이미지를 넣고 CSV를 받아 붙여넣습니다.</p>
+        <p>CSV를 붙여넣거나 파일로 업로드합니다.</p>
         <button class="ghost-btn" data-help-page="dataInput" type="button">데이터 입력으로 이동</button>
       </article>
       <article>
         <b>3</b>
         <h4>데이터 확인</h4>
-        <p>원본 이미지와 검수표를 비교하고, 미등록/불확실/미입력 항목을 확인합니다.</p>
+        <p>원본과 입력 데이터를 비교하고 필요한 부분을 수정합니다.</p>
         <button class="ghost-btn" data-help-page="editor" type="button">데이터 확인으로 이동</button>
       </article>
       <article>
         <b>4</b>
         <h4>저장·공유</h4>
-        <p>검수 완료 후 저장하고, 카톡용 문구나 엑셀 파일로 내보냅니다.</p>
+        <p>검수 후 저장하고, 공유 문구나 엑셀 파일로 내보냅니다.</p>
         <button class="ghost-btn" data-help-page="share" type="button">공유·엑셀로 이동</button>
       </article>
     </section>
@@ -3287,7 +3352,7 @@ function renderHelp() {
     <section class="help-grid-panel">
       <div class="help-card soft-blue">
         <h4>검수할 때 자주 보는 것</h4>
-        <p><strong>미등록 코드</strong>는 코드표에 없는 값, <strong>불확실 코드</strong>는 AO?처럼 AI가 애매하게 읽은 값, <strong>확인필요</strong>는 판독 불가 값이에요.</p>
+        <p><strong>미등록 코드</strong>는 코드표에 없는 값, <strong>불확실 코드</strong>는 AO?처럼 애매하게 읽힌 값, <strong>확인필요</strong>는 판독 불가 값이에요.</p>
       </div>
       <div class="help-card soft-yellow">
         <h4>실수했을 때</h4>
@@ -3295,11 +3360,11 @@ function renderHelp() {
       </div>
       <div class="help-card soft-green">
         <h4>월별 관리</h4>
-        <p>보관함에서 이미지 있음, 데이터 n명, 검수 완료, 저장 상태를 확인하고 필요한 월을 다시 불러올 수 있어요.</p>
+        <p>보관함에서 월별 이미지, 데이터, 검수 상태를 확인하고 다시 불러올 수 있어요.</p>
       </div>
       <div class="help-card soft-peach">
         <h4>문제가 생겼을 때</h4>
-        <p>코드 설정의 고급 설정은 평소에 열지 않아도 됩니다. 미등록 코드가 계속 뜰 때만 현재 코드/저장된 코드를 확인해 주세요.</p>
+        <p>미등록 코드가 계속 뜰 때만 코드 설정의 고급 설정을 확인해 주세요.</p>
       </div>
     </section>
   `;

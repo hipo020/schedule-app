@@ -6694,3 +6694,240 @@ body::after,
     gap: 7px !important;
   }
 }
+
+/* v3.9 휴무 현황 대시보드 정리 */
+.off-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.off-dashboard-grid.secondary {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.off-dashboard-card {
+  background: rgba(255,255,255,0.96);
+  border: 1px solid var(--ui-line, #edf0f5);
+  border-radius: 28px;
+  padding: 22px;
+  box-shadow: var(--ui-shadow, 0 18px 44px rgba(31, 45, 61, 0.08));
+}
+
+.off-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.off-card-head span {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: var(--ui-muted, #7c8798);
+  background: var(--ui-cream, #fff8ec);
+  border: 1px solid var(--ui-line, #edf0f5);
+  border-radius: 999px;
+  padding: 5px 9px;
+}
+
+.off-card-head h4 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--ui-text, #243047);
+  line-height: 1.25;
+}
+
+.off-summary-line {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.off-summary-line strong {
+  font-size: 32px;
+  line-height: 1;
+  color: #8F4E38;
+}
+
+.off-summary-line span {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ui-muted, #7c8798);
+  padding-bottom: 3px;
+}
+
+.off-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.off-mini-grid div {
+  background: var(--ui-soft, #f7f8fb);
+  border: 1px solid var(--ui-line, #edf0f5);
+  border-radius: 18px;
+  padding: 12px;
+  min-width: 0;
+}
+
+.off-mini-grid span,
+.off-mini-grid small {
+  display: block;
+  font-size: 12px;
+  color: var(--ui-muted, #7c8798);
+  line-height: 1.35;
+}
+
+.off-mini-grid strong {
+  display: block;
+  margin: 5px 0 3px;
+  font-size: 18px;
+  color: var(--ui-text, #243047);
+  white-space: nowrap;
+}
+
+.off-dashboard-pills {
+  min-height: 44px;
+  margin-bottom: 14px;
+}
+
+.slim-action {
+  width: 100%;
+  min-height: 38px;
+  padding: 9px 12px !important;
+}
+
+.off-week-list,
+.off-top-list {
+  display: grid;
+  gap: 9px;
+}
+
+.off-week-day,
+.off-top-day {
+  width: 100%;
+  border: 1px solid var(--ui-line, #edf0f5);
+  background: var(--ui-soft, #f7f8fb);
+  border-radius: 18px;
+  padding: 12px 13px;
+  text-align: left;
+  color: var(--ui-text, #243047);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.off-week-day:hover,
+.off-top-day:hover {
+  transform: translateY(-1px);
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(31, 45, 61, 0.08);
+}
+
+.off-week-day strong,
+.off-week-day span {
+  display: block;
+}
+
+.off-week-day strong {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.off-week-day span {
+  font-size: 13px;
+  color: var(--ui-muted, #7c8798);
+  line-height: 1.45;
+}
+
+.off-top-day {
+  display: grid;
+  grid-template-columns: 28px 52px 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.off-top-day em {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--ui-peach, #FBEADC);
+  color: #8F4E38;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.off-top-day strong,
+.off-top-day span,
+.off-top-day small {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.off-top-day small {
+  color: var(--ui-muted, #7c8798);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compact-planner-card {
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+
+.compact-offday-grid {
+  margin-top: 0;
+}
+
+@media (max-width: 780px) {
+  .off-dashboard-grid,
+  .off-dashboard-grid.secondary {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .off-dashboard-card {
+    border-radius: 24px;
+    padding: 17px;
+  }
+
+  .off-card-head {
+    margin-bottom: 12px;
+  }
+
+  .off-card-head h4 {
+    font-size: 15px;
+  }
+
+  .off-summary-line strong {
+    font-size: 26px;
+  }
+
+  .off-mini-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .off-mini-grid div {
+    padding: 10px 12px;
+  }
+
+  .off-mini-grid strong {
+    font-size: 16px;
+  }
+
+  .off-top-day {
+    grid-template-columns: 26px 48px 36px minmax(0, 1fr);
+    gap: 6px;
+    padding: 10px;
+  }
+}
