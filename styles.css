@@ -7275,3 +7275,523 @@ body::after,
     grid-template-columns: 1fr !important;
   }
 }
+
+/* v4.1 컬러 시스템 정리: 하늘색 중심 / 베이지 보조 / 성공 알림 절제 */
+:root {
+  --bg: #FAF8F1 !important;
+  --card: #FFFFFF !important;
+  --navy: #151B2D !important;
+  --muted: #6F7685 !important;
+  --line: #E8EAF0 !important;
+  --soft: #F7FAFC !important;
+  --sky: #E6F4FA !important;
+  --sky-strong: #8ECADF !important;
+  --ui-base: #FAF8F1 !important;
+  --ui-card: #FFFFFF !important;
+  --ui-soft: #F7FAFC !important;
+  --ui-cream: #FAF7EC !important;
+  --ui-line: #E8EAF0 !important;
+  --ui-line-soft: #E8EAF0 !important;
+  --ui-text: #151B2D !important;
+  --ui-muted: #6F7685 !important;
+  --ui-mint: #CFEAF6 !important;
+  --ui-mint-light: #E6F4FA !important;
+  --ui-lime: #FAF7EC !important;
+  --ui-lime-light: #FCFBF5 !important;
+  --ui-peach: #EDF7FD !important;
+  --ui-peach-light: #F6FBFE !important;
+  --ui-shadow: 0 16px 40px rgba(21, 27, 45, 0.06) !important;
+  --ui-shadow-soft: 0 6px 18px rgba(21, 27, 45, 0.04) !important;
+}
+
+body {
+  background: #FAF8F1 !important;
+  color: #151B2D !important;
+}
+
+.app-shell {
+  width: min(1440px, calc(100% - 40px)) !important;
+}
+
+.page-area,
+.hero-card,
+.panel,
+.setup-panel,
+.view-panel,
+.editor-panel,
+.upload-panel,
+.home-panel,
+.workflow-guide-card,
+.data-guide-card,
+.off-dashboard-card,
+.off-streak-card,
+.off-detail-card,
+.offday-group,
+.offday-planner-card,
+.offday-summary-card,
+.archive-item,
+.archive-card,
+.help-card,
+.help-flow-panel article,
+.csv-preview-wrap,
+.ocr-control-card,
+.ocr-preview-card,
+.memo-extract-card,
+.settings-panel,
+.settings-box,
+.code-card,
+.monthly-board,
+.weekly-board,
+.daily-board {
+  background: #FFFFFF !important;
+  border: 1px solid #E8EAF0 !important;
+  box-shadow: 0 14px 34px rgba(21, 27, 45, 0.05) !important;
+}
+
+.hero-card::before {
+  background: #CFEAF6 !important;
+}
+
+.eyebrow,
+.section-title p,
+.off-card-head span,
+.help-status-mini,
+.month-title span,
+.week-nav span,
+.stat-pill,
+.section-kicker,
+.label-badge {
+  color: #2F6E88 !important;
+}
+
+.hero-desc,
+.section-subtitle,
+.notice span,
+.off-mini-grid span,
+.off-mini-grid small,
+.off-week-day span,
+.off-top-day small,
+.off-detail-main small,
+.off-streak-item small,
+.data-guide-card p,
+.button-help-text,
+.helper-text,
+.empty-note,
+.empty-subtext,
+.account-card small,
+.save-status-main em,
+.cloud-status p {
+  color: #6F7685 !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+.hero h1,
+.section-title h2,
+.off-card-head h4,
+.summary-card strong,
+.off-mini-grid strong,
+.off-week-day strong,
+.off-top-day strong,
+.off-detail-main strong,
+.workflow-guide-title,
+.account-card strong,
+button,
+label {
+  color: #151B2D !important;
+}
+
+/* 상단 저장 상태: 더 연하고 정돈되게 */
+.cloud-status {
+  background: #EAF6FB !important;
+  color: #2F6E88 !important;
+  border: 1px solid #D8ECF5 !important;
+  box-shadow: none !important;
+}
+
+.cloud-status .save-status-dot {
+  background: #8ECADF !important;
+  box-shadow: 0 0 0 4px rgba(142, 202, 223, 0.18) !important;
+}
+
+.cloud-status.save-status-saved,
+.cloud-status.save-status-loaded {
+  background: #EEF9F1 !important;
+  color: #3F7A4A !important;
+  border-color: #DCEEDF !important;
+}
+
+.cloud-status.save-status-saved .save-status-dot,
+.cloud-status.save-status-loaded .save-status-dot {
+  background: #7BB288 !important;
+  box-shadow: 0 0 0 4px rgba(123, 178, 136, 0.18) !important;
+}
+
+.cloud-status.save-status-dirty,
+.cloud-status.save-status-saving,
+.cloud-status.save-status-loading {
+  background: #FAF7EC !important;
+  color: #7B6C48 !important;
+  border-color: #EFE7CF !important;
+}
+
+.cloud-status.save-status-dirty .save-status-dot,
+.cloud-status.save-status-saving .save-status-dot,
+.cloud-status.save-status-loading .save-status-dot {
+  background: #C9B37A !important;
+  box-shadow: 0 0 0 4px rgba(201, 179, 122, 0.18) !important;
+}
+
+.cloud-status.save-status-error {
+  background: #FFF2F2 !important;
+  color: #9A5A52 !important;
+  border-color: #F2D8D5 !important;
+}
+
+.cloud-status.save-status-error .save-status-dot {
+  background: #D38A81 !important;
+  box-shadow: 0 0 0 4px rgba(211, 138, 129, 0.16) !important;
+}
+
+/* 상위/하위 탭: 색 역할 단순화 */
+.category-shell,
+.sheet-nav {
+  background: rgba(255, 255, 255, 0.82) !important;
+  border: 1px solid #E8EAF0 !important;
+  box-shadow: 0 10px 24px rgba(21, 27, 45, 0.04) !important;
+}
+
+.category-tab,
+.category-tab[data-category="view"],
+.category-tab[data-category="manage"],
+.category-tab[data-category="export"] {
+  background: #FFFFFF !important;
+  border: 1px solid #E8EAF0 !important;
+  color: #151B2D !important;
+  box-shadow: none !important;
+}
+
+.category-tab .category-icon {
+  background: #F6FAFD !important;
+  color: #2F6E88 !important;
+  box-shadow: none !important;
+}
+
+.category-tab.active,
+.category-tab.active[data-category="view"],
+.category-tab.active[data-category="manage"],
+.category-tab.active[data-category="export"] {
+  background: #CFEAF6 !important;
+  border-color: #B8DCEC !important;
+  color: #151B2D !important;
+  box-shadow: 0 10px 24px rgba(142, 202, 223, 0.22) !important;
+}
+
+.category-tab.active .category-icon {
+  background: #FFFFFF !important;
+  color: #2F6E88 !important;
+}
+
+.category-tab small,
+.category-tab.active small {
+  color: #6F7685 !important;
+  opacity: 1 !important;
+}
+
+.sheet-tab {
+  background: #FFFFFF !important;
+  border: 1px solid transparent !important;
+  color: #6F7685 !important;
+}
+
+.sheet-tab:hover {
+  background: #F6FBFE !important;
+  color: #151B2D !important;
+}
+
+.sheet-tab.active,
+.category-shell[data-active-category="view"] .sheet-tab.active,
+.category-shell[data-active-category="manage"] .sheet-tab.active,
+.category-shell[data-active-category="export"] .sheet-tab.active {
+  background: #E6F4FA !important;
+  border-color: #CFE3EE !important;
+  color: #151B2D !important;
+  box-shadow: none !important;
+}
+
+/* 버튼 */
+.primary-btn,
+#cloudSaveButton,
+#saveButton,
+#saveImportedCsvButton,
+#importCsvButton,
+#downloadExcelButton,
+#copyShareButton,
+#copyPersonalShareButton,
+#runOcrButton,
+#applyOcrToEditorButton,
+#copyExtractionPromptButton2,
+#goDataInputAfterUploadButton {
+  background: #CFEAF6 !important;
+  color: #151B2D !important;
+  border: 1px solid #B7D9E7 !important;
+  box-shadow: 0 8px 18px rgba(142, 202, 223, 0.18) !important;
+}
+
+.primary-btn:hover,
+#cloudSaveButton:hover,
+#saveButton:hover,
+#saveImportedCsvButton:hover,
+#importCsvButton:hover,
+#downloadExcelButton:hover,
+#copyShareButton:hover,
+#copyPersonalShareButton:hover,
+#runOcrButton:hover,
+#applyOcrToEditorButton:hover,
+#copyExtractionPromptButton2:hover,
+#goDataInputAfterUploadButton:hover {
+  background: #BFE2F0 !important;
+}
+
+.secondary-btn,
+.ghost-btn,
+.week-nav-btn,
+.archive-actions button,
+#cloudReloadButton,
+#logoutButton,
+#uploadButton,
+#addPersonButton,
+#addCodeButton,
+#copyExtractionPromptButton,
+#copyExtractionPromptButton2.secondary,
+#chooseCsvFileButton {
+  background: #FFFFFF !important;
+  color: #151B2D !important;
+  border: 1px solid #E8EAF0 !important;
+  box-shadow: none !important;
+}
+
+.secondary-btn:hover,
+.ghost-btn:hover,
+.week-nav-btn:hover,
+.archive-actions button:hover,
+#cloudReloadButton:hover,
+#logoutButton:hover,
+#uploadButton:hover,
+#addPersonButton:hover,
+#addCodeButton:hover,
+#copyExtractionPromptButton:hover,
+#chooseCsvFileButton:hover {
+  background: #F6FBFE !important;
+  color: #151B2D !important;
+}
+
+/* 입력/공지/보조 정보 */
+.notice {
+  background: #F7FBFE !important;
+  border-left: 4px solid #8ECADF !important;
+  border-radius: 18px !important;
+}
+
+.notice strong {
+  color: #151B2D !important;
+}
+
+.setup-grid input,
+.setup-grid select,
+.share-box,
+.csv-input-box,
+textarea,
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select {
+  background: #FFFFFF !important;
+  border: 1px solid #E8EAF0 !important;
+  color: #151B2D !important;
+}
+
+.setup-grid input:focus,
+.setup-grid select:focus,
+.share-box:focus,
+.csv-input-box:focus,
+textarea:focus,
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus {
+  border-color: #8ECADF !important;
+  box-shadow: 0 0 0 4px rgba(142, 202, 223, 0.16) !important;
+}
+
+.drop-zone,
+.image-preview-wrap,
+.empty-preview,
+.csv-preview-wrap,
+.ocr-preview-wrap,
+.workflow-guide-card,
+.data-guide-card,
+.mini-checklist span,
+.person-pill,
+.stat-pill,
+.helper-chip {
+  background: #FFFFFF !important;
+  border: 1px solid #E8EAF0 !important;
+}
+
+/* 홈/요약 카드 색 정돈 */
+.summary-cards .summary-card:nth-child(3n+1),
+.summary-cards .summary-card:nth-child(3n+2),
+.summary-cards .summary-card:nth-child(3n),
+.info-card:nth-child(1),
+.info-card:nth-child(2) {
+  color: #151B2D !important;
+}
+
+.summary-cards .summary-card:nth-child(3n+1) {
+  background: #E6F4FA !important;
+}
+
+.summary-cards .summary-card:nth-child(3n+2) {
+  background: #FFFFFF !important;
+}
+
+.summary-cards .summary-card:nth-child(3n),
+.info-card:nth-child(2) {
+  background: #FAF7EC !important;
+}
+
+/* 휴무 현황: 블루/베이지 역할 정리 */
+.off-card-head span,
+.offday-group h4 span,
+.today-badge,
+.month-title span,
+.week-nav span {
+  background: #F6FBFE !important;
+  border: 1px solid #DCEBF3 !important;
+  color: #2F6E88 !important;
+}
+
+.off-summary-line strong,
+.off-top-day em,
+.rank-badge,
+.off-rank-badge {
+  color: #A7653A !important;
+}
+
+.off-top-day em {
+  background: #FAF7EC !important;
+  border: 1px solid #EFE7CF !important;
+}
+
+.off-dashboard-pills .person-pill,
+.offday-chip,
+.offday-chip.off,
+.offday-chip.work,
+.offday-chip.leave {
+  background: #EDF7FD !important;
+  border: 1px solid #DCEBF3 !important;
+  color: #151B2D !important;
+}
+
+.off-dashboard-card .slim-action,
+.off-dashboard-card .primary-btn,
+.off-dashboard-card .secondary-btn {
+  background: #FFFFFF !important;
+  border-color: #E8EAF0 !important;
+}
+
+.compact-planner-card,
+.off-streak-card {
+  background: #FFFFFF !important;
+}
+
+.off-streak-item,
+.offday-streak,
+.offday-streak-item,
+.off-streak-grid .off-streak-item {
+  background: #FAF7EC !important;
+  border: 1px solid #EFE7CF !important;
+  box-shadow: none !important;
+}
+
+.off-streak-item span,
+.offday-streak span {
+  color: #A7653A !important;
+}
+
+.off-week-day,
+.off-top-day,
+.offday-chip,
+.off-detail-item,
+.off-detail-item.off,
+.off-top-list .off-top-day,
+.off-week-list .off-week-day {
+  background: #F8FAFD !important;
+  border: 1px solid #E8EAF0 !important;
+  box-shadow: none !important;
+}
+
+.off-detail-item.off,
+.off-detail-card.off .off-detail-item {
+  background: #EDF7FD !important;
+  border-color: #DCEBF3 !important;
+}
+
+.off-detail-item.leave,
+.off-detail-card.leave .off-detail-item {
+  background: #FAF7EC !important;
+  border-color: #EFE7CF !important;
+}
+
+.off-detail-card.off .off-card-head span {
+  background: #F3FAFE !important;
+  color: #2F6E88 !important;
+}
+
+.off-detail-card.leave .off-card-head span {
+  background: #FAF7EC !important;
+  color: #A7653A !important;
+  border-color: #EFE7CF !important;
+}
+
+.off-detail-code {
+  background: #FFFFFF !important;
+  border: 1px solid #DCEBF3 !important;
+  color: #2F6E88 !important;
+}
+
+.off-week-day:hover,
+.off-top-day:hover,
+.off-streak-item:hover,
+.off-detail-item:hover,
+.offday-chip:hover,
+.offday-streak:hover {
+  background: #FFFFFF !important;
+  box-shadow: 0 10px 20px rgba(21, 27, 45, 0.05) !important;
+}
+
+/* 표/배지/랭킹 */
+.archive-status em,
+.status-badge,
+.rank-pill,
+.small-rank {
+  background: #FAF7EC !important;
+  color: #A7653A !important;
+  border: 1px solid #EFE7CF !important;
+}
+
+/* 모바일에서도 색 위계 유지 */
+@media (max-width: 780px) {
+  .page-area {
+    background: #FFFFFF !important;
+  }
+
+  .category-shell,
+  .sheet-nav,
+  .hero-card,
+  .off-dashboard-card,
+  .off-streak-card,
+  .off-detail-card {
+    box-shadow: 0 10px 22px rgba(21, 27, 45, 0.04) !important;
+  }
+}
