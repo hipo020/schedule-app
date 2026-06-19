@@ -2638,11 +2638,15 @@ function renderDailyTimeline(day) {
     return `
       <div class="mobile-vertical-lane ${item.isUncertain ? 'uncertain' : ''} ${myClass} ${toneClass}" style="width:${mobileLaneWidth}px;height:${mobileTotalHeight}px">
         <span class="mobile-vertical-bar ${item.isUncertain ? 'uncertain' : ''} ${toneClass}" style="top:${top}px;height:${height}px" title="${escapeHtml(item.name)} ${escapeHtml(item.code)} · ${item.startLabel}~${item.endLabel}">
-          <em class="mobile-vertical-label ${toneClass}"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.code)}</small></em>
+          <em class="mobile-vertical-label ${toneClass}">
+            <strong>${escapeHtml(item.name)}</strong>
+            <span class="mobile-vertical-start">${escapeHtml(item.startLabel)} 출근</span>
+            <small>${escapeHtml(item.code)}</small>
+          </em>
         </span>
       </div>`;
   }).join('');
-  const mobilePeakLine = peakPoint.count ? `<div class="mobile-peak-line" style="top:${peakTop + 40}px"><span>피크</span></div>` : '';
+  const mobilePeakLine = peakPoint.count ? `<div class="mobile-peak-line" style="top:${peakTop + 40}px"><span>${minutesToTimelineLabel(peakPoint.minute)} 피크</span></div>` : '';
   const mobileRows = workItems.length ? `
     <div class="mobile-vertical-timeline" style="--mobile-timeline-height:${mobileTotalHeight}px">
       <div class="mobile-vertical-time-scale" style="height:${mobileTotalHeight}px"><b>시</b>${mobileTimeTicks}</div>

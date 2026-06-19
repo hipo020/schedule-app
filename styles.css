@@ -10910,3 +10910,281 @@ body {
     font-size: 11px;
   }
 }
+
+/* v2.24 모바일 상단 아이콘 + 일간 요약/타임라인 가독성 개선 */
+@media (max-width: 720px) {
+  /* 상위 카테고리 탭에 모바일에서도 아이콘 유지 */
+  .category-tabs {
+    gap: 8px !important;
+  }
+
+  .category-tab {
+    min-height: 62px !important;
+    padding: 8px 6px 10px !important;
+    gap: 4px !important;
+  }
+
+  .category-icon,
+  .category-tab .category-icon,
+  .category-tab.active .category-icon {
+    display: grid !important;
+    place-items: center;
+    width: 24px !important;
+    height: 24px !important;
+    flex: 0 0 24px !important;
+    margin: 0 auto !important;
+    border-radius: 999px !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    box-shadow: 0 4px 10px rgba(11, 11, 20, 0.08) !important;
+  }
+
+  .category-tab.active .category-icon {
+    background: #eef7fb !important;
+  }
+
+  .category-tab strong {
+    font-size: 10px !important;
+    line-height: 1.05 !important;
+  }
+
+  /* 일간 상단 요약: 오늘 요약을 조금 더 넓게 */
+  .daily-summary-grid.daily-summary-grid-compact {
+    display: grid !important;
+    grid-template-columns: minmax(112px, 0.84fr) minmax(0, 1.16fr) !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+  }
+
+  .daily-my-schedule-card,
+  .daily-insight-card {
+    min-width: 0;
+    padding: 14px 12px !important;
+    border-radius: 18px !important;
+  }
+
+  .daily-my-schedule-card h4,
+  .daily-insight-card h4 {
+    font-size: 14px !important;
+    margin: 0 0 8px !important;
+  }
+
+  .daily-my-schedule-card .list-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 5px 8px !important;
+    align-items: center !important;
+    padding: 10px 10px 9px !important;
+    border-radius: 14px !important;
+    margin-bottom: 8px !important;
+    background: rgba(255, 255, 255, 0.72) !important;
+  }
+
+  .daily-my-schedule-card .list-row strong {
+    grid-column: 1 / 2;
+    font-size: 14px !important;
+    line-height: 1.1 !important;
+  }
+
+  .daily-my-schedule-card .list-row span:not(.badge) {
+    grid-column: 1 / 2;
+    font-size: 11px !important;
+    color: #6f7b88 !important;
+    line-height: 1.25 !important;
+  }
+
+  .daily-my-schedule-card .list-row .badge {
+    grid-column: 2 / 3;
+    grid-row: 1 / span 2;
+    align-self: center;
+    min-width: 44px;
+    justify-self: end;
+  }
+
+  .daily-my-schedule-card p {
+    margin: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    color: #7a8693 !important;
+  }
+
+  .daily-insight-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .daily-insight-head span {
+    flex: 0 0 auto;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    color: #506070;
+    font-size: 10px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .daily-insight-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .daily-insight-row {
+    padding: 9px 10px !important;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .daily-insight-row.highlight {
+    background: #dff0f7 !important;
+  }
+
+  .daily-insight-row span {
+    display: block;
+    font-size: 10px !important;
+    color: #7b8795 !important;
+    margin-bottom: 2px;
+  }
+
+  .daily-insight-row strong {
+    display: block;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.02em;
+  }
+
+  .daily-insight-row small {
+    display: block;
+    margin-top: 2px;
+    font-size: 10px !important;
+    line-height: 1.28 !important;
+    color: #8693a1 !important;
+  }
+
+  /* 모바일 타임라인: 출근 시간 인지가 더 잘 되도록 라벨 강화 */
+  .timeline-card-head {
+    margin-bottom: 12px !important;
+  }
+
+  .timeline-card-head > span {
+    padding: 7px 10px !important;
+    font-size: 11px !important;
+  }
+
+  .mobile-vertical-timeline {
+    grid-template-columns: 12px minmax(0, 1fr) !important;
+    gap: 5px !important;
+  }
+
+  .mobile-vertical-time-scale {
+    font-size: 8px !important;
+    color: #758291 !important;
+  }
+
+  .mobile-vertical-time-scale span {
+    right: 1px !important;
+  }
+
+  .mobile-vertical-scroll {
+    padding-right: 10px !important;
+    padding-bottom: 56px !important;
+  }
+
+  .mobile-vertical-lanes {
+    padding-left: 0 !important;
+    padding-right: 10px !important;
+    gap: 6px !important;
+  }
+
+  .mobile-vertical-lane {
+    width: 56px !important;
+    min-width: 56px !important;
+    flex: 0 0 56px !important;
+  }
+
+  .mobile-vertical-lane::before {
+    opacity: 0.42 !important;
+  }
+
+  .mobile-vertical-bar {
+    width: 8px !important;
+    min-width: 8px !important;
+    box-shadow: 0 6px 12px rgba(39, 86, 87, 0.08) !important;
+  }
+
+  .mobile-vertical-label {
+    top: -1px !important;
+    left: 50% !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    padding: 4px 5px 5px !important;
+    border-radius: 11px 11px 11px 4px !important;
+    transform: translate(-50%, -2px) rotate(-1deg) !important;
+    gap: 2px !important;
+  }
+
+  .mobile-vertical-bar .mobile-vertical-label strong {
+    font-size: 8px !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.05em !important;
+  }
+
+  .mobile-vertical-start {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 2px 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    color: #32586b;
+    font-size: 6.5px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .mobile-vertical-bar .mobile-vertical-label small {
+    margin-top: 0 !important;
+    font-size: 6px !important;
+    line-height: 1 !important;
+    color: rgba(45, 38, 23, 0.78) !important;
+  }
+
+  .mobile-peak-line span {
+    padding: 3px 7px !important;
+    border-radius: 999px !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    background: #fff6ec !important;
+    color: #eb7f2f !important;
+  }
+
+  .mobile-timeline-legend {
+    margin-top: 8px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .daily-summary-grid.daily-summary-grid-compact {
+    grid-template-columns: minmax(104px, 0.82fr) minmax(0, 1.18fr) !important;
+    gap: 8px !important;
+  }
+
+  .mobile-vertical-lane {
+    width: 52px !important;
+    min-width: 52px !important;
+    flex-basis: 52px !important;
+  }
+
+  .mobile-vertical-label {
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+  }
+}
