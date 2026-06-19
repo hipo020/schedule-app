@@ -3016,6 +3016,11 @@ function renderOffDays() {
     return acc;
   }, {});
 
+  const detailGroups = [
+    { key: '휴무', type: 'off', items: grouped['휴무'] || [] },
+    { key: '연차', type: 'leave', items: grouped['연차'] || [] },
+  ].filter((group) => group.items.length);
+
   return `
     <div class="view-title offday-title">
       <div>
@@ -3042,6 +3047,21 @@ function renderOffDays() {
         <button class="ghost-btn slim-action" data-pick-day="${focusDay}" type="button">일간 보기로 이동</button>
       </section>
     </div>
+
+    <section class="off-dashboard-card off-streak-card">
+      <div class="off-card-head"><span>STREAK</span><h4>연속으로 쉬는 구간</h4></div>
+      ${usefulStreaks.length ? `
+        <div class="off-streak-grid">
+          ${usefulStreaks.map((streak) => `
+            <button class="off-streak-item" data-pick-day="${streak.start.day}" type="button">
+              <strong>${streak.start.dateText} ~ ${streak.end.dateText}</strong>
+              <span>${streak.items.length}일 연속</span>
+              <small>${streak.items.map((item) => item.code).join(' / ')}</small>
+            </button>
+          `).join('')}
+        </div>
+      ` : `<p class="offday-empty-note">2일 이상 이어지는 휴무/연차 구간은 없어요.</p>`}
+    </section>
 
     <div class="off-dashboard-grid secondary">
       <section class="off-dashboard-card week-off-card">
@@ -3071,27 +3091,23 @@ function renderOffDays() {
       </section>
     </div>
 
-    <section class="offday-planner-card compact-planner-card">
-      <h4>연속으로 쉬는 구간</h4>
-      ${usefulStreaks.length ? `
-        <div class="offday-streak-list">
-          ${usefulStreaks.map((streak) => `
-            <button class="offday-streak" data-pick-day="${streak.start.day}" type="button">
-              <strong>${streak.start.dateText} ~ ${streak.end.dateText}</strong>
-              <span>${streak.items.length}일 연속 · ${streak.items.map((item) => item.code).join(' / ')}</span>
-            </button>
-          `).join('')}
-        </div>
-      ` : `<p class="offday-empty-note">2일 이상 이어지는 휴무/연차 구간은 없어요.</p>`}
-    </section>
-
-    <div class="offday-grid improved-offday-grid compact-offday-grid">
-      ${Object.entries(grouped).map(([group, items]) => `
-        <section class="offday-group">
-          <h4>${group} <span>${items.length}일</span></h4>
-          <div class="offday-chip-list">${items.map((row) => `<button class="offday-chip ${badgeClass(row.type)}" data-pick-day="${row.day}" type="button"><strong>${row.dateText}</strong><small>${getSameOffPeopleText(row.day) || '같이 쉬는 사람 없음'}</small><span>${row.code}</span></button>`).join('')}</div>
+    <div class="off-dashboard-grid secondary off-detail-grid">
+      ${detailGroups.length ? detailGroups.map((group) => `
+        <section class="off-dashboard-card off-detail-card ${group.type}">
+          <div class="off-card-head"><span>${group.type === 'leave' ? 'LEAVE' : 'OFF'}</span><h4>${group.key}</h4></div>
+          <div class="off-detail-list">
+            ${group.items.map((row) => `
+              <button class="off-detail-item ${badgeClass(row.type)}" data-pick-day="${row.day}" type="button">
+                <div class="off-detail-main">
+                  <strong>${row.dateText}</strong>
+                  <small>${getSameOffPeopleText(row.day) || '같이 쉬는 사람 없음'}</small>
+                </div>
+                <span class="off-detail-code">${row.code}</span>
+              </button>
+            `).join('')}
+          </div>
         </section>
-      `).join('') || '<section class="offday-group"><h4>내 휴무 없음</h4><p class="offday-empty-note">이번 달 내 휴무/연차가 아직 없어요.</p></section>'}
+      `).join('') : '<section class="off-dashboard-card off-detail-card"><div class="off-card-head"><span>OFF</span><h4>내 휴무 없음</h4></div><p class="offday-empty-note">이번 달 내 휴무/연차가 아직 없어요.</p></section>'}
     </div>
   `;
 }
