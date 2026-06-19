@@ -2365,11 +2365,29 @@ function renderSummary() {
   const workCount = rows.filter((row) => row.type === 'work').length;
   const offCount = rows.filter((row) => row.type === 'off').length;
   const leaveCount = rows.filter((row) => row.type === 'leave').length;
+  const selectedLabel = `${state.month}/${selectedDay}(${dayNames[getDateObj(selectedDay).getDay()]})`;
+  const isToday = (() => {
+    const now = new Date();
+    return now.getFullYear() === state.year && now.getMonth() + 1 === state.month && now.getDate() === selectedDay;
+  })();
+  let scheduleHeadline = '일정 없음';
+  if (todayInfo.type === 'work') {
+    scheduleHeadline = todayInfo.start ? `${todayInfo.start} 출근` : `${todayCode || '근무'} 근무`;
+  } else if (todayInfo.type === 'off') {
+    scheduleHeadline = isToday ? '오늘은 휴무' : `${selectedLabel} 휴무`;
+  } else if (todayInfo.type === 'leave') {
+    scheduleHeadline = isToday ? '오늘은 연차' : `${selectedLabel} 연차`;
+  } else if (todayCode) {
+    scheduleHeadline = todayInfo.label || todayCode;
+  }
+  const scheduleSubText = todayCode
+    ? `${todayCode} · ${formatTime(todayInfo) || todayInfo.label || '시간 정보 없음'}`
+    : '스케줄 데이터가 없어요.';
 
   const stats = getMonthlyWorkStats(person);
   const memoText = getCurrentMemoText();
   el('summaryCards').innerHTML = `
-    <div class="summary-card"><p>선택일 내 일정</p><strong>${todayCode || '-'}</strong><span>${formatTime(todayInfo) || todayInfo.label}</span></div>
+    <div class="summary-card main-schedule-card"><p>선택일 내 일정</p><strong>${escapeHtml(scheduleHeadline)}</strong><span>${escapeHtml(scheduleSubText)}</span></div>
     <div class="summary-card"><p>다음 휴무</p><strong>${nextOff ? nextOff.dateText : '-'}</strong><span>${nextOff ? `${nextOff.code} ${nextOff.label}` : '이번 달 남은 휴무가 없어요.'}</span></div>
     <div class="summary-card"><p>이번 달 요약</p><strong>${workCount}일 근무</strong><span>휴무 ${offCount}일 · 연차 ${leaveCount}일</span></div>
     <div class="summary-card"><p>근무 통계</p><strong>${stats.mostCode || '-'}</strong><span>${stats.summaryText}</span></div>
@@ -2572,10 +2590,11 @@ function renderDailyTimeline(day) {
   const totalWidth = Math.max((window.end - window.start) / 60 * hourWidth, 720);
   const hourCells = window.hours.map((minute) => `<span style="width:${hourWidth}px">${minutesToTimelineLabel(minute)}</span>`).join('');
   const desktopRows = workItems.map((item) => {
+    const myClass = state.myName && item.name === state.myName ? 'is-my-row' : '';
     const left = ((item.start - window.start) / (window.end - window.start)) * totalWidth;
     const width = Math.max(((item.end - item.start) / (window.end - window.start)) * totalWidth, 56);
     return `
-      <div class="timeline-row ${item.isUncertain ? 'uncertain' : ''}">
+      <div class="timeline-row ${item.isUncertain ? 'uncertain' : ''} ${myClass}">
         <div class="timeline-person"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.code)}</small></div>
         <div class="timeline-track" style="width:${totalWidth}px">
           <span class="timeline-bar ${item.isUncertain ? 'uncertain' : ''}" style="left:${left}px;width:${width}px">
@@ -2596,10 +2615,11 @@ function renderDailyTimeline(day) {
   const mobileLanePitch = 42;
   const mobileLanesWidth = Math.max(workItems.length * mobileLanePitch, mobileLanePitch);
   const mobileLanes = workItems.map((item) => {
+    const myClass = state.myName && item.name === state.myName ? 'is-my-row' : '';
     const top = ((item.start - window.start) / (window.end - window.start)) * mobileTotalHeight;
     const height = Math.max(((item.end - item.start) / (window.end - window.start)) * mobileTotalHeight, 84);
     return `
-      <div class="mobile-vertical-lane ${item.isUncertain ? 'uncertain' : ''}" style="width:${mobileLaneWidth}px;height:${mobileTotalHeight}px">
+      <div class="mobile-vertical-lane ${item.isUncertain ? 'uncertain' : ''} ${myClass}" style="width:${mobileLaneWidth}px;height:${mobileTotalHeight}px">
         <span class="mobile-vertical-bar ${item.isUncertain ? 'uncertain' : ''}" style="top:${top}px;height:${height}px" title="${escapeHtml(item.name)} ${escapeHtml(item.code)} · ${item.startLabel}~${item.endLabel}">
           <em class="mobile-vertical-label"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.code)}</small></em>
         </span>
@@ -2622,7 +2642,7 @@ function renderDailyTimeline(day) {
       <div class="timeline-card-head">
         <div>
           <h4>근무 타임라인</h4>
-          <p>오늘 근무 시간을 타임라인으로 확인해요.</p>
+          <p>오늘 근무 시간을 한눈에 확인해요.</p>
         </div>
         <span>근무 ${workItems.length}명 · 피크 ${getPeakCoverage(workItems)}</span>
       </div>
@@ -2797,7 +2817,7 @@ function renderDaily() {
     <div class="view-title with-actions">
       <div>
         <h3>${state.month}/${day}(${dayNames[getDateObj(day).getDay()]}) 일간 보기</h3>
-        <p>하루 기준으로 누가 언제부터 언제까지 근무하는지 확인합니다.</p>
+        <p>오늘 근무 흐름을 확인해요.</p>
       </div>
       <div class="daily-title-actions">${renderPersonPicker()}${renderDailyViewToggle()}</div>
     </div>
@@ -2862,7 +2882,7 @@ function renderWeekly() {
       <div class="mini-stat week-summary-block off"><span>휴무/연차</span><strong>${offCount}일</strong></div>
       <div class="mini-stat week-summary-block neutral"><span>가장 이른 출근</span><strong>${earliest}</strong></div>
     </div>
-    <div class="week-grid improved-week-grid simplified-week-grid">
+    <div class="week-grid improved-week-grid boxed-week-grid">
       ${rows.map(({ day, date, inMonth, code, info }) => {
         const dayLabel = `${date.getMonth() + 1}/${day}`;
         const selectedClass = inMonth && day === baseDay ? 'selected-week-day' : '';
@@ -2872,9 +2892,7 @@ function renderWeekly() {
           <button class="week-day-card ${badgeClass(info.type)} ${selectedClass} ${inMonth ? '' : 'other-month'}" ${dataAttr} ${disabled}>
             <span class="week-day-name">${dayNames[date.getDay()]}</span>
             <strong>${dayLabel}</strong>
-            <div class="week-code-line">
-              <span class="week-code-text ${badgeClass(info.type)}">${inMonth ? (code || '미입력') : '-'}</span>
-            </div>
+            <em class="badge week-code-pill ${badgeClass(info.type)}">${inMonth ? (code || '-') : '-'}</em>
             <small class="week-time-text">${inMonth ? (formatTime(info) || info.label) : '이번 달 외'}</small>
           </button>
         `;
@@ -2897,7 +2915,7 @@ function renderMonthly() {
     <div class="view-title month-title">
       <div>
         <h3>${state.year}년 ${state.month}월 월간</h3>
-        <p>날짜를 누르면 해당 날짜의 일간 타임라인으로 이동합니다.</p>
+        <p>날짜를 누르면 일간 보기로 이동해요.</p>
       </div>
       <div class="view-title-side">${renderPersonPicker()}<span>근무 ${workCount}일 · 휴무 ${offCount - leaveCount}일 · 연차 ${leaveCount}일</span></div>
     </div>
@@ -2908,7 +2926,7 @@ function renderMonthly() {
       <span><i class="legend-dot empty"></i>미입력</span>
     </div>
     <div class="monthly-calendar-wrap">
-      <div class="calendar refined-calendar improved-month-calendar simplified-month-calendar">`;
+      <div class="calendar refined-calendar improved-month-calendar boxed-month-calendar">`;
   dayNames.forEach((name, index) => html += `<div class="calendar-head ${index === 0 ? 'sun' : index === 6 ? 'sat' : ''}">${name}</div>`);
   for (let i = 0; i < first; i++) html += `<div class="day-cell empty"></div>`;
   for (let day = 1; day <= days; day++) {
@@ -2920,12 +2938,9 @@ function renderMonthly() {
     const weekendClass = dow === 0 ? 'sun' : dow === 6 ? 'sat' : '';
     html += `
       <button class="day-cell ${typeClass} ${todayClass} ${weekendClass}" data-month-detail-day="${day}">
-        <div class="day-top-line">
-          <span class="day-number">${day}</span>
-          ${day === selectedDay ? '<span class="selected-date-dot" aria-hidden="true"></span>' : ''}
-        </div>
-        <span class="month-day-main simplified">
-          <strong class="month-code-text ${typeClass}">${code || '미입력'}</strong>
+        <span class="day-number">${day}</span>
+        <span class="month-day-main boxed">
+          <span class="badge day-code ${typeClass}">${code || '-'}</span>
           <small class="month-time-text">${formatTime(info) || info.label}</small>
         </span>
       </button>`;

@@ -9279,3 +9279,432 @@ body {
 .simplified-month-calendar .day-cell {
   position: relative !important;
 }
+
+/* ===== Final polish: home wording, my-row highlight, mobile density ===== */
+.summary-cards .summary-card.main-schedule-card strong {
+  font-size: clamp(24px, 2.05vw, 34px) !important;
+  line-height: 1.18 !important;
+  letter-spacing: -0.05em !important;
+}
+
+.summary-cards .summary-card.main-schedule-card span {
+  margin-top: 8px !important;
+  display: block !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #46667A !important;
+}
+
+.timeline-row.is-my-row {
+  position: relative !important;
+  padding: 4px 0 !important;
+}
+
+.timeline-row.is-my-row::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--view-selected-border, #8FBFD8);
+}
+
+.timeline-row.is-my-row .timeline-person {
+  background: #E6F4FA !important;
+  border-color: #B9DCEB !important;
+  box-shadow: 0 8px 18px rgba(143, 191, 216, 0.18) !important;
+}
+
+.timeline-row.is-my-row .timeline-person strong::after {
+  content: '  나';
+  display: inline-flex;
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #FFFFFF;
+  color: #2F6E88;
+  font-size: 10px;
+  font-weight: 900;
+  vertical-align: middle;
+}
+
+.timeline-row.is-my-row .timeline-track {
+  background: #F3FAFD !important;
+  border-color: #CFEAF6 !important;
+}
+
+.timeline-row.is-my-row .timeline-bar {
+  background: #BFDDEA !important;
+  border-color: #8FBFD8 !important;
+  box-shadow: 0 10px 20px rgba(143, 191, 216, 0.24) !important;
+}
+
+.mobile-vertical-lane.is-my-row .mobile-vertical-bar {
+  background: #9FCFE2 !important;
+  border-color: #78B6D1 !important;
+  box-shadow: 0 6px 14px rgba(143, 191, 216, 0.25) !important;
+}
+
+.mobile-vertical-lane.is-my-row .mobile-vertical-label {
+  background: #E6F4FA !important;
+  border-color: #B9DCEB !important;
+  color: var(--view-text) !important;
+}
+
+.week-code-text.work,
+.month-code-text.work,
+.timeline-bar strong {
+  color: #225F7A !important;
+}
+
+.week-code-text.off,
+.month-code-text.off,
+.person-pill.off small,
+.badge.off {
+  color: #B94A4A !important;
+}
+
+.week-code-text.leave,
+.month-code-text.leave,
+.badge.leave {
+  color: #8A6A2A !important;
+}
+
+.week-time-text,
+.month-time-text,
+.summary-cards .summary-card span,
+.daily-summary-grid .info-card p,
+.workflow-step span {
+  color: #667085 !important;
+}
+
+@media (max-width: 780px) {
+  .summary-cards {
+    gap: 12px !important;
+  }
+
+  .summary-cards .summary-card,
+  .daily-summary-grid .info-card,
+  .workflow-guide-card,
+  .daily-timeline-card {
+    padding: 16px !important;
+    border-radius: 22px !important;
+  }
+
+  .summary-cards .summary-card.main-schedule-card strong {
+    font-size: 22px !important;
+  }
+
+  .workflow-guide-head p,
+  .view-title p,
+  .timeline-card-head p,
+  .month-title p,
+  .week-title p {
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+  }
+
+  .workflow-step-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .workflow-step-grid .workflow-step,
+  .workflow-step {
+    min-height: 78px !important;
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .workflow-step strong {
+    font-size: 12px !important;
+    margin-bottom: 5px !important;
+  }
+
+  .workflow-step span {
+    font-size: 11px !important;
+  }
+
+  .week-day-card,
+  .improved-week-grid .week-day-card {
+    min-height: 132px !important;
+    padding: 13px !important;
+  }
+
+  .week-day-card strong {
+    font-size: 17px !important;
+  }
+
+  .week-code-text {
+    font-size: 13px !important;
+  }
+
+  .week-time-text {
+    font-size: 11px !important;
+  }
+
+  .simplified-month-calendar .day-cell,
+  .simplified-month-calendar .day-cell.empty {
+    min-height: 96px !important;
+    padding: 10px !important;
+  }
+
+  .simplified-month-calendar .day-number {
+    font-size: 14px !important;
+  }
+
+  .month-code-text {
+    font-size: 12px !important;
+  }
+
+  .month-time-text,
+  .simplified-month-calendar .day-cell small {
+    font-size: 10px !important;
+  }
+
+  .timeline-row.is-my-row::before {
+    display: none !important;
+  }
+}
+
+/* ===== Weekly / Monthly boxed code design restore =====
+   주간·월간은 박스 안 박스 구조가 더 잘 읽혀서, 구조는 복구하고 색만 더 정돈합니다. */
+.boxed-week-grid .week-day-card,
+.improved-week-grid.boxed-week-grid .week-day-card {
+  min-height: 172px !important;
+  padding: 16px !important;
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  text-align: center !important;
+  gap: 8px !important;
+}
+
+.boxed-week-grid .week-day-card .week-day-name {
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  color: #617186 !important;
+}
+
+.boxed-week-grid .week-day-card strong {
+  margin: 0 0 8px !important;
+  font-size: 21px !important;
+  line-height: 1.1 !important;
+  color: #172033 !important;
+}
+
+.boxed-week-grid .week-code-pill,
+.boxed-week-grid .week-day-card .badge,
+.boxed-week-grid .week-day-card em {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-height: 34px !important;
+  margin: 2px 0 6px !important;
+  padding: 8px 10px !important;
+  border-radius: 999px !important;
+  font-style: normal !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+}
+
+.boxed-week-grid .week-code-pill.work,
+.boxed-week-grid .week-day-card.work .week-code-pill,
+.boxed-week-grid .week-day-card.work .badge {
+  background: #F7FCFE !important;
+  border: 1px solid #BFDDEB !important;
+  color: #2F6E88 !important;
+}
+
+.boxed-week-grid .week-code-pill.off,
+.boxed-week-grid .week-day-card.off .week-code-pill,
+.boxed-week-grid .week-day-card.off .badge {
+  background: #FFF8F8 !important;
+  border: 1px solid #F1C9C9 !important;
+  color: #B94A4A !important;
+}
+
+.boxed-week-grid .week-code-pill.leave,
+.boxed-week-grid .week-day-card.leave .week-code-pill,
+.boxed-week-grid .week-day-card.leave .badge {
+  background: #FFFDF4 !important;
+  border: 1px solid #EBDDB8 !important;
+  color: #8A6A2A !important;
+}
+
+.boxed-week-grid .week-code-pill.empty,
+.boxed-week-grid .week-code-pill.unknown,
+.boxed-week-grid .week-code-pill.uncertain,
+.boxed-week-grid .week-day-card.empty .week-code-pill,
+.boxed-week-grid .week-day-card.unknown .week-code-pill,
+.boxed-week-grid .week-day-card.uncertain .week-code-pill {
+  background: #FFFFFF !important;
+  border: 1px solid #E6EAF0 !important;
+  color: #667085 !important;
+}
+
+.boxed-week-grid .week-time-text,
+.boxed-week-grid .week-day-card small {
+  margin-top: auto !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+  color: #667085 !important;
+  text-align: center !important;
+}
+
+.boxed-week-grid .week-day-card.work {
+  background: #E5F4FA !important;
+  border-color: #CBE5F0 !important;
+}
+
+.boxed-week-grid .week-day-card.off {
+  background: #FDF1F1 !important;
+  border-color: #F4D2D2 !important;
+}
+
+.boxed-week-grid .week-day-card.leave {
+  background: #F8F1DE !important;
+  border-color: #EDE0BF !important;
+}
+
+.boxed-week-grid .week-day-card.selected-week-day {
+  border: 1.5px solid #8FBFD8 !important;
+  box-shadow: 0 12px 28px rgba(143, 191, 216, 0.22) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 월간: 내부 코드 pill 복구, 색은 더 맑고 역할이 분명하게 */
+.improved-month-calendar.boxed-month-calendar {
+  padding: 14px !important;
+  gap: 12px !important;
+}
+
+.boxed-month-calendar .day-cell {
+  min-height: 126px !important;
+  padding: 12px 12px 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  text-align: left !important;
+  position: relative !important;
+}
+
+.boxed-month-calendar .day-cell.empty {
+  min-height: 126px !important;
+  border-style: dashed !important;
+  background: #FFFFFF !important;
+}
+
+.boxed-month-calendar .day-number {
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  color: #5C6B7F !important;
+}
+
+.boxed-month-calendar .month-day-main.boxed,
+.boxed-month-calendar .month-day-main {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+  width: 100% !important;
+  gap: 6px !important;
+  margin-top: auto !important;
+}
+
+.boxed-month-calendar .day-code,
+.boxed-month-calendar .badge.day-code,
+.boxed-month-calendar .day-cell .day-code {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-height: 30px !important;
+  padding: 7px 8px !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+}
+
+.boxed-month-calendar .day-cell.work {
+  background: #E5F4FA !important;
+  border-color: #CBE5F0 !important;
+}
+
+.boxed-month-calendar .day-cell.off {
+  background: #FDF1F1 !important;
+  border-color: #F4D2D2 !important;
+}
+
+.boxed-month-calendar .day-cell.leave {
+  background: #F8F1DE !important;
+  border-color: #EDE0BF !important;
+}
+
+.boxed-month-calendar .day-cell.work .day-code,
+.boxed-month-calendar .day-cell.work .badge.day-code {
+  background: #F7FCFE !important;
+  border: 1px solid #BFDDEB !important;
+  color: #2F6E88 !important;
+}
+
+.boxed-month-calendar .day-cell.off .day-code,
+.boxed-month-calendar .day-cell.off .badge.day-code {
+  background: #FFF8F8 !important;
+  border: 1px solid #F1C9C9 !important;
+  color: #B94A4A !important;
+}
+
+.boxed-month-calendar .day-cell.leave .day-code,
+.boxed-month-calendar .day-cell.leave .badge.day-code {
+  background: #FFFDF4 !important;
+  border: 1px solid #EBDDB8 !important;
+  color: #8A6A2A !important;
+}
+
+.boxed-month-calendar .day-cell.empty .day-code,
+.boxed-month-calendar .day-cell.unknown .day-code,
+.boxed-month-calendar .day-cell.uncertain .day-code {
+  background: #FFFFFF !important;
+  border: 1px solid #E6EAF0 !important;
+  color: #667085 !important;
+}
+
+.boxed-month-calendar .month-time-text,
+.boxed-month-calendar .day-cell small {
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  color: #667085 !important;
+  text-align: center !important;
+}
+
+.boxed-month-calendar .day-cell.today {
+  border: 1.5px solid #8FBFD8 !important;
+  box-shadow: 0 12px 26px rgba(143, 191, 216, 0.18) !important;
+  transform: translateY(-1px) !important;
+}
+
+.boxed-month-calendar .day-cell.today .day-number {
+  color: #172033 !important;
+}
+
+@media (max-width: 900px) {
+  .boxed-week-grid .week-day-card,
+  .improved-week-grid.boxed-week-grid .week-day-card {
+    min-height: 156px !important;
+  }
+
+  .boxed-month-calendar .day-cell,
+  .boxed-month-calendar .day-cell.empty {
+    min-height: 112px !important;
+  }
+}
