@@ -68,6 +68,7 @@ const PAGE_CATEGORY = {
   extract: 'manage',
   archive: 'export',
   share: 'export',
+  help: 'export',
   dayRoster: 'view',
 };
 const CATEGORY_DEFAULT_PAGE = {
@@ -2374,6 +2375,49 @@ function renderSummary() {
     <div class="summary-card"><p>근무 통계</p><strong>${stats.mostCode || '-'}</strong><span>${stats.summaryText}</span></div>
     <div class="summary-card memo-summary-card"><p>메모</p><strong>${memoText ? '메모 있음' : '메모 없음'}</strong><span>${escapeHtml(memoText ? compactText(memoText, 42) : 'OCR 보조에서 메모를 입력/추출해 주세요.')}</span></div>
   `;
+  const guide = el('workflowGuide');
+  if (guide) guide.innerHTML = renderWorkflowGuide();
+}
+
+function getWorkflowStepStatus() {
+  const issueCount = validatePeopleData(state.people || [], state.year, state.month).length;
+  const review = getReviewMeta();
+  return {
+    hasImage: Boolean(state.imageData),
+    hasPeople: Boolean((state.people || []).filter((person) => person.name).length),
+    issueCount,
+    reviewStatus: review.status || 'pending',
+    isSaved: !hasUnsavedCloudChanges,
+  };
+}
+
+function renderWorkflowGuide() {
+  const status = getWorkflowStepStatus();
+  const steps = [
+    { title: '1. 이미지 업로드', page: 'setup', desc: status.hasImage ? '원본 이미지가 저장되어 있어요.' : '기준 월을 맞추고 근무표 이미지를 올려 주세요.', state: status.hasImage ? 'done' : 'todo' },
+    { title: '2. 데이터 입력', page: 'dataInput', desc: status.hasPeople ? `${(state.people || []).filter((p) => p.name).length}명의 데이터가 있어요.` : 'AI가 추출한 CSV를 붙여넣어 주세요.', state: status.hasPeople ? 'done' : 'todo' },
+    { title: '3. 데이터 확인', page: 'editor', desc: status.issueCount ? `확인할 항목 ${status.issueCount}개가 있어요.` : '검수할 항목이 없거나 아직 데이터가 없어요.', state: status.reviewStatus === 'done' ? 'done' : (status.issueCount ? 'warn' : 'todo') },
+    { title: '4. 저장·공유', page: 'share', desc: status.isSaved ? '현재 변경사항은 저장된 상태예요.' : '저장 버튼을 눌러 클라우드에 반영해 주세요.', state: status.isSaved ? 'done' : 'warn' },
+  ];
+  return `
+    <section class="workflow-guide-card" aria-label="사용 흐름 안내">
+      <div class="workflow-guide-head">
+        <div>
+          <p>QUICK FLOW</p>
+          <h3>데이터 입력부터 저장까지</h3>
+        </div>
+        <button class="ghost-btn workflow-help-btn" data-help-page="help" type="button">사용법 보기</button>
+      </div>
+      <div class="workflow-step-grid">
+        ${steps.map((step) => `
+          <button class="workflow-step ${step.state}" data-help-page="${step.page}" type="button">
+            <strong>${escapeHtml(step.title)}</strong>
+            <span>${escapeHtml(step.desc)}</span>
+          </button>
+        `).join('')}
+      </div>
+    </section>
+  `;
 }
 
 function renderViews() {
@@ -2386,6 +2430,7 @@ function renderViews() {
     share: renderShare,
     archive: renderArchive,
     settings: renderSettings,
+    help: renderHelp,
     dataInput: renderDataInput,
   };
   Object.entries(map).forEach(([page, renderer]) => {
@@ -3193,6 +3238,73 @@ function renderSettings() {
   `;
 }
 
+function renderHelp() {
+  const status = getWorkflowStepStatus();
+  const hasIssueText = status.issueCount ? `확인 항목 ${status.issueCount}개` : '확인 항목 없음';
+  const reviewLabel = status.reviewStatus === 'done' ? '검수 완료' : status.reviewStatus === 'needs-review' ? '재검수 필요' : '검수 전';
+  return `
+    <div class="view-title help-title">
+      <div>
+        <p>HELP</p>
+        <h3>사용법 · 정리 가이드</h3>
+        <p>평소에는 아래 4단계만 따라가면 돼요. 고급 기능은 문제가 생겼을 때만 확인하면 됩니다.</p>
+      </div>
+      <div class="help-status-mini">
+        <span>${status.hasImage ? '이미지 있음' : '이미지 없음'}</span>
+        <span>${status.hasPeople ? `데이터 ${(state.people || []).filter((p) => p.name).length}명` : '데이터 없음'}</span>
+        <span>${escapeHtml(reviewLabel)}</span>
+        <span>${escapeHtml(hasIssueText)}</span>
+      </div>
+    </div>
+
+    <section class="help-flow-panel">
+      <article>
+        <b>1</b>
+        <h4>시작하기</h4>
+        <p>기준 연도/월, 내 이름을 정하고 원본 근무표 이미지를 업로드합니다.</p>
+        <button class="ghost-btn" data-help-page="setup" type="button">시작하기로 이동</button>
+      </article>
+      <article>
+        <b>2</b>
+        <h4>데이터 입력</h4>
+        <p>프롬프트를 복사해 ChatGPT/Gemini에 이미지를 넣고 CSV를 받아 붙여넣습니다.</p>
+        <button class="ghost-btn" data-help-page="dataInput" type="button">데이터 입력으로 이동</button>
+      </article>
+      <article>
+        <b>3</b>
+        <h4>데이터 확인</h4>
+        <p>원본 이미지와 검수표를 비교하고, 미등록/불확실/미입력 항목을 확인합니다.</p>
+        <button class="ghost-btn" data-help-page="editor" type="button">데이터 확인으로 이동</button>
+      </article>
+      <article>
+        <b>4</b>
+        <h4>저장·공유</h4>
+        <p>검수 완료 후 저장하고, 카톡용 문구나 엑셀 파일로 내보냅니다.</p>
+        <button class="ghost-btn" data-help-page="share" type="button">공유·엑셀로 이동</button>
+      </article>
+    </section>
+
+    <section class="help-grid-panel">
+      <div class="help-card soft-blue">
+        <h4>검수할 때 자주 보는 것</h4>
+        <p><strong>미등록 코드</strong>는 코드표에 없는 값, <strong>불확실 코드</strong>는 AO?처럼 AI가 애매하게 읽은 값, <strong>확인필요</strong>는 판독 불가 값이에요.</p>
+      </div>
+      <div class="help-card soft-yellow">
+        <h4>실수했을 때</h4>
+        <p>데이터 확인 탭의 <strong>되돌리기</strong>를 누르면 최근 수정 전 상태로 돌아갈 수 있어요. 저장 전이라도 브라우저에 임시 보관됩니다.</p>
+      </div>
+      <div class="help-card soft-green">
+        <h4>월별 관리</h4>
+        <p>보관함에서 이미지 있음, 데이터 n명, 검수 완료, 저장 상태를 확인하고 필요한 월을 다시 불러올 수 있어요.</p>
+      </div>
+      <div class="help-card soft-peach">
+        <h4>문제가 생겼을 때</h4>
+        <p>코드 설정의 고급 설정은 평소에 열지 않아도 됩니다. 미등록 코드가 계속 뜰 때만 현재 코드/저장된 코드를 확인해 주세요.</p>
+      </div>
+    </section>
+  `;
+}
+
 async function moveSelectedWeek(direction) {
   const base = new Date(state.selectedDate || `${state.year}-${String(state.month).padStart(2, '0')}-01`);
   if (Number.isNaN(base.getTime())) return;
@@ -3275,6 +3387,11 @@ function bindViewEvents() {
       state.dailyView = button.dataset.dailyView || 'timeline';
       renderViews();
       saveState(false);
+    });
+  });
+  document.querySelectorAll('[data-help-page]').forEach((button) => {
+    button.addEventListener('click', () => {
+      switchPage(button.dataset.helpPage || 'home', true);
     });
   });
   el('saveDefaultNamesButton')?.addEventListener('click', () => {

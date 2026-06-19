@@ -49,15 +49,15 @@
       <div class="category-tabs" role="tablist" aria-label="상위 카테고리">
         <button class="category-tab active" data-category="view" type="button">
           <span class="category-icon">📅</span>
-          <span><strong>근무표 보기</strong><small>일간 · 주간 · 월간 · 휴무</small></span>
+          <span><strong>보기</strong><small>홈 · 일간 · 주간 · 월간</small></span>
         </button>
         <button class="category-tab" data-category="manage" type="button">
           <span class="category-icon">🗂️</span>
-          <span><strong>데이터 관리</strong><small>입력 · 확인 · 코드 · OCR</small></span>
+          <span><strong>입력 · 검수</strong><small>시작 · 입력 · 확인 · 코드</small></span>
         </button>
         <button class="category-tab" data-category="export" type="button">
           <span class="category-icon">📦</span>
-          <span><strong>보관 · 내보내기</strong><small>월별 보관 · 공유 · 엑셀</small></span>
+          <span><strong>저장 · 도움말</strong><small>보관 · 공유 · 사용법</small></span>
         </button>
       </div>
       <div class="sheet-nav" aria-label="하위 메뉴">
@@ -67,14 +67,15 @@
         <button class="sheet-tab" data-category="view" data-page="monthly">월간</button>
         <button class="sheet-tab" data-category="view" data-page="offDays">휴무일</button>
 
-        <button class="sheet-tab" data-category="manage" data-page="setup">설정·이미지</button>
+        <button class="sheet-tab" data-category="manage" data-page="setup">시작하기</button>
         <button class="sheet-tab" data-category="manage" data-page="dataInput">데이터 입력</button>
         <button class="sheet-tab" data-category="manage" data-page="editor">데이터 확인</button>
-        <button class="sheet-tab" data-category="manage" data-page="settings">코드 설정</button>
-        <button class="sheet-tab utility-tab" data-category="manage" data-page="extract">OCR 보조</button>
+        <button class="sheet-tab" data-category="manage" data-page="settings">코드</button>
+        <button class="sheet-tab utility-tab" data-category="manage" data-page="extract">OCR</button>
 
-        <button class="sheet-tab" data-category="export" data-page="archive">월별 보관함</button>
+        <button class="sheet-tab" data-category="export" data-page="archive">보관함</button>
         <button class="sheet-tab" data-category="export" data-page="share">공유·엑셀</button>
+        <button class="sheet-tab" data-category="export" data-page="help">도움말</button>
       </div>
     </nav>
 
@@ -89,6 +90,7 @@
             <button class="secondary-btn page-shortcut" data-go-page="daily">선택일 일정 보기</button>
           </div>
           <div id="summaryCards" class="summary-cards"></div>
+          <div id="workflowGuide" class="workflow-guide-wrap"></div>
         </section>
       </section>
 
@@ -353,6 +355,7 @@
       <section class="app-page" data-page="archive"><section class="panel view-panel"><div id="archiveContent" class="page-content"></div></section></section>
       <section class="app-page" data-page="share"><section class="panel view-panel"><div id="shareContent" class="page-content"></div></section></section>
       <section class="app-page" data-page="settings"><section class="panel view-panel"><div id="settingsContent" class="page-content"></div></section></section>
+      <section class="app-page" data-page="help"><section class="panel view-panel"><div id="helpContent" class="page-content"></div></section></section>
 
     </main>
 
