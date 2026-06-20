@@ -2617,65 +2617,41 @@ function renderDailyTimeline(day) {
       </div>`;
   }).join('');
 
-  const mobileHourHeight = 36;
-  const mobileTotalHeight = Math.max((window.end - window.start) / 60 * mobileHourHeight, 460);
-  const mobileLaneWidth = 56;
-  const peakPoint = getPeakCoveragePoint(workItems, window);
-  const peakTop = peakPoint.count ? ((peakPoint.minute - window.start) / (window.end - window.start)) * mobileTotalHeight : null;
-  const mobileTimeTicks = window.hours.map((minute) => {
-    const top = ((minute - window.start) / (window.end - window.start)) * mobileTotalHeight;
-    const label = minutesToTimelineLabel(minute);
-    const isPeak = peakPoint.count && Math.abs(minute - peakPoint.minute) < 31;
-    return `<span class="${isPeak ? 'is-peak-time' : ''}" style="top:${top}px">${label}</span>`;
+  const range = Math.max(window.end - window.start, 60);
+  const startGroups = new Map();
+  workItems.forEach((item) => {
+    const key = item.startLabel;
+    if (!startGroups.has(key)) startGroups.set(key, []);
+    startGroups.get(key).push(item);
+  });
+  const startChips = Array.from(startGroups.entries()).map(([time, items]) => {
+    const first = items[0];
+    const extra = items.length > 1 ? ` 외 ${items.length - 1}명` : '';
+    return `<span class="mobile-start-chip"><b>${escapeHtml(time)}</b><em>${escapeHtml(first.name)}${extra}</em></span>`;
   }).join('');
-  const mobileLanePitch = 64;
-  const mobileLanesWidth = Math.max(workItems.length * mobileLanePitch, 320);
-  const mobileLanes = workItems.map((item) => {
+
+  const mobileRows = workItems.map((item) => {
     const myClass = state.myName && item.name === state.myName ? 'is-my-row' : '';
-    const top = ((item.start - window.start) / (window.end - window.start)) * mobileTotalHeight;
-    const height = Math.max(((item.end - item.start) / (window.end - window.start)) * mobileTotalHeight, 92);
     const toneClass = getTimelineToneClass(item.code);
+    const left = Math.max(0, ((item.start - window.start) / range) * 100);
+    const width = Math.min(100 - left, Math.max(((item.end - item.start) / range) * 100, 10));
     return `
-      <div class="mobile-vertical-lane ${item.isUncertain ? 'uncertain' : ''} ${myClass} ${toneClass}" style="width:${mobileLaneWidth}px;height:${mobileTotalHeight}px">
-        <span class="mobile-vertical-bar ${item.isUncertain ? 'uncertain' : ''} ${toneClass}" style="top:${top}px;height:${height}px" title="${escapeHtml(item.name)} ${escapeHtml(item.code)} · ${item.startLabel}~${item.endLabel}">
-          <em class="mobile-vertical-label ${toneClass}">
-            <strong>${escapeHtml(item.name)}</strong>
-            <span class="mobile-vertical-start">${escapeHtml(item.startLabel)} 출근</span>
-            <small>${escapeHtml(item.code)}</small>
-          </em>
-        </span>
-      </div>`;
+      <article class="mobile-simple-row ${toneClass} ${myClass} ${item.isUncertain ? 'uncertain' : ''}">
+        <div class="mobile-simple-time"><strong>${escapeHtml(item.startLabel)}</strong><small>${escapeHtml(item.endLabel)} 퇴근</small></div>
+        <div class="mobile-simple-main">
+          <div class="mobile-simple-person"><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.code)}</span></div>
+          <div class="mobile-simple-track" aria-hidden="true">
+            <i style="left:${left}%;width:${width}%"></i>
+          </div>
+        </div>
+      </article>`;
   }).join('');
-  const mobilePeakLine = peakPoint.count ? `<div class="mobile-peak-line" style="top:${peakTop + 40}px"><span>${minutesToTimelineLabel(peakPoint.minute)} 피크</span></div>` : '';
-  const mobileStartCards = workItems.map((item) => {
-    const toneClass = getTimelineToneClass(item.code);
-    return `
-      <article class="mobile-start-card ${toneClass}">
-        <strong>${escapeHtml(item.startLabel)}</strong>
-        <span>${escapeHtml(item.name)}</span>
-        <small>${escapeHtml(item.code)} · ${escapeHtml(item.endLabel)} 퇴근</small>
-      </article>
-    `;
-  }).join('');
-  const mobileRows = workItems.length ? `
-    <div class="mobile-start-card-rail" aria-label="모바일 출근 시간 요약">${mobileStartCards}</div>
-    <div class="mobile-vertical-timeline" style="--mobile-timeline-height:${mobileTotalHeight}px">
-      <div class="mobile-vertical-time-scale" style="height:${mobileTotalHeight}px"><b>시</b>${mobileTimeTicks}</div>
-      <div class="mobile-vertical-chart">
-        <div class="mobile-timeline-groups">
-          <span class="morning">오전 출근</span>
-          <span class="afternoon">오후 출근</span>
-        </div>
-        ${mobilePeakLine}
-        <div class="mobile-vertical-scroll">
-          <div class="mobile-vertical-lanes" style="width:${mobileLanesWidth}px">${mobileLanes}</div>
-        </div>
-        <div class="mobile-timeline-legend">
-          <span class="tone-mint"><i></i>A0 / AM 계열</span>
-          <span class="tone-blue"><i></i>BM 계열</span>
-          <span class="tone-orange"><i></i>A4 / A7 계열</span>
-        </div>
-      </div>
+
+  const mobileRowsWrap = workItems.length ? `
+    <div class="mobile-simple-timeline">
+      <div class="mobile-start-chip-row">${startChips}</div>
+      <div class="mobile-simple-scale"><span>${minutesToTimelineLabel(window.start)}</span><span>${minutesToTimelineLabel(window.end)}</span></div>
+      <div class="mobile-simple-list">${mobileRows}</div>
     </div>
   ` : '';
 
@@ -2687,7 +2663,7 @@ function renderDailyTimeline(day) {
       <div class="timeline-card-head">
         <div>
           <h4>근무 타임라인</h4>
-          <p>오늘 근무 시간을 한눈에 확인해요.</p>
+          <p>출근 시간과 퇴근 시간을 한눈에 확인해요.</p>
         </div>
         <span>근무 ${workItems.length}명 · 피크 ${getPeakCoverage(workItems)}</span>
       </div>
@@ -2695,7 +2671,7 @@ function renderDailyTimeline(day) {
         <div class="timeline-scale" style="margin-left:132px;width:${totalWidth}px">${hourCells}</div>
         <div class="timeline-body">${desktopRows || '<p>시간 정보가 있는 근무자가 없어요.</p>'}</div>
       </div>
-      <div class="daily-timeline-mobile">${mobileRows || '<p>시간 정보가 있는 근무자가 없어요.</p>'}</div>
+      <div class="daily-timeline-mobile">${mobileRowsWrap || '<p>시간 정보가 있는 근무자가 없어요.</p>'}</div>
       ${noTimeHtml ? `<div class="timeline-sub-section"><h4>시간 정보 없는 코드</h4><div class="roster-pill-wrap">${noTimeHtml}</div></div>` : ''}
       <div class="timeline-sub-section"><h4>휴무/연차</h4><div class="roster-pill-wrap">${offHtml}</div></div>
     </section>
@@ -2794,6 +2770,49 @@ function renderCoworkersCard(day) {
   `;
 }
 
+
+function getDailyCoworkerSummary(day) {
+  const coworkers = getCoworkersForDay(day);
+  if (!state.myName) {
+    return {
+      main: '이름 선택 필요',
+      sub: '보기 기준에서 내 이름을 골라 주세요.',
+    };
+  }
+  if (!coworkers.targetCode || ['off', 'leave', 'empty'].includes(coworkers.targetInfo.type)) {
+    return {
+      main: '같이 근무 없음',
+      sub: '선택일에 근무 시간이 없는 일정이에요.',
+    };
+  }
+  const sameNames = coworkers.sameStart.map((p) => p.name);
+  const overlapNames = coworkers.overlap.map((p) => p.name);
+  const sameText = sameNames.length ? `${sameNames.slice(0, 2).join(', ')}${sameNames.length > 2 ? ` 외 ${sameNames.length - 2}명` : ''}` : '같은 출근 없음';
+  const overlapText = overlapNames.length ? `겹침 ${overlapNames.slice(0, 2).join(', ')}${overlapNames.length > 2 ? ` 외 ${overlapNames.length - 2}명` : ''}` : '시간 겹침 없음';
+  return {
+    main: sameText,
+    sub: overlapText,
+  };
+}
+
+function renderDailyInsightCard(day, timeline, roster) {
+  const coworker = getDailyCoworkerSummary(day);
+  return `
+    <div class="info-card daily-insight-card">
+      <div class="daily-insight-head">
+        <h4>오늘 요약</h4>
+        <span>${timeline.workItems.length}명 근무</span>
+      </div>
+      <div class="daily-insight-kpis">
+        <div><span>근무</span><strong>${timeline.workItems.length}명</strong></div>
+        <div><span>휴무</span><strong>${timeline.offPeople.length}명</strong></div>
+      </div>
+      <div class="daily-mini-line highlight"><span>집중</span><strong>${getPeakCoverage(timeline.workItems)}</strong></div>
+      <div class="daily-mini-line coworker"><span>같이</span><strong>${escapeHtml(coworker.main)}</strong><small>${escapeHtml(coworker.sub)}</small></div>
+    </div>
+  `;
+}
+
 function renderSelectedDayDetail(day = getSelectedRosterDay()) {
   const person = getMyPerson();
   const code = person?.schedules?.[day - 1] || '';
@@ -2849,40 +2868,6 @@ function renderTeamOffOnlySection() {
   `;
 }
 
-function getDailyCoworkerSummary(day) {
-  const coworkers = getCoworkersForDay(day);
-  if (!state.myName) {
-    return { main: '내 이름 선택', sub: '보기 기준에서 이름을 고르면 같이 근무하는 사람이 보여요.' };
-  }
-  if (!coworkers.targetCode || ['off', 'leave', 'empty'].includes(coworkers.targetInfo.type)) {
-    return { main: '같이 근무 없음', sub: '선택일에 근무 시간이 없는 일정이에요.' };
-  }
-  const sameNames = coworkers.sameStart.map((p) => p.name);
-  const overlapNames = coworkers.overlap.map((p) => p.name);
-  const sameText = sameNames.length ? `${sameNames.slice(0, 2).join(', ')}${sameNames.length > 2 ? ` 외 ${sameNames.length - 2}명` : ''}` : '같은 출근 없음';
-  const overlapText = overlapNames.length ? `시간 겹침 ${overlapNames.slice(0, 2).join(', ')}${overlapNames.length > 2 ? ` 외 ${overlapNames.length - 2}명` : ''}` : '시간 겹침 없음';
-  return { main: sameText, sub: overlapText };
-}
-
-function renderDailyInsightMini(day, timeline, roster) {
-  const coworker = getDailyCoworkerSummary(day);
-  const peakText = getPeakCoverage(timeline.workItems);
-  return `
-    <div class="info-card daily-insight-card daily-insight-card-mini">
-      <div class="daily-insight-head">
-        <h4>오늘 요약</h4>
-        <span>${timeline.workItems.length}명 근무</span>
-      </div>
-      <div class="daily-insight-kpis">
-        <div><span>근무</span><strong>${timeline.workItems.length}명</strong></div>
-        <div><span>휴무</span><strong>${timeline.offPeople.length}명</strong></div>
-      </div>
-      <div class="daily-mini-line highlight"><span>집중</span><strong>${escapeHtml(peakText)}</strong></div>
-      <div class="daily-mini-line coworker"><span>같이</span><strong>${escapeHtml(coworker.main)}</strong><small>${escapeHtml(coworker.sub)}</small></div>
-    </div>
-  `;
-}
-
 function renderDaily() {
   const person = getMyPerson();
   const selected = new Date(state.selectedDate || Date.now());
@@ -2893,7 +2878,7 @@ function renderDaily() {
   const timeline = getTimelineItems(day);
   const dailyMain = (state.dailyView || 'timeline') === 'start' ? renderRosterBlocks(day) : renderDailyTimeline(day);
   return `
-    <div class="view-title with-actions">
+    <div class="view-title with-actions daily-mobile-head">
       <div>
         <h3>${state.month}/${day}(${dayNames[getDateObj(day).getDay()]}) 일간 보기</h3>
         <p>오늘 근무 흐름을 확인해요.</p>
@@ -2901,8 +2886,12 @@ function renderDaily() {
       <div class="daily-title-actions">${renderPersonPicker()}${renderDailyViewToggle()}</div>
     </div>
     <div class="card-grid daily-summary-grid daily-summary-grid-compact">
-      <div class="info-card daily-my-schedule-card"><h4>내 스케줄</h4><div class="list-row"><strong>${state.myName || '이름 미입력'}</strong><span>${info.label}</span><span class="badge ${badgeClass(info.type)}">${code || '-'}</span></div><p>${formatTime(info) || '시간 정보 없음'}</p></div>
-      ${renderDailyInsightMini(day, timeline, roster)}
+      <div class="info-card daily-my-schedule-card">
+        <h4>내 스케줄</h4>
+        <div class="list-row"><strong>${state.myName || '이름 미입력'}</strong><span>${info.label}</span><span class="badge ${badgeClass(info.type)}">${code || '-'}</span></div>
+        <p>${formatTime(info) || '시간 정보 없음'}</p>
+      </div>
+      ${renderDailyInsightCard(day, timeline, roster)}
     </div>
     ${dailyMain}
   `;
