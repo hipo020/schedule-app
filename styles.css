@@ -10944,3 +10944,189 @@ body {
     padding: 8px 9px !important;
   }
 }
+
+
+/* v2.27 모바일 일간 상단 요약 간소화 */
+@media (max-width: 720px) {
+  .daily-summary-grid.daily-summary-grid-compact {
+    grid-template-columns: minmax(116px, 0.82fr) minmax(0, 1.18fr) !important;
+    gap: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .daily-my-schedule-simple,
+  .daily-insight-card-simple {
+    min-width: 0 !important;
+    min-height: 146px !important;
+    border-radius: 22px !important;
+    padding: 14px !important;
+    box-shadow: 0 10px 24px rgba(11, 11, 20, 0.045) !important;
+  }
+
+  .daily-my-schedule-simple {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    background: #DDF2FA !important;
+    border: 1px solid #BFE3F0 !important;
+  }
+
+  .daily-my-simple-head,
+  .daily-insight-card-simple .daily-insight-head {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .daily-my-simple-head h4,
+  .daily-insight-card-simple h4 {
+    margin: 0 !important;
+    color: #13223A !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.03em !important;
+  }
+
+  .daily-my-simple-head .badge {
+    min-width: 42px !important;
+    padding: 5px 8px !important;
+    border-radius: 999px !important;
+    font-size: 10px !important;
+  }
+
+  .daily-my-simple-name {
+    display: block !important;
+    margin: 4px 0 10px !important;
+    color: #111827 !important;
+    font-size: 17px !important;
+    font-weight: 950 !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.04em !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .daily-my-simple-meta {
+    display: grid !important;
+    gap: 6px !important;
+    padding: 10px 11px !important;
+    border-radius: 15px !important;
+    background: rgba(255,255,255,0.74) !important;
+    border: 1px solid rgba(255,255,255,0.86) !important;
+  }
+
+  .daily-my-simple-state {
+    color: #688092 !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+  }
+
+  .daily-my-simple-time {
+    color: #142033 !important;
+    font-size: 14px !important;
+    font-weight: 950 !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.03em !important;
+  }
+
+  .daily-insight-card-simple {
+    display: flex !important;
+    flex-direction: column !important;
+    background: #FBF2E3 !important;
+    border: 1px solid #EEDFC6 !important;
+  }
+
+  .daily-insight-card-simple .daily-insight-head span {
+    flex: 0 0 auto !important;
+    padding: 5px 8px !important;
+    border-radius: 999px !important;
+    background: #FFFFFF !important;
+    color: #5E6977 !important;
+    font-size: 9.5px !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+  }
+
+  .daily-insight-simple-list {
+    display: grid !important;
+    gap: 7px !important;
+  }
+
+  .daily-insight-simple-row {
+    min-width: 0 !important;
+    padding: 10px 11px !important;
+    border-radius: 15px !important;
+    background: rgba(255,255,255,0.78) !important;
+    border: 1px solid rgba(255,255,255,0.88) !important;
+    box-shadow: 0 6px 14px rgba(11, 11, 20, 0.026) !important;
+  }
+
+  .daily-insight-simple-row.highlight {
+    background: #DEF2F8 !important;
+    border-color: #C8E5EF !important;
+  }
+
+  .daily-insight-simple-row.muted {
+    background: rgba(255,255,255,0.62) !important;
+  }
+
+  .daily-insight-simple-row span {
+    display: block !important;
+    margin: 0 0 3px !important;
+    color: #7B8794 !important;
+    font-size: 9.5px !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+  }
+
+  .daily-insight-simple-row strong {
+    display: block !important;
+    min-width: 0 !important;
+    color: #142033 !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    line-height: 1.18 !important;
+    letter-spacing: -0.03em !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .daily-insight-simple-row small {
+    display: block !important;
+    margin-top: 2px !important;
+    color: #7C8795 !important;
+    font-size: 9.5px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .daily-summary-grid.daily-summary-grid-compact {
+    grid-template-columns: minmax(108px, 0.8fr) minmax(0, 1.2fr) !important;
+    gap: 8px !important;
+  }
+
+  .daily-my-schedule-simple,
+  .daily-insight-card-simple {
+    min-height: 138px !important;
+    padding: 12px !important;
+  }
+
+  .daily-my-simple-name {
+    font-size: 16px !important;
+  }
+
+  .daily-my-simple-time,
+  .daily-insight-simple-row strong {
+    font-size: 12px !important;
+  }
+}
