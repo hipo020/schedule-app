@@ -10714,3 +10714,233 @@ body {
     font-size: 12px !important;
   }
 }
+
+/* v2.26 모바일 일간 상단 요약 카드 정리 */
+@media (max-width: 720px) {
+  .daily-summary-grid.daily-summary-grid-compact {
+    display: grid !important;
+    grid-template-columns: minmax(122px, 0.86fr) minmax(0, 1.14fr) !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+    margin-bottom: 12px !important;
+  }
+
+  .daily-my-schedule-refined,
+  .daily-insight-card-refined {
+    min-width: 0 !important;
+    min-height: 166px !important;
+    padding: 14px !important;
+    border-radius: 22px !important;
+    box-shadow: 0 12px 26px rgba(11, 11, 20, 0.055) !important;
+  }
+
+  .daily-my-schedule-refined {
+    display: flex !important;
+    flex-direction: column !important;
+    background: #DDF2FA !important;
+    border: 1px solid #BFE3F0 !important;
+  }
+
+  .daily-my-card-head,
+  .daily-insight-card-refined .daily-insight-head {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .daily-my-card-head h4,
+  .daily-insight-card-refined h4 {
+    margin: 0 !important;
+    color: #13223A !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.03em !important;
+  }
+
+  .daily-my-card-head .badge {
+    flex: 0 0 auto !important;
+    min-width: 42px !important;
+    padding: 5px 8px !important;
+    border-radius: 999px !important;
+    font-size: 10px !important;
+  }
+
+  .daily-my-card-body {
+    display: grid !important;
+    gap: 2px !important;
+    min-width: 0 !important;
+    padding: 13px 12px !important;
+    border-radius: 17px !important;
+    background: rgba(255, 255, 255, 0.74) !important;
+    border: 1px solid rgba(255, 255, 255, 0.86) !important;
+  }
+
+  .daily-my-card-body strong {
+    display: block !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    color: #111827 !important;
+    font-size: 16px !important;
+    font-weight: 950 !important;
+    line-height: 1.12 !important;
+    letter-spacing: -0.04em !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    word-break: keep-all !important;
+  }
+
+  .daily-my-card-body span {
+    color: #697889 !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
+  }
+
+  .daily-my-schedule-refined p {
+    margin: auto 0 0 !important;
+    padding-top: 10px !important;
+    color: #607285 !important;
+    font-size: 11.5px !important;
+    font-weight: 800 !important;
+    line-height: 1.35 !important;
+  }
+
+  .daily-insight-card-refined {
+    display: grid !important;
+    grid-template-rows: auto auto auto 1fr !important;
+    align-content: start !important;
+    background: #FBF2E3 !important;
+    border: 1px solid #EEDFC6 !important;
+  }
+
+  .daily-insight-card-refined .daily-insight-head span {
+    flex: 0 0 auto !important;
+    padding: 5px 8px !important;
+    border-radius: 999px !important;
+    background: #FFFFFF !important;
+    color: #5E6977 !important;
+    font-size: 9.5px !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+    box-shadow: 0 4px 10px rgba(11, 11, 20, 0.035) !important;
+  }
+
+  .daily-insight-stats {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    margin-bottom: 7px !important;
+  }
+
+  .daily-insight-stats div,
+  .daily-insight-focus,
+  .daily-insight-coworker {
+    min-width: 0 !important;
+    border-radius: 15px !important;
+    background: rgba(255, 255, 255, 0.78) !important;
+    border: 1px solid rgba(255, 255, 255, 0.88) !important;
+    box-shadow: 0 6px 14px rgba(11, 11, 20, 0.026) !important;
+  }
+
+  .daily-insight-stats div {
+    padding: 9px 10px !important;
+  }
+
+  .daily-insight-stats span,
+  .daily-insight-focus span,
+  .daily-insight-coworker span {
+    display: block !important;
+    margin: 0 0 3px !important;
+    color: #7B8794 !important;
+    font-size: 9.5px !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+  }
+
+  .daily-insight-stats strong,
+  .daily-insight-focus strong,
+  .daily-insight-coworker strong {
+    display: block !important;
+    min-width: 0 !important;
+    color: #142033 !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    line-height: 1.18 !important;
+    letter-spacing: -0.04em !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .daily-insight-focus {
+    display: grid !important;
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 9px 11px !important;
+    margin-bottom: 7px !important;
+    background: #DEF2F8 !important;
+    border-color: #C8E5EF !important;
+  }
+
+  .daily-insight-focus span {
+    margin: 0 !important;
+  }
+
+  .daily-insight-coworker {
+    display: grid !important;
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 9px 11px !important;
+  }
+
+  .daily-insight-coworker span {
+    margin: 0 !important;
+  }
+
+  .daily-insight-coworker small {
+    grid-column: 2 / 3 !important;
+    display: block !important;
+    min-width: 0 !important;
+    margin-top: 2px !important;
+    color: #7C8795 !important;
+    font-size: 9.5px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .daily-summary-grid.daily-summary-grid-compact {
+    grid-template-columns: minmax(112px, 0.84fr) minmax(0, 1.16fr) !important;
+    gap: 8px !important;
+  }
+
+  .daily-my-schedule-refined,
+  .daily-insight-card-refined {
+    min-height: 158px !important;
+    padding: 12px !important;
+  }
+
+  .daily-my-card-body {
+    padding: 12px 10px !important;
+  }
+
+  .daily-my-card-body strong {
+    font-size: 15px !important;
+  }
+
+  .daily-insight-focus,
+  .daily-insight-coworker {
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    padding: 8px 9px !important;
+  }
+}

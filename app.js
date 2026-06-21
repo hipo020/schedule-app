@@ -2797,18 +2797,26 @@ function getDailyCoworkerSummary(day) {
 
 function renderDailyInsightCard(day, timeline, roster) {
   const coworker = getDailyCoworkerSummary(day);
+  const peakText = getPeakCoverage(timeline.workItems);
   return `
-    <div class="info-card daily-insight-card">
+    <div class="info-card daily-insight-card daily-insight-card-refined">
       <div class="daily-insight-head">
         <h4>오늘 요약</h4>
         <span>${timeline.workItems.length}명 근무</span>
       </div>
-      <div class="daily-insight-kpis">
+      <div class="daily-insight-stats">
         <div><span>근무</span><strong>${timeline.workItems.length}명</strong></div>
         <div><span>휴무</span><strong>${timeline.offPeople.length}명</strong></div>
       </div>
-      <div class="daily-mini-line highlight"><span>집중</span><strong>${getPeakCoverage(timeline.workItems)}</strong></div>
-      <div class="daily-mini-line coworker"><span>같이</span><strong>${escapeHtml(coworker.main)}</strong><small>${escapeHtml(coworker.sub)}</small></div>
+      <div class="daily-insight-focus">
+        <span>집중 시간</span>
+        <strong>${escapeHtml(peakText)}</strong>
+      </div>
+      <div class="daily-insight-coworker">
+        <span>같이 근무</span>
+        <strong>${escapeHtml(coworker.main)}</strong>
+        <small>${escapeHtml(coworker.sub)}</small>
+      </div>
     </div>
   `;
 }
@@ -2886,9 +2894,15 @@ function renderDaily() {
       <div class="daily-title-actions">${renderPersonPicker()}${renderDailyViewToggle()}</div>
     </div>
     <div class="card-grid daily-summary-grid daily-summary-grid-compact">
-      <div class="info-card daily-my-schedule-card">
-        <h4>내 스케줄</h4>
-        <div class="list-row"><strong>${state.myName || '이름 미입력'}</strong><span>${info.label}</span><span class="badge ${badgeClass(info.type)}">${code || '-'}</span></div>
+      <div class="info-card daily-my-schedule-card daily-my-schedule-refined">
+        <div class="daily-my-card-head">
+          <h4>내 스케줄</h4>
+          <span class="badge ${badgeClass(info.type)}">${code || '-'}</span>
+        </div>
+        <div class="daily-my-card-body">
+          <strong>${state.myName || '이름 미입력'}</strong>
+          <span>${info.label}</span>
+        </div>
         <p>${formatTime(info) || '시간 정보 없음'}</p>
       </div>
       ${renderDailyInsightCard(day, timeline, roster)}
