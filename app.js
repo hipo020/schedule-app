@@ -2815,11 +2815,8 @@ function renderDailyInsightCard(day, timeline, roster) {
         <h4>오늘 요약</h4>
         <span>${timeline.workItems.length}명 근무</span>
       </div>
+      <p class="daily-insight-off-note">휴무 ${timeline.offPeople.length}명</p>
       <div class="daily-insight-simple-list">
-        <div class="daily-insight-simple-row">
-          <span>팀 현황</span>
-          <strong>근무 ${timeline.workItems.length}명 · 휴무 ${timeline.offPeople.length}명</strong>
-        </div>
         <div class="daily-insight-simple-row highlight">
           <span>집중 시간</span>
           <strong>${escapeHtml(peakText)}</strong>
@@ -2912,11 +2909,11 @@ function renderDaily() {
           <h4>내 스케줄</h4>
           <span class="badge ${badgeClass(info.type)}">${code || '-'}</span>
         </div>
-        <strong class="daily-my-simple-name">${state.myName || '이름 미입력'}</strong>
-        <div class="daily-my-simple-meta">
-          <span class="daily-my-simple-state">${info.label || '일정 없음'}</span>
+        <div class="daily-my-simple-primary">
+          <strong class="daily-my-simple-name">${state.myName || '이름 미입력'}</strong>
           <span class="daily-my-simple-time">${formatTime(info) || '시간 정보 없음'}</span>
         </div>
+        <span class="daily-my-simple-state">${info.label || '일정 없음'}</span>
       </div>
       ${renderDailyInsightCard(day, timeline, roster)}
     </div>
