@@ -11345,3 +11345,242 @@ body {
     gap: 7px !important;
   }
 }
+
+/* v2.29 모바일 일간 탭 압축 정리 */
+@media (max-width: 720px) {
+  .daily-mobile-head,
+  .view-title.with-actions.daily-mobile-head {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 8px !important;
+    align-items: center !important;
+    margin-bottom: 9px !important;
+  }
+
+  .daily-mobile-head h3 {
+    font-size: 17px !important;
+    line-height: 1.15 !important;
+  }
+
+  .daily-mobile-head p {
+    display: none !important;
+  }
+
+  .daily-title-actions {
+    width: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0 !important;
+  }
+
+  .daily-title-actions .daily-view-toggle {
+    display: none !important;
+  }
+
+  .daily-title-actions .person-view-picker {
+    width: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+
+  .daily-title-actions .person-view-picker span {
+    color: #64748B !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    white-space: nowrap !important;
+  }
+
+  .daily-title-actions .person-view-picker select {
+    width: auto !important;
+    max-width: 92px !important;
+    min-height: 28px !important;
+    padding: 4px 22px 4px 8px !important;
+    border-radius: 999px !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #DCEAF1 !important;
+    color: #172033 !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+  }
+
+  .daily-summary-grid.daily-summary-grid-compact {
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .daily-my-schedule-simple {
+    min-height: 128px !important;
+    padding: 12px !important;
+    gap: 7px !important;
+    background: #DDF2FA !important;
+  }
+
+  .daily-my-simple-head {
+    display: flex !important;
+    min-height: 20px !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+
+  .daily-my-simple-head h4 {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    clip: auto !important;
+    overflow: visible !important;
+    color: #49687A !important;
+    font-size: 11px !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .daily-my-simple-head .badge {
+    max-width: 50px !important;
+    padding: 4px 7px !important;
+    font-size: 9.5px !important;
+  }
+
+  .daily-my-simple-primary {
+    gap: 5px !important;
+    padding: 2px 0 0 !important;
+  }
+
+  .daily-my-simple-time {
+    color: #0F172A !important;
+    font-size: 20px !important;
+    font-weight: 950 !important;
+    line-height: 1.08 !important;
+  }
+
+  .daily-my-simple-name {
+    color: #314155 !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    line-height: 1.15 !important;
+  }
+
+  .daily-my-simple-state {
+    margin-top: auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: #64748B !important;
+    font-size: 10.5px !important;
+    font-weight: 850 !important;
+  }
+
+  .daily-timeline-card {
+    padding-top: 13px !important;
+  }
+
+  .timeline-card-head {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 7px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .timeline-card-head h4 {
+    font-size: 17px !important;
+    line-height: 1.15 !important;
+  }
+
+  .timeline-card-head p {
+    display: none !important;
+  }
+
+  .timeline-card-head > span {
+    max-width: 104px !important;
+    padding: 6px 8px !important;
+    border-radius: 999px !important;
+    font-size: 10px !important;
+    line-height: 1.12 !important;
+  }
+
+  .mobile-start-chip-row {
+    gap: 5px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .mobile-start-chip {
+    gap: 4px !important;
+    max-width: 92px !important;
+    padding: 6px 8px !important;
+    border-radius: 999px !important;
+  }
+
+  .mobile-start-chip b {
+    font-size: 10.5px !important;
+  }
+
+  .mobile-start-chip em {
+    max-width: 46px !important;
+    font-size: 9px !important;
+  }
+
+  .mobile-start-chip.more {
+    background: #FFFFFF !important;
+    border-color: #E2E8F0 !important;
+    color: #64748B !important;
+  }
+
+  .timeline-off-section {
+    margin-top: 10px !important;
+    padding-top: 10px !important;
+  }
+
+  .timeline-off-section h4 {
+    margin-bottom: 7px !important;
+    color: #475569 !important;
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+  }
+
+  .timeline-off-section .roster-pill-wrap {
+    gap: 5px !important;
+  }
+
+  .timeline-off-section .person-pill {
+    min-height: 26px !important;
+    padding: 5px 8px !important;
+    border-radius: 999px !important;
+    font-size: 11px !important;
+  }
+
+  .timeline-off-section .person-pill small {
+    font-size: 9px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .daily-mobile-head,
+  .view-title.with-actions.daily-mobile-head {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+  }
+
+  .daily-title-actions .person-view-picker select {
+    max-width: 78px !important;
+    font-size: 10.5px !important;
+  }
+
+  .daily-my-simple-time {
+    font-size: 18px !important;
+  }
+
+  .daily-my-simple-name {
+    font-size: 12.5px !important;
+  }
+
+  .mobile-start-chip {
+    max-width: 82px !important;
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+  }
+}

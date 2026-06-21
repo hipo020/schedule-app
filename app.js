@@ -2624,11 +2624,14 @@ function renderDailyTimeline(day) {
     if (!startGroups.has(key)) startGroups.set(key, []);
     startGroups.get(key).push(item);
   });
-  const startChips = Array.from(startGroups.entries()).map(([time, items]) => {
+  const startEntries = Array.from(startGroups.entries());
+  const startChips = startEntries.slice(0, 3).map(([time, items]) => {
     const first = items[0];
     const extra = items.length > 1 ? ` 외 ${items.length - 1}명` : '';
     return `<span class="mobile-start-chip"><b>${escapeHtml(time)}</b><em>${escapeHtml(first.name)}${extra}</em></span>`;
   }).join('');
+  const hiddenStartCount = Math.max(startEntries.length - 3, 0);
+  const startChipSummary = hiddenStartCount ? `<span class="mobile-start-chip more"><b>+${hiddenStartCount}</b><em>더보기</em></span>` : '';
 
   const mobileRows = workItems.map((item) => {
     const myClass = state.myName && item.name === state.myName ? 'is-my-row' : '';
@@ -2649,7 +2652,7 @@ function renderDailyTimeline(day) {
 
   const mobileRowsWrap = workItems.length ? `
     <div class="mobile-simple-timeline">
-      <div class="mobile-start-chip-row">${startChips}</div>
+      <div class="mobile-start-chip-row">${startChips}${startChipSummary}</div>
       <div class="mobile-simple-scale"><span>${minutesToTimelineLabel(window.start)}</span><span>${minutesToTimelineLabel(window.end)}</span></div>
       <div class="mobile-simple-list">${mobileRows}</div>
     </div>
@@ -2673,7 +2676,7 @@ function renderDailyTimeline(day) {
       </div>
       <div class="daily-timeline-mobile">${mobileRowsWrap || '<p>시간 정보가 있는 근무자가 없어요.</p>'}</div>
       ${noTimeHtml ? `<div class="timeline-sub-section"><h4>시간 정보 없는 코드</h4><div class="roster-pill-wrap">${noTimeHtml}</div></div>` : ''}
-      <div class="timeline-sub-section"><h4>휴무/연차</h4><div class="roster-pill-wrap">${offHtml}</div></div>
+      <div class="timeline-sub-section timeline-off-section"><h4>휴무/연차 ${offPeople.length}명</h4><div class="roster-pill-wrap">${offHtml}</div></div>
     </section>
   `;
 }
@@ -2894,14 +2897,15 @@ function renderDaily() {
   const info = getCodeInfo(code);
   const roster = getDayRoster(day);
   const timeline = getTimelineItems(day);
-  const dailyMain = (state.dailyView || 'timeline') === 'start' ? renderRosterBlocks(day) : renderDailyTimeline(day);
+  const isMobileDaily = typeof window !== 'undefined' && window.matchMedia?.('(max-width: 720px)').matches;
+  const dailyMain = !isMobileDaily && (state.dailyView || 'timeline') === 'start' ? renderRosterBlocks(day) : renderDailyTimeline(day);
   return `
     <div class="view-title with-actions daily-mobile-head">
       <div>
         <h3>${state.month}/${day}(${dayNames[getDateObj(day).getDay()]}) 일간 보기</h3>
         <p>오늘 근무 흐름을 확인해요.</p>
       </div>
-      <div class="daily-title-actions">${renderPersonPicker()}${renderDailyViewToggle()}</div>
+      <div class="daily-title-actions">${renderPersonPicker('기준')}${renderDailyViewToggle()}</div>
     </div>
     <div class="card-grid daily-summary-grid daily-summary-grid-compact">
       <div class="info-card daily-my-schedule-card daily-my-schedule-simple">
@@ -2910,8 +2914,8 @@ function renderDaily() {
           <span class="badge ${badgeClass(info.type)}">${code || '-'}</span>
         </div>
         <div class="daily-my-simple-primary">
-          <strong class="daily-my-simple-name">${state.myName || '이름 미입력'}</strong>
           <span class="daily-my-simple-time">${formatTime(info) || '시간 정보 없음'}</span>
+          <strong class="daily-my-simple-name">${state.myName || '이름 미입력'}</strong>
         </div>
         <span class="daily-my-simple-state">${info.label || '일정 없음'}</span>
       </div>
