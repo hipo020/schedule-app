@@ -14031,3 +14031,232 @@ body {
   }
 }
 
+
+
+/* =========================================
+   v5.2.1 Mobile text anti-clipping patch
+   - 모바일에서 제목/라벨의 왼쪽 글자 잘림 보정
+========================================= */
+@media (max-width: 768px) {
+  .account-card,
+  .upload-status,
+  .summary-card,
+  .daily-summary-polished-card,
+  .daily-date-selector,
+  .daily-insight-simple-row,
+  .daily-insight-total-row {
+    overflow: visible !important;
+  }
+
+  .section-title h2,
+  .view-title h3,
+  .month-title h3,
+  .offday-title h3,
+  .account-card strong,
+  .upload-status strong,
+  .upload-status p,
+  .upload-status small,
+  .summary-card p,
+  .summary-card strong,
+  .summary-card span,
+  .daily-card-eyebrow,
+  .daily-polished-head h4,
+  .daily-my-simple-time,
+  .daily-my-simple-name,
+  .daily-my-simple-state,
+  .daily-my-polished-foot small,
+  .daily-date-selector-head span,
+  .daily-date-selector-head strong,
+  .daily-day-chip strong,
+  .daily-day-chip span,
+  .daily-insight-total-row span,
+  .daily-insight-total-row small,
+  .daily-insight-total-row strong,
+  .daily-insight-simple-row span,
+  .daily-insight-simple-row strong {
+    padding-left: 2px !important;
+  }
+
+  .section-title h2,
+  .view-title h3,
+  .month-title h3,
+  .offday-title h3,
+  .daily-my-simple-time {
+    padding-left: 3px !important;
+  }
+}
+
+
+/* =========================================
+   v5.2.2 Mobile polish patch
+   - 상단 계정 카드 버튼 정리
+   - 일간 카드 세로 길이 압축
+   - 주간 네비 한 줄 정리
+========================================= */
+.week-nav-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.week-nav-inline span {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .account-card {
+    padding: 10px 11px !important;
+    gap: 7px 8px !important;
+  }
+
+  .account-card .hero-actions {
+    gap: 5px !important;
+    justify-content: end !important;
+  }
+
+  .account-card .hero-actions button,
+  .account-card .secondary-btn,
+  .account-card .ghost-btn,
+  .account-card #logoutButton {
+    min-height: 29px !important;
+    height: 29px !important;
+    padding: 0 9px !important;
+    font-size: 10px !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  .daily-summary-grid.daily-summary-grid-compact.daily-summary-polished-grid {
+    gap: 8px !important;
+  }
+
+  .daily-summary-polished-card,
+  .daily-my-schedule-simple.daily-summary-polished-card,
+  .daily-insight-card-simple.daily-summary-polished-card {
+    padding: 13px !important;
+    border-radius: 19px !important;
+    gap: 9px !important;
+  }
+
+  .daily-polished-head {
+    gap: 8px !important;
+  }
+
+  .daily-card-eyebrow {
+    font-size: 8.5px !important;
+    line-height: 1 !important;
+  }
+
+  .daily-polished-head h4 {
+    font-size: 14px !important;
+  }
+
+  .daily-code-chip,
+  .daily-count-chip {
+    padding: 6px 8px !important;
+    font-size: 10px !important;
+  }
+
+  .daily-my-polished-body {
+    gap: 4px !important;
+  }
+
+  .daily-my-simple-time {
+    font-size: 20px !important;
+  }
+
+  .daily-my-simple-name {
+    font-size: 13px !important;
+  }
+
+  .daily-my-simple-state {
+    padding: 5px 8px !important;
+    font-size: 10.5px !important;
+  }
+
+  .daily-my-polished-foot {
+    padding-top: 6px !important;
+    gap: 6px !important;
+  }
+
+  .daily-my-polished-foot small {
+    font-size: 10px !important;
+  }
+
+  .daily-insight-card-simple .daily-insight-head {
+    gap: 7px !important;
+  }
+
+  .daily-insight-card-simple h4 {
+    font-size: 14px !important;
+    line-height: 1.15 !important;
+  }
+
+  .daily-insight-total-row {
+    padding: 8px 10px !important;
+    border-radius: 14px !important;
+  }
+
+  .daily-insight-total-row span,
+  .daily-insight-total-row small {
+    font-size: 10px !important;
+  }
+
+  .daily-insight-total-row strong {
+    font-size: 15px !important;
+  }
+
+  .daily-insight-simple-list {
+    gap: 6px !important;
+  }
+
+  .daily-insight-simple-row {
+    padding: 8px 9px !important;
+    border-radius: 13px !important;
+  }
+
+  .daily-insight-simple-row span {
+    font-size: 9px !important;
+  }
+
+  .daily-insight-simple-row strong {
+    font-size: 11.5px !important;
+    line-height: 1.2 !important;
+  }
+
+  .daily-insight-simple-row small {
+    font-size: 9px !important;
+  }
+
+  .week-nav {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 7px !important;
+    align-items: stretch !important;
+  }
+
+  .week-nav-inline {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  .week-nav-inline span {
+    width: 100% !important;
+    padding: 7px 8px !important;
+    font-size: 10.5px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    border-radius: 999px !important;
+  }
+
+  .week-nav-btn {
+    min-height: 32px !important;
+    padding: 0 8px !important;
+    font-size: 10.5px !important;
+  }
+}

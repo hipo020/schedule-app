@@ -3072,9 +3072,11 @@ function renderWeekly() {
       </div>
       <div class="week-nav">
         ${renderPersonPicker()}
-        <button class="ghost-btn week-nav-btn" data-week-shift="-1" type="button">‹ 저번주</button>
-        <span>근무 ${workCount}일 · 휴무/연차 ${offCount}일</span>
-        <button class="ghost-btn week-nav-btn" data-week-shift="1" type="button">다음주 ›</button>
+        <div class="week-nav-inline">
+          <button class="ghost-btn week-nav-btn" data-week-shift="-1" type="button">‹ 저번주</button>
+          <span>근무 ${workCount}일 · 휴무/연차 ${offCount}일</span>
+          <button class="ghost-btn week-nav-btn" data-week-shift="1" type="button">다음주 ›</button>
+        </div>
       </div>
     </div>
     <div class="mini-stat-row weekly-stat-row">
