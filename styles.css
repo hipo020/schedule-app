@@ -12774,3 +12774,827 @@ body {
     grid-template-columns: minmax(0, 1fr) !important;
   }
 }
+
+/* ===== v2.34 전체 모바일 화면 안정화 ===== */
+@media (max-width: 780px) {
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    padding: 10px;
+    background-size: 160px 160px, 100% 100% !important;
+  }
+
+  .app-shell {
+    width: 100%;
+    max-width: 100%;
+    gap: 14px;
+  }
+
+  .hero {
+    grid-template-columns: 1fr !important;
+    padding: 18px 16px !important;
+    border-radius: 26px !important;
+    gap: 14px !important;
+  }
+
+  .hero h1 {
+    font-size: clamp(28px, 10vw, 38px) !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.07em !important;
+  }
+
+  .hero-desc {
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+    max-width: 100% !important;
+  }
+
+  .hero-card.account-card {
+    width: 100% !important;
+    padding: 14px !important;
+    border-radius: 22px !important;
+  }
+
+  .account-card .hero-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .account-card .hero-actions button {
+    min-height: 38px !important;
+    padding: 9px 8px !important;
+    font-size: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .cloud-status {
+    margin: 0 !important;
+    padding: 10px 13px !important;
+    border-radius: 16px !important;
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+  }
+
+  .category-shell {
+    padding: 12px !important;
+    border-radius: 24px !important;
+    gap: 10px !important;
+  }
+
+  .category-tabs {
+    display: flex !important;
+    grid-template-columns: none !important;
+    gap: 10px !important;
+    overflow-x: auto !important;
+    overscroll-behavior-x: contain !important;
+    scroll-snap-type: x proximity !important;
+    padding: 2px 2px 8px !important;
+    margin: 0 !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .category-tabs::-webkit-scrollbar,
+  .sheet-nav::-webkit-scrollbar,
+  .daily-day-chip-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-tab {
+    flex: 0 0 178px !important;
+    min-width: 178px !important;
+    padding: 12px 12px !important;
+    border-radius: 20px !important;
+    scroll-snap-align: start;
+  }
+
+  .category-tab .category-icon {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 17px !important;
+  }
+
+  .category-tab strong {
+    font-size: 14px !important;
+  }
+
+  .category-tab small {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  .sheet-nav {
+    position: sticky !important;
+    top: 8px !important;
+    z-index: 50 !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 7px !important;
+    padding: 7px !important;
+    margin: 0 !important;
+    border-radius: 18px !important;
+    background: rgba(255, 254, 250, 0.86) !important;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 10px 24px rgba(25, 39, 58, 0.06) !important;
+  }
+
+  .sheet-tab {
+    flex: 0 0 auto !important;
+    min-height: 34px !important;
+    padding: 8px 13px !important;
+    font-size: 12px !important;
+    border-radius: 999px !important;
+    white-space: nowrap !important;
+  }
+
+  .page-area {
+    padding: 14px !important;
+    border-radius: 26px !important;
+    overflow: visible !important;
+  }
+
+  .panel,
+  .view-panel,
+  .home-panel,
+  .setup-panel,
+  .upload-panel {
+    padding: 16px !important;
+    border-radius: 24px !important;
+  }
+
+  .page-content {
+    min-width: 0 !important;
+  }
+
+  .section-title,
+  .section-title.with-actions,
+  .view-title,
+  .view-title.with-actions,
+  .week-title-with-nav,
+  .month-title,
+  .offday-title {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .section-title h2,
+  .view-title h3,
+  .offday-title h3 {
+    font-size: clamp(21px, 6.2vw, 27px) !important;
+    line-height: 1.18 !important;
+    letter-spacing: -0.055em !important;
+  }
+
+  .section-title p,
+  .view-title p,
+  .offday-title p {
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+  }
+
+  .view-title-side,
+  .week-nav,
+  .daily-title-actions,
+  .action-row,
+  .hero-actions,
+  .review-status-actions,
+  .editor-action-row {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+  }
+
+  .view-title-side > *,
+  .week-nav > *,
+  .daily-title-actions > *,
+  .action-row > *,
+  .review-status-actions > * {
+    min-width: 0 !important;
+  }
+
+  .person-view-picker {
+    width: 100% !important;
+  }
+
+  .person-view-picker select,
+  .setup-grid input,
+  .setup-grid select,
+  .data-guide-card input,
+  .daily-date-input {
+    width: 100% !important;
+    min-height: 42px !important;
+    font-size: 14px !important;
+  }
+
+  .summary-cards,
+  .card-grid,
+  .daily-summary-grid,
+  .data-input-grid,
+  .upload-grid,
+  .setup-grid,
+  .share-layout,
+  .archive-grid,
+  .code-editor-grid,
+  #codeEditor.code-editor-grid,
+  .off-dashboard-grid,
+  .off-dashboard-grid.secondary,
+  .improved-offday-grid,
+  .compact-offday-grid,
+  .day-detail-grid,
+  .day-detail-split,
+  .off-streak-grid,
+  .off-detail-grid,
+  .help-card-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .summary-cards .summary-card,
+  .info-card,
+  .daily-summary-grid .info-card,
+  .daily-my-schedule-card,
+  .daily-insight-card,
+  .off-dashboard-card,
+  .offday-summary-card,
+  .offday-group,
+  .offday-planner-card,
+  .archive-card,
+  .share-card,
+  .data-guide-card,
+  .ocr-control-card,
+  .ocr-preview-card,
+  .validation-card,
+  .workflow-guide-card,
+  .daily-date-selector,
+  .team-off-card,
+  .day-detail-card,
+  .roster-card {
+    padding: 16px !important;
+    border-radius: 22px !important;
+  }
+
+  .summary-cards .summary-card strong,
+  .off-dashboard-card strong,
+  .offday-summary-card strong {
+    font-size: clamp(22px, 7vw, 30px) !important;
+    line-height: 1.1 !important;
+  }
+
+  .summary-cards .summary-card span,
+  .summary-cards .summary-card small,
+  .info-card p,
+  .off-dashboard-card p,
+  .offday-summary-card em,
+  .workflow-step span {
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+  }
+
+  .support-note-card,
+  .home-support-note,
+  .offday-support-note {
+    padding: 13px 14px !important;
+    border-radius: 18px !important;
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+  }
+
+  .workflow-step-grid {
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+  }
+
+  .workflow-step-grid .workflow-step,
+  .workflow-step {
+    min-height: auto !important;
+    padding: 13px 14px !important;
+    border-radius: 17px !important;
+  }
+
+  .workflow-guide-head {
+    gap: 10px !important;
+  }
+
+  .daily-summary-grid.daily-summary-polished-grid {
+    gap: 10px !important;
+  }
+
+  .daily-my-schedule-card .list-row,
+  .daily-my-schedule-simple .list-row,
+  .daily-my-schedule-card .daily-schedule-main,
+  .daily-summary-polished-card .list-row {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    align-items: center !important;
+    gap: 8px 10px !important;
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .daily-my-schedule-card .list-row strong,
+  .daily-my-schedule-simple .list-row strong {
+    font-size: 17px !important;
+    line-height: 1.25 !important;
+  }
+
+  .daily-my-schedule-card .list-row span:not(.badge),
+  .daily-my-schedule-simple .list-row span:not(.badge) {
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+  }
+
+  .daily-my-schedule-card .list-row .badge,
+  .daily-my-schedule-simple .list-row .badge {
+    justify-self: end !important;
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+  }
+
+  .daily-my-schedule-card p,
+  .daily-my-schedule-simple p,
+  .daily-insight-card p {
+    margin-top: 8px !important;
+    font-size: 12px !important;
+    line-height: 1.55 !important;
+  }
+
+  .daily-date-selector-head {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .daily-date-control {
+    display: grid !important;
+    grid-template-columns: 40px minmax(0, 1fr) 40px !important;
+    gap: 7px !important;
+    width: 100% !important;
+  }
+
+  .daily-date-step {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 14px !important;
+  }
+
+  .daily-day-chip-row {
+    display: flex !important;
+    gap: 7px !important;
+    overflow-x: auto !important;
+    padding: 2px 2px 6px !important;
+    margin: 0 -2px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .daily-day-chip {
+    flex: 0 0 auto !important;
+    min-width: 48px !important;
+    padding: 8px 9px !important;
+    border-radius: 15px !important;
+    font-size: 12px !important;
+  }
+
+  .daily-view-toggle {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    padding: 5px !important;
+  }
+
+  .daily-view-toggle .ghost-btn {
+    width: 100% !important;
+    min-height: 38px !important;
+    font-size: 12px !important;
+  }
+
+  .daily-timeline-card {
+    padding: 16px 12px 72px !important;
+    border-radius: 24px !important;
+  }
+
+  .timeline-card-head {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .timeline-card-head > span {
+    max-width: 100% !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+
+  .timeline-mobile-visual,
+  .mobile-timeline-visual,
+  .mobile-shift-timeline {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .weekly-stat-row.mini-stat-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .weekly-stat-row .mini-stat {
+    padding: 12px 9px !important;
+    border-radius: 17px !important;
+    min-width: 0 !important;
+  }
+
+  .weekly-stat-row .mini-stat span {
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+  }
+
+  .weekly-stat-row .mini-stat strong {
+    font-size: 18px !important;
+    line-height: 1.1 !important;
+  }
+
+  .improved-week-grid,
+  .simplified-week-grid,
+  .week-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .week-day-card,
+  .improved-week-grid .week-day-card {
+    min-height: 138px !important;
+    padding: 13px !important;
+    border-radius: 20px !important;
+  }
+
+  .week-day-card strong {
+    font-size: 17px !important;
+    margin-bottom: 5px !important;
+  }
+
+  .week-day-card .badge,
+  .week-day-card em,
+  .week-code-text {
+    font-size: 12px !important;
+  }
+
+  .week-day-card small,
+  .week-time-text {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  .month-legend {
+    display: flex !important;
+    gap: 7px !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .month-legend span {
+    flex: 0 0 auto !important;
+    font-size: 11px !important;
+    padding: 6px 9px !important;
+  }
+
+  .monthly-calendar-wrap {
+    margin-inline: -4px !important;
+    overflow-x: hidden !important;
+  }
+
+  .calendar,
+  .refined-calendar,
+  .improved-month-calendar,
+  .simplified-month-calendar {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 8px !important;
+    gap: 5px !important;
+    border-radius: 20px !important;
+  }
+
+  .calendar-head {
+    font-size: 10px !important;
+    min-width: 0 !important;
+    padding: 5px 0 !important;
+  }
+
+  .day-cell,
+  .simplified-month-calendar .day-cell {
+    min-width: 0 !important;
+    min-height: 74px !important;
+    padding: 7px 5px !important;
+    border-radius: 14px !important;
+    gap: 3px !important;
+  }
+
+  .day-number,
+  .simplified-month-calendar .day-number {
+    font-size: 12px !important;
+    line-height: 1 !important;
+  }
+
+  .month-day-main,
+  .month-day-main.simplified {
+    gap: 3px !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .day-cell .day-code,
+  .badge.day-code,
+  .month-code-text {
+    width: auto !important;
+    max-width: 100% !important;
+    padding: 4px 5px !important;
+    border-radius: 999px !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .day-cell small,
+  .month-time-text {
+    display: block !important;
+    width: 100% !important;
+    font-size: 9.5px !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+  }
+
+  .off-dashboard-card .off-card-head,
+  .off-card-head,
+  .day-detail-head,
+  .review-image-head,
+  .validation-head {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .off-mini-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .off-dashboard-pills,
+  .roster-pill-wrap,
+  .offday-chip-list,
+  .offday-streak-list {
+    gap: 7px !important;
+  }
+
+  .person-pill,
+  .offday-chip,
+  .offday-streak,
+  .validation-position-chip {
+    max-width: 100% !important;
+    font-size: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .archive-actions {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    padding: 0 14px 14px !important;
+  }
+
+  .archive-thumb {
+    min-height: 140px !important;
+  }
+
+  .archive-body {
+    padding: 14px !important;
+  }
+
+  .share-box,
+  .csv-input-box,
+  .roster-share-box,
+  .compact-share-box {
+    min-height: 180px !important;
+    height: auto !important;
+    max-height: 320px !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+  }
+
+  .review-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .review-compare-wrap.compare-active,
+  .review-compare-wrap {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .review-image-pane,
+  .review-table-scroll,
+  .review-table-wrap,
+  .csv-preview-wrap,
+  .table-scroll,
+  .schedule-table-wrap {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .review-table-wrap {
+    max-height: 62vh !important;
+    border-radius: 18px !important;
+  }
+
+  .schedule-table {
+    min-width: 880px !important;
+    font-size: 12px !important;
+  }
+
+  .schedule-table th,
+  .schedule-table td {
+    padding: 8px 6px !important;
+  }
+
+  .schedule-table td input {
+    width: 44px !important;
+    min-height: 32px !important;
+    padding: 6px !important;
+    font-size: 12px !important;
+  }
+
+  .schedule-table td input.name-input {
+    width: 76px !important;
+  }
+
+  .validation-code-grid,
+  .validation-all-list ul {
+    grid-template-columns: 1fr !important;
+  }
+
+  .validation-code-card summary,
+  .validation-all-list summary {
+    gap: 8px !important;
+  }
+
+  .code-editor-row,
+  #codeEditor .code-editor-row {
+    grid-template-columns: 1fr !important;
+    padding: 14px !important;
+    gap: 10px !important;
+  }
+
+  .code-editor-row input,
+  #codeEditor .code-editor-row input {
+    width: 100% !important;
+    min-height: 40px !important;
+  }
+
+  .ocr-layout,
+  .ocr-grid,
+  .ocr-result-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ocr-preview-wrap,
+  .image-preview-wrap {
+    min-height: 220px !important;
+    border-radius: 20px !important;
+  }
+
+  .image-modal-content,
+  .image-modal-panel {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    height: calc(100vh - 30px) !important;
+    border-radius: 22px !important;
+  }
+
+  .image-modal-body {
+    overflow: auto !important;
+  }
+
+  .floating-image-button,
+  .floating-action-button,
+  .month-image-fab,
+  .quick-image-viewer {
+    right: 14px !important;
+    bottom: 14px !important;
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 18px !important;
+    z-index: 80 !important;
+  }
+
+  .primary-btn,
+  .secondary-btn,
+  .ghost-btn,
+  button {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  body {
+    padding: 8px;
+  }
+
+  .hero,
+  .category-shell,
+  .page-area,
+  .panel,
+  .view-panel,
+  .home-panel {
+    border-radius: 22px !important;
+  }
+
+  .hero {
+    padding: 16px 14px !important;
+  }
+
+  .category-tab {
+    flex-basis: 160px !important;
+    min-width: 160px !important;
+  }
+
+  .category-tab small {
+    display: none !important;
+  }
+
+  .account-card .hero-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .page-area {
+    padding: 12px !important;
+  }
+
+  .panel,
+  .view-panel,
+  .home-panel,
+  .setup-panel,
+  .upload-panel {
+    padding: 14px !important;
+  }
+
+  .weekly-stat-row.mini-stat-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .improved-week-grid,
+  .simplified-week-grid,
+  .week-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .calendar,
+  .refined-calendar,
+  .improved-month-calendar,
+  .simplified-month-calendar {
+    gap: 4px !important;
+    padding: 6px !important;
+  }
+
+  .day-cell,
+  .simplified-month-calendar .day-cell {
+    min-height: 66px !important;
+    padding: 6px 3px !important;
+    border-radius: 12px !important;
+  }
+
+  .day-cell .day-code,
+  .badge.day-code,
+  .month-code-text {
+    font-size: 9.5px !important;
+    padding: 3px 4px !important;
+  }
+
+  .day-cell small,
+  .month-time-text {
+    font-size: 8.5px !important;
+  }
+
+  .review-summary-grid,
+  .off-mini-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .daily-date-control {
+    grid-template-columns: 36px minmax(0, 1fr) 36px !important;
+  }
+
+  .daily-date-step {
+    width: 36px !important;
+    height: 38px !important;
+  }
+}
