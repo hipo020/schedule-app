@@ -15793,3 +15793,254 @@ html[data-theme="simple"] .mobile-simple-track i {
     transform: none;
   }
 }
+
+/* =========================================
+   v5.7 Weekly view visual refinement
+   - 주간 카드를 파스텔 박스에서 세련된 일정 리스트 톤으로 정리
+========================================= */
+.weekly-stat-row .mini-stat,
+.mini-stat.week-summary-block {
+  background: #FFFFFF !important;
+  border: 1px solid #EAF0F5 !important;
+  box-shadow: 0 10px 22px rgba(20,33,61,0.035) !important;
+}
+
+.weekly-stat-row .mini-stat span,
+.mini-stat.week-summary-block span {
+  color: #7A8495 !important;
+}
+
+.weekly-stat-row .mini-stat strong,
+.mini-stat.week-summary-block strong {
+  color: #14213D !important;
+}
+
+.boxed-week-grid .week-day-card,
+.improved-week-grid.boxed-week-grid .week-day-card,
+.week-day-card {
+  position: relative !important;
+  background: #FFFFFF !important;
+  border: 1px solid #EAF0F5 !important;
+  box-shadow: 0 10px 22px rgba(20,33,61,0.035) !important;
+  overflow: hidden !important;
+}
+
+.boxed-week-grid .week-day-card::before,
+.improved-week-grid.boxed-week-grid .week-day-card::before,
+.week-day-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #D9E3EA;
+}
+
+.boxed-week-grid .week-day-card.work::before,
+.week-day-card.work::before { background: #9ED9EC; }
+.boxed-week-grid .week-day-card.off::before,
+.week-day-card.off::before { background: #E9D39A; }
+.boxed-week-grid .week-day-card.leave::before,
+.week-day-card.leave::before { background: #EABFD2; }
+
+.boxed-week-grid .week-day-card.work,
+.boxed-week-grid .week-day-card.off,
+.boxed-week-grid .week-day-card.leave,
+.week-day-card.work,
+.week-day-card.off,
+.week-day-card.leave {
+  background: #FFFFFF !important;
+}
+
+.boxed-week-grid .week-day-card.selected-week-day,
+.week-day-card.selected-week-day {
+  background: #F8FDFF !important;
+  border-color: #BFE3EE !important;
+  box-shadow: 0 0 0 1px #BFE3EE inset, 0 12px 24px rgba(47,110,136,0.08) !important;
+  transform: none !important;
+}
+
+.boxed-week-grid .week-code-pill,
+.boxed-week-grid .week-day-card .badge,
+.boxed-week-grid .week-day-card em,
+.week-day-card .badge,
+.week-day-card em {
+  width: auto !important;
+  min-width: 58px !important;
+  max-width: 100% !important;
+  padding: 7px 12px !important;
+  border-radius: 999px !important;
+  background: #F8FAFC !important;
+  border: 1px solid #E1E8EF !important;
+  color: #405060 !important;
+  box-shadow: none !important;
+}
+
+.boxed-week-grid .week-day-card.work .week-code-pill,
+.boxed-week-grid .week-day-card.work .badge,
+.week-day-card.work .badge,
+.week-day-card.work em {
+  background: #F3FBFE !important;
+  border-color: #CDEAF3 !important;
+  color: #2F6E88 !important;
+}
+
+.boxed-week-grid .week-day-card.off .week-code-pill,
+.boxed-week-grid .week-day-card.off .badge,
+.week-day-card.off .badge,
+.week-day-card.off em {
+  background: #FFF9EA !important;
+  border-color: #ECDCA7 !important;
+  color: #806424 !important;
+}
+
+.boxed-week-grid .week-day-card.leave .week-code-pill,
+.boxed-week-grid .week-day-card.leave .badge,
+.week-day-card.leave .badge,
+.week-day-card.leave em {
+  background: #FFF5F9 !important;
+  border-color: #EAC7D6 !important;
+  color: #96516D !important;
+}
+
+html[data-theme="simple"] .boxed-week-grid .week-day-card,
+html[data-theme="simple"] .improved-week-grid.boxed-week-grid .week-day-card,
+html[data-theme="simple"] .week-day-card,
+html[data-theme="simple"] .weekly-stat-row .mini-stat,
+html[data-theme="simple"] .mini-stat.week-summary-block {
+  background: #FFFFFF !important;
+  border-color: #E4E7EC !important;
+  box-shadow: 0 8px 18px rgba(16,24,40,0.035) !important;
+}
+
+html[data-theme="simple"] .boxed-week-grid .week-day-card::before,
+html[data-theme="simple"] .week-day-card::before {
+  background: #D0D5DD !important;
+}
+
+html[data-theme="simple"] .boxed-week-grid .week-day-card.selected-week-day,
+html[data-theme="simple"] .week-day-card.selected-week-day {
+  background: #F8FAFC !important;
+  border-color: #98A2B3 !important;
+  box-shadow: 0 0 0 1px #D0D5DD inset, 0 10px 20px rgba(16,24,40,0.06) !important;
+  outline: none !important;
+}
+
+@media (max-width: 768px) {
+  .mini-stat-row.weekly-stat-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .weekly-stat-row .mini-stat,
+  .mini-stat.week-summary-block {
+    min-height: 72px !important;
+    padding: 12px 10px !important;
+    border-radius: 18px !important;
+    gap: 4px !important;
+    text-align: left !important;
+  }
+
+  .weekly-stat-row .mini-stat span,
+  .mini-stat.week-summary-block span {
+    font-size: 10.5px !important;
+    line-height: 1.2 !important;
+  }
+
+  .weekly-stat-row .mini-stat strong,
+  .mini-stat.week-summary-block strong {
+    font-size: 18px !important;
+    line-height: 1.12 !important;
+  }
+
+  .improved-week-grid,
+  .simplified-week-grid,
+  .week-grid,
+  .boxed-week-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .boxed-week-grid .week-day-card,
+  .improved-week-grid.boxed-week-grid .week-day-card,
+  .week-day-card,
+  .improved-week-grid .week-day-card {
+    min-height: 76px !important;
+    height: auto !important;
+    padding: 12px 13px 12px 18px !important;
+    border-radius: 18px !important;
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) auto !important;
+    grid-template-rows: auto auto !important;
+    align-items: center !important;
+    gap: 3px 10px !important;
+    text-align: left !important;
+  }
+
+  .boxed-week-grid .week-day-card .week-day-name,
+  .week-day-card .week-day-name,
+  .week-day-card span {
+    grid-column: 1 !important;
+    grid-row: 1 / span 2 !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 12px !important;
+    display: grid !important;
+    place-items: center !important;
+    background: #F8FAFC !important;
+    border: 1px solid #E7EDF3 !important;
+    color: #718096 !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    margin: 0 !important;
+  }
+
+  .boxed-week-grid .week-day-card strong,
+  .week-day-card strong,
+  .improved-week-grid .week-day-card strong {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    margin: 0 !important;
+    font-size: 18px !important;
+    line-height: 1.12 !important;
+    letter-spacing: -0.03em !important;
+  }
+
+  .boxed-week-grid .week-time-text,
+  .boxed-week-grid .week-day-card small,
+  .week-day-card small,
+  .improved-week-grid .week-day-card small {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    margin: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    color: #6B7280 !important;
+    text-align: left !important;
+  }
+
+  .boxed-week-grid .week-code-pill,
+  .boxed-week-grid .week-day-card .badge,
+  .boxed-week-grid .week-day-card em,
+  .week-day-card .badge,
+  .week-day-card em,
+  .improved-week-grid .week-day-card em {
+    grid-column: 3 !important;
+    grid-row: 1 / span 2 !important;
+    justify-self: end !important;
+    align-self: center !important;
+    margin: 0 !important;
+    min-width: 54px !important;
+    padding: 7px 10px !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    text-align: center !important;
+  }
+
+  .boxed-week-grid .week-day-card.selected-week-day,
+  .week-day-card.selected-week-day {
+    transform: none !important;
+  }
+}
