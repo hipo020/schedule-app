@@ -12001,3 +12001,259 @@ body {
     box-shadow: 0 8px 20px rgba(31, 37, 51, 0.045) !important;
   }
 }
+
+/* v5.1 귀욤 응원 요소 + 로그인 화면 정리 */
+.app-shell.is-hidden {
+  display: none !important;
+}
+
+.auth-gate {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(207, 234, 246, 0.58), transparent 30%),
+    radial-gradient(circle at 82% 78%, rgba(250, 239, 218, 0.64), transparent 34%),
+    #FAF8F1 !important;
+}
+
+.auth-gate.is-hidden {
+  display: none !important;
+}
+
+.auth-gate::before {
+  content: '';
+  position: absolute;
+  inset: 18px;
+  border-radius: 34px;
+  border: 1px solid rgba(232, 234, 240, 0.72);
+  pointer-events: none;
+}
+
+.auth-card {
+  position: relative !important;
+  z-index: 1 !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1px solid rgba(232, 234, 240, 0.9) !important;
+  box-shadow: 0 24px 60px rgba(23, 32, 51, 0.10) !important;
+}
+
+.auth-card::before {
+  content: 'service ready';
+  position: absolute;
+  top: -13px;
+  right: 28px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #FAF7EC;
+  border: 1px solid #EFE7CF;
+  color: #6F7685;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.chef-cheer-card {
+  margin: 18px 0 16px;
+  padding: 18px 20px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F6FBFE 100%);
+  border: 1px solid #E2ECF2;
+  box-shadow: 0 12px 30px rgba(23, 32, 51, 0.055);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.chef-cheer-card.work {
+  background: linear-gradient(135deg, #F7FCFE 0%, #E6F4FA 100%);
+  border-color: #CFEAF6;
+}
+
+.chef-cheer-card.off {
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFF6F6 100%);
+  border-color: #F6D2D2;
+}
+
+.chef-cheer-card.leave {
+  background: linear-gradient(135deg, #FFFFFF 0%, #FAF7EC 100%);
+  border-color: #EFE7CF;
+}
+
+.chef-cheer-main {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+}
+
+.chef-cheer-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+  border: 1px solid #E8EAF0;
+  box-shadow: 0 8px 18px rgba(23, 32, 51, 0.06);
+  font-size: 19px;
+  flex: 0 0 auto;
+}
+
+.chef-cheer-main p {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2F6E88;
+}
+
+.chef-cheer-main strong {
+  display: block;
+  color: #172033;
+  font-size: 16px;
+  font-weight: 950;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.chef-cheer-sticker {
+  flex: 0 0 auto;
+  transform: rotate(-2deg);
+  padding: 8px 11px;
+  border-radius: 14px;
+  background: #FAF7EC;
+  border: 1px solid #EFE7CF;
+  color: #6A5D45;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 18px rgba(23, 32, 51, 0.045);
+}
+
+.off-cheer-note {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: #FAF7EC;
+  border: 1px solid #EFE7CF;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #172033;
+}
+
+.off-cheer-note span {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #EFE7CF;
+  flex: 0 0 auto;
+}
+
+.off-cheer-note strong {
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 900;
+  word-break: keep-all;
+}
+
+.cloud-status.save-status-saved p,
+.cloud-status.save-status-loaded p {
+  font-weight: 800 !important;
+}
+
+@media (max-width: 780px) {
+  .auth-gate {
+    padding: 18px !important;
+    align-items: center !important;
+  }
+
+  .auth-gate::before {
+    inset: 10px;
+    border-radius: 26px;
+  }
+
+  .auth-card {
+    max-width: 100% !important;
+    padding: 30px 22px 24px !important;
+    border-radius: 28px !important;
+  }
+
+  .auth-card::before {
+    right: 20px;
+    top: -11px;
+    font-size: 10px;
+    padding: 6px 10px;
+  }
+
+  .chef-cheer-card {
+    margin: 14px 0;
+    padding: 15px 15px;
+    border-radius: 21px;
+    align-items: flex-start;
+  }
+
+  .chef-cheer-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 13px;
+    font-size: 16px;
+  }
+
+  .chef-cheer-main {
+    gap: 10px;
+  }
+
+  .chef-cheer-main p {
+    font-size: 10px;
+    margin-bottom: 3px;
+  }
+
+  .chef-cheer-main strong {
+    font-size: 13px;
+    line-height: 1.42;
+  }
+
+  .chef-cheer-sticker {
+    padding: 6px 8px;
+    font-size: 9px;
+    border-radius: 12px;
+    max-width: 88px;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .off-cheer-note {
+    margin-top: 11px;
+    padding: 10px 11px;
+    border-radius: 16px;
+    gap: 8px;
+  }
+
+  .off-cheer-note span {
+    width: 25px;
+    height: 25px;
+    font-size: 13px;
+  }
+
+  .off-cheer-note strong {
+    font-size: 12px;
+  }
+}

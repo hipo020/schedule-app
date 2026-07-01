@@ -779,7 +779,7 @@ function showAppShell() {
   el('authGate')?.classList.add('is-hidden');
   el('appShell')?.classList.remove('is-hidden');
   if (el('userEmailText')) el('userEmailText').textContent = currentUser?.email || '로그인됨';
-  showCloudStatus('로그인 완료. 저장 버튼을 누르면 현재 월 데이터가 저장됩니다.', 'ok');
+  showCloudStatus('로그인 완료. 오늘 스케줄을 편하게 확인해요.', 'ok');
 }
 
 function showCloudStatus(message, type = '') {
@@ -909,7 +909,7 @@ async function loadCloudInitialData(showMessage = false) {
     await loadCloudMonthData(state.year, state.month);
     await refreshArchiveMeta();
     markCloudSaved();
-    if (showMessage) showCloudStatus('클라우드 데이터를 불러왔어요.', 'ok');
+    if (showMessage) showCloudStatus('불러오기 완료. 다시 이어서 확인해요.', 'ok');
   } catch (error) {
     console.error('클라우드 로드 실패', error);
     showCloudStatus(`클라우드 데이터를 불러오지 못했어요: ${error.message || error}`, 'error');
@@ -1033,7 +1033,7 @@ async function saveCurrentMonthToCloud(showAlert = false) {
     }
     await refreshArchiveMeta();
     markCloudSaved();
-    showCloudStatus('저장 완료. 다른 기기에서도 로그인하면 불러올 수 있어요.', 'ok');
+    showCloudStatus('저장 완료. 오늘도 정리 성공!', 'ok');
     renderAll();
     if (showAlert) alert('클라우드에 저장했어요.');
   } catch (error) {
@@ -2354,6 +2354,55 @@ function getScheduleRowsForPerson(person) {
   });
 }
 
+
+function getDailyCheerMessage(info = {}, code = '', selectedDay = 1) {
+  const startMinutes = timeToMinutes(info.start || '');
+  if (info.type === 'work') {
+    if (startMinutes !== null && startMinutes >= 13 * 60) return '오후 출근이에요. 페이스 천천히 맞추기!';
+    if (startMinutes !== null && startMinutes <= 8 * 60) return '이른 출근도 차근차근, 물도 꼭 챙기기!';
+    return '오늘도 안전하게 서비스 완료하기!';
+  }
+  if (info.type === 'off') return '오늘은 푹 쉬는 날이에요. 제대로 충전하기!';
+  if (info.type === 'leave') return '연차는 소중하니까 마음 편히 쉬기!';
+  if (code) return '애매한 일정은 한 번만 확인하면 충분해요.';
+  return '근무표를 넣으면 오늘의 응원을 보여줄게요.';
+}
+
+function getCheerStickerText(info = {}, code = '') {
+  if (info.type === 'work') return 'service ready';
+  if (info.type === 'off') return 'rest day';
+  if (info.type === 'leave') return 'recharge day';
+  if (code) return 'check point';
+  return 'shift note';
+}
+
+function renderChefCheerCard(info = {}, code = '', selectedDay = 1) {
+  const message = getDailyCheerMessage(info, code, selectedDay);
+  const sticker = getCheerStickerText(info, code);
+  const typeClass = badgeClass(info.type || 'empty');
+  return `
+    <section class="chef-cheer-card ${typeClass}" aria-label="오늘의 응원">
+      <div class="chef-cheer-main">
+        <span class="chef-cheer-icon" aria-hidden="true">🍳</span>
+        <div>
+          <p>오늘의 응원</p>
+          <strong>${escapeHtml(message)}</strong>
+        </div>
+      </div>
+      <span class="chef-cheer-sticker">${escapeHtml(sticker)}</span>
+    </section>
+  `;
+}
+
+function getRestCheerText(nextOff, focusDay, rows = []) {
+  if (!rows.length) return '이번 달 휴무가 보이면 여기서 바로 응원해줄게요.';
+  if (!nextOff) return '이번 달도 차근차근 마무리해요.';
+  const diff = Math.max(nextOff.day - focusDay, 0);
+  if (diff === 0) return '오늘은 충전하는 날. 푹 쉬어도 괜찮아요.';
+  if (diff === 1) return '다음 휴무까지 하루! 조금만 더 힘내기.';
+  return `다음 휴무까지 ${diff}일 남았어요. 무리하지 말고 페이스 유지!`;
+}
+
 function renderSummary() {
   const person = getMyPerson();
   const selected = new Date(state.selectedDate || Date.now());
@@ -2394,7 +2443,7 @@ function renderSummary() {
     <div class="summary-card memo-summary-card"><p>메모</p><strong>${memoText ? '메모 있음' : '메모 없음'}</strong><span>${escapeHtml(memoText ? compactText(memoText, 42) : '메모를 입력해 주세요.')}</span></div>
   `;
   const guide = el('workflowGuide');
-  if (guide) guide.innerHTML = renderWorkflowGuide();
+  if (guide) guide.innerHTML = `${renderChefCheerCard(todayInfo, todayCode, selectedDay)}${renderWorkflowGuide()}`;
 }
 
 function getWorkflowStepStatus() {
@@ -3079,6 +3128,7 @@ function renderOffDays() {
   const nextOff = rows.find((row) => row.day >= focusDay) || rows[0] || null;
   const leaveRows = rows.filter((row) => row.type === 'leave');
   const pureOffRows = rows.filter((row) => row.type === 'off');
+  const offCheerText = getRestCheerText(nextOff, focusDay, rows);
 
   const streaks = [];
   rows.forEach((row) => {
@@ -3153,6 +3203,7 @@ function renderOffDays() {
           <div><span>휴무</span><strong>${pureOffRows.length}일</strong><small>DO/PH/SD 등</small></div>
           <div><span>연차</span><strong>${leaveRows.length}일</strong><small>AL 기준</small></div>
         </div>
+        <div class="off-cheer-note"><span aria-hidden="true">☕</span><strong>${escapeHtml(offCheerText)}</strong></div>
       </section>
 
       <section class="off-dashboard-card today-off-card">
