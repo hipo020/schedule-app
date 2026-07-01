@@ -14893,3 +14893,903 @@ html[data-theme="simple"] .compact-cheer-banner .chef-cheer-copy p {
     margin: 0 0 0 -2px !important;
   }
 }
+
+/* =========================================
+   v5.5 Rest-day waiting page
+   - 휴무 탭을 다음 휴무 중심으로 재정리
+========================================= */
+.off-wait-title .view-title-side span {
+  white-space: nowrap;
+}
+
+.off-next-hero-card {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 18px;
+  padding: 24px;
+  margin-bottom: 12px;
+  border-radius: 30px;
+  border: 1px solid #D7EEF6;
+  background:
+    radial-gradient(circle at 92% 12%, rgba(255,255,255,0.95) 0 34px, transparent 35px),
+    linear-gradient(135deg, #E9F8FC 0%, #FFF9EF 100%);
+  box-shadow: 0 18px 42px rgba(31, 45, 61, 0.06);
+}
+
+.off-next-hero-card::after {
+  content: '☁️';
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(255,255,255,0.95);
+  box-shadow: 0 12px 28px rgba(31, 45, 61, 0.07);
+  font-size: 20px;
+}
+
+.off-next-hero-card.is-empty::after {
+  content: '📅';
+}
+
+.off-next-hero-copy {
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+  padding-right: 56px;
+}
+
+.off-next-kicker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 11px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+  background: #FFF4C9;
+  border: 1px solid #F1D986;
+  color: #6F5825;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+}
+
+.off-next-hero-copy h4 {
+  margin: 0 0 8px;
+  font-size: 17px;
+  line-height: 1.25;
+  color: var(--ui-muted, #6F7685);
+}
+
+.off-next-hero-copy h4 em {
+  font-style: normal;
+  color: #2F6E88;
+  font-weight: 950;
+}
+
+.off-next-hero-copy strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.08;
+  letter-spacing: -0.055em;
+  color: var(--ui-text, #151B2D);
+}
+
+.off-next-hero-copy p,
+.off-next-hero-copy small {
+  display: block;
+  margin: 0;
+  color: var(--ui-muted, #6F7685);
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.off-next-hero-copy p {
+  font-size: 14px;
+}
+
+.off-next-hero-copy small {
+  margin-top: 10px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(255,255,255,0.92);
+  color: #406579;
+  font-size: 13px;
+}
+
+.off-next-hero-card .slim-action {
+  position: relative;
+  z-index: 1;
+  width: auto;
+  min-width: 104px;
+  white-space: nowrap;
+}
+
+.off-quick-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.off-quick-card {
+  min-width: 0;
+  padding: 14px 15px;
+  border-radius: 22px;
+  border: 1px solid #E8EAF0;
+  background: #FFFFFF;
+  box-shadow: 0 12px 28px rgba(21, 27, 45, 0.045);
+}
+
+.off-quick-card.leave {
+  background: linear-gradient(180deg, #FFF8E3 0%, #FFFFFF 100%);
+  border-color: #F1E2B8;
+}
+
+.off-quick-card.streak {
+  background: linear-gradient(180deg, #F2F7FF 0%, #FFFFFF 100%);
+  border-color: #DCE9F9;
+}
+
+.off-quick-card span,
+.off-quick-card small {
+  display: block;
+  color: var(--ui-muted, #6F7685);
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.off-quick-card strong {
+  display: block;
+  margin: 5px 0 3px;
+  font-size: 24px;
+  line-height: 1.05;
+  color: var(--ui-text, #151B2D);
+  letter-spacing: -0.04em;
+}
+
+.next-off-team-card,
+.compact-week-off-card,
+.compact-rest-streak-card,
+.off-all-list-card,
+.off-team-analysis-card {
+  margin-bottom: 12px !important;
+}
+
+.next-off-team-card {
+  padding: 18px !important;
+  border-radius: 24px !important;
+}
+
+.next-off-team-card .off-card-head,
+.compact-week-off-card .off-card-head,
+.compact-rest-streak-card .off-card-head,
+.off-all-list-card .off-card-head {
+  margin-bottom: 12px !important;
+}
+
+.compact-off-week-list {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.compact-off-week-list .off-week-day {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+  padding: 12px 13px;
+}
+
+.compact-off-week-list .off-week-day.my-week-off {
+  background: #EAF7FC !important;
+  border-color: #CBE6F2 !important;
+}
+
+.compact-off-week-list .off-week-day small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ui-muted, #6F7685);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.compact-streak-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.off-all-list-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.off-all-list-group {
+  min-width: 0;
+}
+
+.off-all-list-group h5 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 9px;
+  font-size: 14px;
+  color: var(--ui-text, #151B2D);
+}
+
+.off-all-list-group h5 span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #F6FBFE;
+  border: 1px solid #DCEBF3;
+  color: #2F6E88;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.compact-off-detail-list {
+  gap: 7px;
+}
+
+.compact-off-detail-list .off-detail-item {
+  padding: 10px 11px;
+  border-radius: 15px;
+}
+
+.off-team-analysis-card {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.off-team-analysis-card summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  cursor: pointer;
+}
+
+.off-team-analysis-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.off-team-analysis-card summary div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.off-team-analysis-card summary span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 25px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #F6FBFE;
+  border: 1px solid #DCEBF3;
+  color: #2F6E88;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+}
+
+.off-team-analysis-card summary strong {
+  font-size: 15px;
+  color: var(--ui-text, #151B2D);
+}
+
+.off-team-analysis-card summary em {
+  font-style: normal;
+  font-size: 12px;
+  color: var(--ui-muted, #6F7685);
+  font-weight: 800;
+}
+
+.off-team-analysis-card[open] summary em::after {
+  content: ' 닫기';
+}
+
+.off-team-analysis-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  padding: 0 18px 18px;
+}
+
+.off-team-analysis-grid > section {
+  min-width: 0;
+  padding: 14px;
+  border-radius: 20px;
+  border: 1px solid #E8EAF0;
+  background: #F8FAFD;
+}
+
+html[data-theme="simple"] .off-next-hero-card {
+  background: #FFFFFF !important;
+  border-color: #E8EAF0 !important;
+}
+
+html[data-theme="simple"] .off-next-hero-card::after {
+  display: none;
+}
+
+html[data-theme="simple"] .off-next-hero-copy {
+  padding-right: 0;
+}
+
+html[data-theme="simple"] .off-next-kicker,
+html[data-theme="simple"] .off-next-hero-copy small {
+  background: #F8FAFC !important;
+  border-color: #E4E7EC !important;
+  color: #475467 !important;
+}
+
+html[data-theme="simple"] .off-quick-card,
+html[data-theme="simple"] .off-quick-card.leave,
+html[data-theme="simple"] .off-quick-card.streak,
+html[data-theme="simple"] .compact-off-week-list .off-week-day.my-week-off {
+  background: #FFFFFF !important;
+  border-color: #E4E7EC !important;
+}
+
+@media (max-width: 768px) {
+  .off-next-hero-card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 18px;
+    border-radius: 24px;
+    margin-bottom: 10px;
+  }
+
+  .off-next-hero-card::after {
+    top: 14px;
+    right: 14px;
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+
+  .off-next-hero-copy {
+    padding-right: 44px;
+  }
+
+  .off-next-kicker {
+    min-height: 25px;
+    padding: 0 9px;
+    margin-bottom: 10px;
+    font-size: 10px;
+  }
+
+  .off-next-hero-copy h4 {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .off-next-hero-copy strong {
+    font-size: 28px;
+    line-height: 1.08;
+  }
+
+  .off-next-hero-copy p {
+    font-size: 12.5px;
+  }
+
+  .off-next-hero-copy small {
+    width: 100%;
+    padding: 7px 9px;
+    font-size: 11.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .off-next-hero-card .slim-action {
+    width: 100%;
+    min-height: 34px !important;
+  }
+
+  .off-quick-summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    margin-bottom: 10px;
+  }
+
+  .off-quick-card {
+    padding: 11px 8px;
+    border-radius: 17px;
+  }
+
+  .off-quick-card span,
+  .off-quick-card small {
+    font-size: 9.5px;
+    line-height: 1.25;
+  }
+
+  .off-quick-card strong {
+    margin: 4px 0 2px;
+    font-size: 18px;
+  }
+
+  .next-off-team-card,
+  .compact-week-off-card,
+  .compact-rest-streak-card,
+  .off-all-list-card {
+    padding: 15px !important;
+    border-radius: 21px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .next-off-team-card .off-card-head,
+  .compact-week-off-card .off-card-head,
+  .compact-rest-streak-card .off-card-head,
+  .off-all-list-card .off-card-head {
+    margin-bottom: 10px !important;
+  }
+
+  .compact-off-week-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .compact-off-week-list .off-week-day {
+    padding: 10px 11px;
+    border-radius: 15px;
+  }
+
+  .compact-off-week-list .off-week-day strong,
+  .compact-off-week-list .off-week-day span,
+  .compact-off-week-list .off-week-day small {
+    font-size: 11.5px;
+    line-height: 1.3;
+  }
+
+  .compact-streak-grid,
+  .off-all-list-groups,
+  .off-team-analysis-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .compact-streak-grid .off-streak-item {
+    padding: 11px 12px;
+    border-radius: 15px;
+  }
+
+  .off-all-list-group h5 {
+    font-size: 13px;
+    margin-bottom: 7px;
+  }
+
+  .compact-off-detail-list .off-detail-item {
+    padding: 9px 10px;
+  }
+
+  .off-detail-main strong,
+  .off-detail-main small,
+  .off-detail-code {
+    font-size: 11px !important;
+  }
+
+  .off-team-analysis-card summary {
+    padding: 14px 15px;
+  }
+
+  .off-team-analysis-card summary strong {
+    font-size: 13px;
+  }
+
+  .off-team-analysis-card summary em {
+    font-size: 11px;
+  }
+
+  .off-team-analysis-grid {
+    padding: 0 15px 15px;
+  }
+
+  .off-team-analysis-grid > section {
+    padding: 12px;
+    border-radius: 17px;
+  }
+}
+
+/* =========================================
+   v5.6 View theme color unification
+   - 일간/주간/월간/휴무일을 응원 모드·무난 모드 색감으로 통일
+========================================= */
+:root {
+  --view-cheer-cloud: #E8F7FC;
+  --view-cheer-cloud-line: #C8E7F2;
+  --view-cheer-butter: #FFF5D6;
+  --view-cheer-butter-line: #F1DFA9;
+  --view-cheer-peach: #FFF0E7;
+  --view-cheer-peach-line: #F4D2BE;
+  --view-cheer-pink: #FFF0F6;
+  --view-cheer-pink-line: #F3D4E3;
+  --view-cheer-mint: #EFF9F1;
+  --view-cheer-mint-line: #D4EBD8;
+  --view-cheer-text: #14213D;
+  --view-cheer-muted: #667085;
+}
+
+/* 공통 보기 카드 */
+.daily-date-selector,
+.person-view-picker,
+.week-nav-inline span,
+.month-legend,
+.mobile-simple-timeline,
+.off-team-analysis-grid > section {
+  background: rgba(255,255,255,0.76) !important;
+  border-color: rgba(200,231,242,0.82) !important;
+  box-shadow: 0 12px 28px rgba(20,33,61,0.045) !important;
+}
+
+/* 일간 */
+.daily-my-schedule-simple.daily-summary-polished-card,
+.daily-my-schedule-card.daily-summary-polished-card {
+  background:
+    radial-gradient(circle at 90% 10%, rgba(255,255,255,0.92) 0 35px, transparent 36px),
+    linear-gradient(180deg, #E8F7FC 0%, #DFF2F8 100%) !important;
+  border-color: var(--view-cheer-cloud-line) !important;
+  box-shadow: 0 16px 34px rgba(47,110,136,0.075) !important;
+}
+
+.daily-insight-card-simple.daily-summary-polished-card,
+.daily-insight-card.daily-summary-polished-card {
+  background: linear-gradient(180deg, #FFF7EF 0%, #FFFFFF 100%) !important;
+  border-color: var(--view-cheer-peach-line) !important;
+  box-shadow: 0 14px 30px rgba(244,210,190,0.22) !important;
+}
+
+.daily-card-eyebrow,
+.daily-insight-head span,
+.daily-date-selector-head span {
+  color: #6D7890 !important;
+}
+
+.daily-code-chip.work,
+.daily-count-chip,
+.badge.work,
+.week-code-pill.work,
+.day-code.work {
+  background: #F6FCFF !important;
+  color: #2F6E88 !important;
+  border-color: #BFE3EE !important;
+}
+
+.daily-code-chip.off,
+.badge.off,
+.week-code-pill.off,
+.day-code.off {
+  background: #FFF6E1 !important;
+  color: #86661E !important;
+  border-color: #EFD68E !important;
+}
+
+.daily-code-chip.leave,
+.badge.leave,
+.week-code-pill.leave,
+.day-code.leave {
+  background: #FFF0F6 !important;
+  color: #9A4D69 !important;
+  border-color: #F0CBD9 !important;
+}
+
+.daily-my-simple-state,
+.daily-insight-simple-row.highlight {
+  background: #F7FCFF !important;
+  border-color: #D6EEF6 !important;
+  color: #315D70 !important;
+}
+
+.daily-insight-simple-row.muted {
+  background: #FFF9EA !important;
+  border-color: #F1E3B8 !important;
+}
+
+.daily-insight-total-row {
+  background: #FFFFFF !important;
+  border-color: #EAF0F5 !important;
+}
+
+.mobile-simple-row {
+  background: #FFFFFF !important;
+  border-color: #EAF0F5 !important;
+}
+
+.mobile-simple-row.is-my-row {
+  background: linear-gradient(180deg, #EAF8FC 0%, #FFFFFF 100%) !important;
+  border-color: #C7E7F2 !important;
+}
+
+.mobile-simple-row.tone-mint {
+  background: linear-gradient(180deg, #F1FAF3 0%, #FFFFFF 100%) !important;
+  border-color: #D5EBD8 !important;
+}
+
+.mobile-simple-row.tone-orange {
+  background: linear-gradient(180deg, #FFF4EA 0%, #FFFFFF 100%) !important;
+  border-color: #F0D5C1 !important;
+}
+
+.mobile-simple-track i {
+  background: linear-gradient(90deg, #9ED9EC, #F6D7C5) !important;
+}
+
+/* 주간 */
+.week-nav-inline span {
+  color: var(--view-cheer-text) !important;
+  font-weight: 950 !important;
+}
+
+.mini-stat.week-summary-block.work,
+.weekly-stat-row .mini-stat:nth-child(1) {
+  background: linear-gradient(180deg, #EAF8FC 0%, #FFFFFF 100%) !important;
+  border: 1px solid #CFEAF4 !important;
+}
+
+.mini-stat.week-summary-block.off,
+.weekly-stat-row .mini-stat:nth-child(2) {
+  background: linear-gradient(180deg, #FFF5D6 0%, #FFFFFF 100%) !important;
+  border: 1px solid #F1DFA9 !important;
+}
+
+.mini-stat.week-summary-block.neutral,
+.weekly-stat-row .mini-stat:nth-child(3) {
+  background: linear-gradient(180deg, #FFF0E7 0%, #FFFFFF 100%) !important;
+  border: 1px solid #F4D2BE !important;
+}
+
+.boxed-week-grid .week-day-card,
+.improved-week-grid.boxed-week-grid .week-day-card,
+.week-day-card {
+  background: #FFFFFF !important;
+  border-color: #E9EEF4 !important;
+  box-shadow: 0 12px 26px rgba(20,33,61,0.04) !important;
+}
+
+.boxed-week-grid .week-day-card.work,
+.week-day-card.work {
+  background: linear-gradient(180deg, #EAF8FC 0%, #FFFFFF 100%) !important;
+  border-color: #C8E7F2 !important;
+}
+
+.boxed-week-grid .week-day-card.off,
+.week-day-card.off {
+  background: linear-gradient(180deg, #FFF7E2 0%, #FFFFFF 100%) !important;
+  border-color: #F0DFA9 !important;
+}
+
+.boxed-week-grid .week-day-card.leave,
+.week-day-card.leave {
+  background: linear-gradient(180deg, #FFF0F6 0%, #FFFFFF 100%) !important;
+  border-color: #F1CEDD !important;
+}
+
+.boxed-week-grid .week-day-card.selected-week-day,
+.week-day-card.selected-week-day {
+  box-shadow: 0 0 0 2px #9ED9EC, 0 14px 28px rgba(47,110,136,0.12) !important;
+  transform: translateY(-1px);
+}
+
+/* 월간 */
+.month-legend span {
+  background: #FFFFFF !important;
+  border: 1px solid #EAF0F5 !important;
+  box-shadow: 0 8px 18px rgba(20,33,61,0.035) !important;
+}
+
+.boxed-month-calendar,
+.simplified-month-calendar,
+.improved-month-calendar {
+  background: rgba(255,255,255,0.72) !important;
+  border-color: rgba(200,231,242,0.76) !important;
+}
+
+.boxed-month-calendar .day-cell,
+.simplified-month-calendar .day-cell,
+.improved-month-calendar .day-cell,
+.day-cell {
+  background: #FFFFFF !important;
+  border-color: #EAF0F5 !important;
+}
+
+.boxed-month-calendar .day-cell.work,
+.simplified-month-calendar .day-cell.work,
+.day-cell.work {
+  background: linear-gradient(180deg, #EAF8FC 0%, #FFFFFF 100%) !important;
+  border-color: #C8E7F2 !important;
+}
+
+.boxed-month-calendar .day-cell.off,
+.simplified-month-calendar .day-cell.off,
+.day-cell.off {
+  background: linear-gradient(180deg, #FFF7E2 0%, #FFFFFF 100%) !important;
+  border-color: #F0DFA9 !important;
+}
+
+.boxed-month-calendar .day-cell.leave,
+.simplified-month-calendar .day-cell.leave,
+.day-cell.leave {
+  background: linear-gradient(180deg, #FFF0F6 0%, #FFFFFF 100%) !important;
+  border-color: #F1CEDD !important;
+}
+
+.boxed-month-calendar .day-cell.today,
+.simplified-month-calendar .day-cell.today,
+.day-cell.today {
+  outline: 2px solid #9ED9EC !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 12px 24px rgba(47,110,136,0.10) !important;
+}
+
+.boxed-month-calendar .day-cell .day-code,
+.boxed-month-calendar .badge.day-code,
+.day-cell .day-code {
+  border-width: 1px !important;
+}
+
+/* 휴무일 */
+.off-next-hero-card {
+  background:
+    radial-gradient(circle at 92% 12%, rgba(255,255,255,0.95) 0 34px, transparent 35px),
+    linear-gradient(135deg, #E8F7FC 0%, #FFF4EA 100%) !important;
+  border-color: #C8E7F2 !important;
+}
+
+.off-quick-card {
+  background: #FFFFFF !important;
+  border-color: #EAF0F5 !important;
+}
+
+.off-quick-card.leave {
+  background: linear-gradient(180deg, #FFF6DA 0%, #FFFFFF 100%) !important;
+  border-color: #F1DFA9 !important;
+}
+
+.off-quick-card.streak {
+  background: linear-gradient(180deg, #F2F6FF 0%, #FFFFFF 100%) !important;
+  border-color: #DCE7FA !important;
+}
+
+.next-off-team-card,
+.compact-week-off-card,
+.compact-rest-streak-card,
+.off-all-list-card,
+.off-team-analysis-card {
+  background: rgba(255,255,255,0.86) !important;
+  border-color: #EAF0F5 !important;
+  box-shadow: 0 12px 28px rgba(20,33,61,0.04) !important;
+}
+
+.compact-off-week-list .off-week-day.my-week-off {
+  background: linear-gradient(180deg, #EAF8FC 0%, #FFFFFF 100%) !important;
+  border-color: #C8E7F2 !important;
+}
+
+/* 무난 모드: 모든 보기 탭을 차분한 회색/하늘 톤으로 */
+html[data-theme="simple"] .daily-date-selector,
+html[data-theme="simple"] .person-view-picker,
+html[data-theme="simple"] .week-nav-inline span,
+html[data-theme="simple"] .month-legend,
+html[data-theme="simple"] .mobile-simple-timeline,
+html[data-theme="simple"] .boxed-month-calendar,
+html[data-theme="simple"] .simplified-month-calendar,
+html[data-theme="simple"] .improved-month-calendar,
+html[data-theme="simple"] .off-team-analysis-grid > section {
+  background: #FFFFFF !important;
+  border-color: #E4E7EC !important;
+  box-shadow: 0 10px 24px rgba(16,24,40,0.045) !important;
+}
+
+html[data-theme="simple"] .daily-my-schedule-simple.daily-summary-polished-card,
+html[data-theme="simple"] .daily-my-schedule-card.daily-summary-polished-card,
+html[data-theme="simple"] .daily-insight-card-simple.daily-summary-polished-card,
+html[data-theme="simple"] .daily-insight-card.daily-summary-polished-card,
+html[data-theme="simple"] .mobile-simple-row,
+html[data-theme="simple"] .mobile-simple-row.is-my-row,
+html[data-theme="simple"] .mobile-simple-row.tone-mint,
+html[data-theme="simple"] .mobile-simple-row.tone-orange,
+html[data-theme="simple"] .boxed-week-grid .week-day-card,
+html[data-theme="simple"] .improved-week-grid.boxed-week-grid .week-day-card,
+html[data-theme="simple"] .week-day-card,
+html[data-theme="simple"] .boxed-week-grid .week-day-card.work,
+html[data-theme="simple"] .boxed-week-grid .week-day-card.off,
+html[data-theme="simple"] .boxed-week-grid .week-day-card.leave,
+html[data-theme="simple"] .week-day-card.work,
+html[data-theme="simple"] .week-day-card.off,
+html[data-theme="simple"] .week-day-card.leave,
+html[data-theme="simple"] .boxed-month-calendar .day-cell,
+html[data-theme="simple"] .simplified-month-calendar .day-cell,
+html[data-theme="simple"] .improved-month-calendar .day-cell,
+html[data-theme="simple"] .day-cell,
+html[data-theme="simple"] .boxed-month-calendar .day-cell.work,
+html[data-theme="simple"] .boxed-month-calendar .day-cell.off,
+html[data-theme="simple"] .boxed-month-calendar .day-cell.leave,
+html[data-theme="simple"] .day-cell.work,
+html[data-theme="simple"] .day-cell.off,
+html[data-theme="simple"] .day-cell.leave,
+html[data-theme="simple"] .off-next-hero-card,
+html[data-theme="simple"] .off-quick-card,
+html[data-theme="simple"] .off-quick-card.leave,
+html[data-theme="simple"] .off-quick-card.streak,
+html[data-theme="simple"] .next-off-team-card,
+html[data-theme="simple"] .compact-week-off-card,
+html[data-theme="simple"] .compact-rest-streak-card,
+html[data-theme="simple"] .off-all-list-card,
+html[data-theme="simple"] .off-team-analysis-card,
+html[data-theme="simple"] .compact-off-week-list .off-week-day.my-week-off {
+  background: #FFFFFF !important;
+  border-color: #E4E7EC !important;
+  box-shadow: 0 10px 24px rgba(16,24,40,0.04) !important;
+}
+
+html[data-theme="simple"] .mini-stat.week-summary-block.work,
+html[data-theme="simple"] .weekly-stat-row .mini-stat:nth-child(1),
+html[data-theme="simple"] .mini-stat.week-summary-block.off,
+html[data-theme="simple"] .weekly-stat-row .mini-stat:nth-child(2),
+html[data-theme="simple"] .mini-stat.week-summary-block.neutral,
+html[data-theme="simple"] .weekly-stat-row .mini-stat:nth-child(3) {
+  background: #F8FAFC !important;
+  border: 1px solid #E4E7EC !important;
+}
+
+html[data-theme="simple"] .daily-code-chip,
+html[data-theme="simple"] .daily-count-chip,
+html[data-theme="simple"] .badge,
+html[data-theme="simple"] .week-code-pill,
+html[data-theme="simple"] .day-code,
+html[data-theme="simple"] .off-next-kicker,
+html[data-theme="simple"] .off-next-hero-copy small {
+  background: #F8FAFC !important;
+  color: #475467 !important;
+  border-color: #D0D5DD !important;
+}
+
+html[data-theme="simple"] .boxed-week-grid .week-day-card.selected-week-day,
+html[data-theme="simple"] .week-day-card.selected-week-day,
+html[data-theme="simple"] .boxed-month-calendar .day-cell.today,
+html[data-theme="simple"] .simplified-month-calendar .day-cell.today,
+html[data-theme="simple"] .day-cell.today {
+  outline: 2px solid #98A2B3 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 10px 24px rgba(16,24,40,0.08) !important;
+}
+
+html[data-theme="simple"] .mobile-simple-track i {
+  background: #98A2B3 !important;
+}
+
+@media (max-width: 768px) {
+  .daily-date-selector,
+  .mobile-simple-timeline,
+  .boxed-month-calendar,
+  .simplified-month-calendar,
+  .improved-month-calendar {
+    box-shadow: 0 8px 18px rgba(20,33,61,0.035) !important;
+  }
+
+  .boxed-week-grid .week-day-card.selected-week-day,
+  .week-day-card.selected-week-day {
+    transform: none;
+  }
+}

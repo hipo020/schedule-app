@@ -3273,7 +3273,7 @@ function getSameOffPeopleText(day) {
 function renderOffDays() {
   const person = getMyPerson();
   if (!state.people.length) {
-    return `<div class="empty-archive"><h3>휴무 현황 데이터가 없어요.</h3><p>스케줄 데이터를 입력하면 내 휴무와 팀 휴무 현황을 한눈에 확인할 수 있어요.</p></div>`;
+    return `<div class="empty-archive"><h3>휴무 현황 데이터가 없어요.</h3><p>스케줄 데이터를 입력하면 휴무와 팀 휴무 현황을 한눈에 확인할 수 있어요.</p></div>`;
   }
 
   const rows = person ? getScheduleRowsForPerson(person).filter((row) => ['off', 'leave'].includes(row.type)) : [];
@@ -3283,10 +3283,12 @@ function renderOffDays() {
   const focusDay = today.getFullYear() === state.year && today.getMonth() + 1 === state.month
     ? today.getDate()
     : (isSameMonth(selected) ? selected.getDate() : 1);
-  const nextOff = rows.find((row) => row.day >= focusDay) || rows[0] || null;
+  const nextFutureOff = rows.find((row) => row.day >= focusDay) || null;
+  const nextOff = nextFutureOff || rows[0] || null;
   const leaveRows = rows.filter((row) => row.type === 'leave');
   const pureOffRows = rows.filter((row) => row.type === 'off');
-  const offCheerText = getRestCheerText(nextOff, focusDay, rows);
+  const ownerName = getFriendlyScheduleOwnerName() || '선택한 사람';
+  const simple = isSimpleTheme();
 
   const streaks = [];
   rows.forEach((row) => {
@@ -3299,6 +3301,7 @@ function renderOffDays() {
     }
   });
   const usefulStreaks = streaks.filter((streak) => streak.items.length >= 2).slice(0, 4);
+  const longestStreak = streaks.reduce((max, streak) => Math.max(max, streak.items.length), 0);
 
   const getPills = (people, emptyText = '없음') => people.length
     ? people.map((p) => `<span class="person-pill ${badgeClass(p.info?.type || 'off')}">${escapeHtml(p.name)} <small>${escapeHtml(p.code || '')}</small></span>`).join('')
@@ -3306,6 +3309,23 @@ function renderOffDays() {
 
   const focusRoster = getDayRoster(focusDay);
   const focusLabel = `${state.month}/${focusDay}(${dayNames[getDateObj(focusDay).getDay()]})`;
+  const nextOffRoster = nextOff ? getDayRoster(nextOff.day) : { offPeople: [] };
+  const sameOffPeople = nextOffRoster.offPeople.filter((p) => !state.myName || p.name.trim() !== state.myName.trim());
+  const ddayDiff = nextFutureOff ? Math.max(nextFutureOff.day - focusDay, 0) : null;
+  const ddayLabel = nextFutureOff
+    ? (ddayDiff === 0 ? 'D-DAY' : `D-${ddayDiff}`)
+    : (nextOff ? '이번 달' : '-');
+  const nextOffTitle = nextOff
+    ? `${nextOff.dateText} ${nextOff.label || '휴무'}`
+    : '이번 달 휴무가 없어요';
+  const nextOffSub = nextOff
+    ? `${nextOff.code} · ${nextOff.label || '휴무'}${nextFutureOff ? '' : ' · 지난 휴무'}`
+    : '휴무/연차 데이터가 없어요.';
+  const nextOffMessage = simple
+    ? (nextOff ? '다음 휴무 정보를 확인해요.' : '이번 달 등록된 휴무가 없어요.')
+    : (nextOff
+      ? (ddayDiff === 0 ? '오늘은 충전하는 날. 푹 쉬어가기 ☁️' : `쉬는 날까지 조금만 더, ${ownerName} 응원 중 ☁️`)
+      : '쉬는 날이 생기면 여기서 바로 챙겨볼게 ☁️');
 
   const mondayOffset = (getDateObj(focusDay).getDay() + 6) % 7;
   const mondayDate = getDateObj(focusDay);
@@ -3317,9 +3337,10 @@ function renderOffDays() {
     if (!inMonth) return null;
     const day = date.getDate();
     const roster = getDayRoster(day);
-    return { day, date, roster };
+    const mine = rows.find((row) => row.day === day) || null;
+    return { day, date, roster, mine };
   }).filter(Boolean);
-  const weekOffRows = weekRows.filter((item) => item.roster.offPeople.length);
+  const weekOffRows = weekRows.filter((item) => item.mine || item.roster.offPeople.length);
 
   const monthlyOffRows = [];
   for (let d = 1; d <= days; d++) {
@@ -3344,37 +3365,53 @@ function renderOffDays() {
   ].filter((group) => group.items.length);
 
   return `
-    <div class="view-title offday-title">
+    <div class="view-title offday-title off-wait-title">
       <div>
-        <h3>휴무 현황</h3>
-        <p>내 휴무와 팀 휴무자를 오늘 기준으로 빠르게 확인해요.</p>
+        <h3>${simple ? '휴무 현황' : '휴무 기다림'}</h3>
+        <p>${simple ? '개인 휴무와 팀 휴무를 확인해요.' : '쉬는 날까지 얼마나 남았는지 같이 체크해요.'}</p>
       </div>
       <div class="view-title-side">${renderPersonPicker()}<span>내 휴무 ${rows.length}일</span></div>
     </div>
 
-    <div class="off-dashboard-grid">
-      <section class="off-dashboard-card my-off-summary">
-        <div class="off-card-head"><span>MY OFF</span><h4>내 휴무 요약</h4></div>
-        <div class="off-summary-line"><strong>${rows.length}일</strong><span>이번 달 휴무/연차</span></div>
-        <div class="off-mini-grid">
-          <div><span>다음 휴무</span><strong>${nextOff ? nextOff.dateText : '-'}</strong><small>${nextOff ? `${nextOff.code} · ${nextOff.label}` : '남은 휴무가 없어요.'}</small></div>
-          <div><span>휴무</span><strong>${pureOffRows.length}일</strong><small>DO/PH/SD 등</small></div>
-          <div><span>연차</span><strong>${leaveRows.length}일</strong><small>AL 기준</small></div>
-        </div>
-        <div class="off-cheer-note"><span aria-hidden="true">☕</span><strong>${escapeHtml(offCheerText)}</strong></div>
-      </section>
+    <section class="off-next-hero-card ${nextOff ? '' : 'is-empty'}">
+      <div class="off-next-hero-copy">
+        <span class="off-next-kicker">${simple ? 'NEXT OFF' : '다음 충전일'}</span>
+        <h4>다음 휴무까지 <em>${escapeHtml(ddayLabel)}</em></h4>
+        <strong>${escapeHtml(nextOffTitle)}</strong>
+        <p>${escapeHtml(nextOffSub)}</p>
+        <small>${escapeHtml(nextOffMessage)}</small>
+      </div>
+      ${nextOff ? `<button class="ghost-btn slim-action" data-pick-day="${nextOff.day}" type="button">일간 보기</button>` : ''}
+    </section>
 
-      <section class="off-dashboard-card today-off-card">
-        <div class="off-card-head"><span>TODAY</span><h4>${focusLabel} 휴무자</h4></div>
-        <div class="roster-pill-wrap off-dashboard-pills">${getPills(focusRoster.offPeople, '선택일 휴무자가 없어요.')}</div>
-        <button class="ghost-btn slim-action" data-pick-day="${focusDay}" type="button">일간 보기로 이동</button>
-      </section>
+    <div class="off-quick-summary-grid">
+      <section class="off-quick-card"><span>이번 달 휴무</span><strong>${pureOffRows.length}일</strong><small>DO/PH/SD 등</small></section>
+      <section class="off-quick-card leave"><span>연차</span><strong>${leaveRows.length}일</strong><small>AL 기준</small></section>
+      <section class="off-quick-card streak"><span>연속 휴무</span><strong>${longestStreak || 0}일</strong><small>${usefulStreaks.length ? '이어 쉬는 구간 있음' : '연속 구간 없음'}</small></section>
     </div>
 
-    <section class="off-dashboard-card off-streak-card">
-      <div class="off-card-head"><span>STREAK</span><h4>연속으로 쉬는 구간</h4></div>
-      ${usefulStreaks.length ? `
-        <div class="off-streak-grid">
+    <section class="off-dashboard-card next-off-team-card">
+      <div class="off-card-head"><span>${simple ? 'TOGETHER' : '같이 쉬는 날'}</span><h4>다음 휴무 같이 쉬는 사람</h4></div>
+      <div class="roster-pill-wrap off-dashboard-pills">${nextOff ? getPills(sameOffPeople, '같이 쉬는 사람은 아직 없어요.') : getPills([], '다음 휴무가 없어요.')}</div>
+    </section>
+
+    <section class="off-dashboard-card week-off-card compact-week-off-card">
+      <div class="off-card-head"><span>WEEK</span><h4>이번 주 휴무</h4></div>
+      <div class="off-week-list compact-off-week-list">
+        ${weekOffRows.length ? weekOffRows.map((item) => `
+          <button class="off-week-day ${item.mine ? 'my-week-off' : ''}" data-pick-day="${item.day}" type="button">
+            <strong>${state.month}/${item.day}(${dayNames[item.date.getDay()]})</strong>
+            <span>${item.mine ? `내 일정 ${escapeHtml(item.mine.code)} · ${escapeHtml(item.mine.label)}` : `${item.roster.offPeople.length}명 휴무`}</span>
+            <small>${item.roster.offPeople.map((p) => `${escapeHtml(p.name)} ${escapeHtml(p.code)}`).join(', ')}</small>
+          </button>
+        `).join('') : '<p class="offday-empty-note">이번 주 휴무자가 없어요.</p>'}
+      </div>
+    </section>
+
+    ${usefulStreaks.length ? `
+      <section class="off-dashboard-card off-streak-card compact-rest-streak-card">
+        <div class="off-card-head"><span>STREAK</span><h4>이어 쉬는 구간</h4></div>
+        <div class="off-streak-grid compact-streak-grid">
           ${usefulStreaks.map((streak) => `
             <button class="off-streak-item" data-pick-day="${streak.start.day}" type="button">
               <strong>${streak.start.dateText} ~ ${streak.end.dateText}</strong>
@@ -3383,58 +3420,59 @@ function renderOffDays() {
             </button>
           `).join('')}
         </div>
-      ` : `<p class="offday-empty-note">2일 이상 이어지는 휴무/연차 구간은 없어요.</p>`}
+      </section>
+    ` : ''}
+
+    <section class="off-dashboard-card off-detail-card off-all-list-card">
+      <div class="off-card-head"><span>LIST</span><h4>전체 휴무 목록</h4></div>
+      <div class="off-all-list-groups">
+        ${detailGroups.length ? detailGroups.map((group) => `
+          <div class="off-all-list-group ${group.type}">
+            <h5>${group.key} <span>${group.items.length}일</span></h5>
+            <div class="off-detail-list compact-off-detail-list">
+              ${group.items.map((row) => `
+                <button class="off-detail-item ${badgeClass(row.type)}" data-pick-day="${row.day}" type="button">
+                  <div class="off-detail-main">
+                    <strong>${row.dateText}</strong>
+                    <small>${getSameOffPeopleText(row.day) || '같이 쉬는 사람 없음'}</small>
+                  </div>
+                  <span class="off-detail-code">${row.code}</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `).join('') : '<p class="offday-empty-note">이번 달 내 휴무/연차가 아직 없어요.</p>'}
+      </div>
     </section>
 
-    <div class="off-dashboard-grid secondary">
-      <section class="off-dashboard-card week-off-card">
-        <div class="off-card-head"><span>WEEK</span><h4>이번 주 휴무</h4></div>
-        <div class="off-week-list">
-          ${weekOffRows.length ? weekOffRows.map((item) => `
-            <button class="off-week-day" data-pick-day="${item.day}" type="button">
-              <strong>${state.month}/${item.day}(${dayNames[item.date.getDay()]})</strong>
-              <span>${item.roster.offPeople.map((p) => `${escapeHtml(p.name)} ${escapeHtml(p.code)}`).join(', ')}</span>
-            </button>
-          `).join('') : '<p class="offday-empty-note">이번 주 휴무자가 없어요.</p>'}
-        </div>
-      </section>
-
-      <section class="off-dashboard-card top-off-card">
-        <div class="off-card-head"><span>MONTH</span><h4>휴무 많은 날</h4></div>
-        <div class="off-top-list">
-          ${topOffDays.length ? topOffDays.map((item, index) => `
-            <button class="off-top-day" data-pick-day="${item.day}" type="button">
-              <em>${index + 1}</em>
-              <strong>${state.month}/${item.day}</strong>
-              <span>${item.roster.offPeople.length}명</span>
-              <small>${item.roster.offPeople.map((p) => escapeHtml(p.name)).join(', ')}</small>
-            </button>
-          `).join('') : '<p class="offday-empty-note">이번 달 휴무자가 없어요.</p>'}
-        </div>
-      </section>
-    </div>
-
-    <div class="off-dashboard-grid secondary off-detail-grid">
-      ${detailGroups.length ? detailGroups.map((group) => `
-        <section class="off-dashboard-card off-detail-card ${group.type}">
-          <div class="off-card-head"><span>${group.type === 'leave' ? 'LEAVE' : 'OFF'}</span><h4>${group.key}</h4></div>
-          <div class="off-detail-list">
-            ${group.items.map((row) => `
-              <button class="off-detail-item ${badgeClass(row.type)}" data-pick-day="${row.day}" type="button">
-                <div class="off-detail-main">
-                  <strong>${row.dateText}</strong>
-                  <small>${getSameOffPeopleText(row.day) || '같이 쉬는 사람 없음'}</small>
-                </div>
-                <span class="off-detail-code">${row.code}</span>
+    <details class="off-dashboard-card off-team-analysis-card">
+      <summary>
+        <div><span>TEAM</span><strong>팀 휴무 분석</strong></div>
+        <em>펼쳐보기</em>
+      </summary>
+      <div class="off-team-analysis-grid">
+        <section>
+          <div class="off-card-head"><span>TODAY</span><h4>${focusLabel} 휴무자</h4></div>
+          <div class="roster-pill-wrap off-dashboard-pills">${getPills(focusRoster.offPeople, '선택일 휴무자가 없어요.')}</div>
+          <button class="ghost-btn slim-action" data-pick-day="${focusDay}" type="button">일간 보기로 이동</button>
+        </section>
+        <section>
+          <div class="off-card-head"><span>MONTH</span><h4>휴무 많은 날</h4></div>
+          <div class="off-top-list">
+            ${topOffDays.length ? topOffDays.map((item, index) => `
+              <button class="off-top-day" data-pick-day="${item.day}" type="button">
+                <em>${index + 1}</em>
+                <strong>${state.month}/${item.day}</strong>
+                <span>${item.roster.offPeople.length}명</span>
+                <small>${item.roster.offPeople.map((p) => escapeHtml(p.name)).join(', ')}</small>
               </button>
-            `).join('')}
+            `).join('') : '<p class="offday-empty-note">이번 달 휴무자가 없어요.</p>'}
           </div>
         </section>
-      `).join('') : '<section class="off-dashboard-card off-detail-card"><div class="off-card-head"><span>OFF</span><h4>내 휴무 없음</h4></div><p class="offday-empty-note">이번 달 내 휴무/연차가 아직 없어요.</p></section>'}
-    </div>
+      </div>
+    </details>
   `;
 }
-
 function makeRosterShareText(template = state.shareTemplate || 'detailed') {
   const day = getSelectedRosterDay();
   const roster = getDayRoster(day);
