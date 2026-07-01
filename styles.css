@@ -13638,3 +13638,244 @@ body {
     font-size: 10px !important;
   }
 }
+
+/* ===== Mobile final audit: tighter cards, safer wrapping, no accidental horizontal overflow ===== */
+@media (max-width: 720px) {
+  html,
+  body,
+  .app-shell,
+  .page-area,
+  .app-page,
+  .panel,
+  .view-panel,
+  .home-panel {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .daily-summary-polished-card,
+  .daily-my-schedule-simple.daily-summary-polished-card,
+  .daily-insight-card-simple.daily-summary-polished-card {
+    min-height: auto !important;
+    height: auto !important;
+  }
+
+  .daily-my-simple-time {
+    font-size: clamp(20px, 6vw, 24px) !important;
+    letter-spacing: -0.04em !important;
+  }
+
+  .daily-insight-simple-list {
+    align-items: stretch !important;
+  }
+
+  .daily-insight-simple-row {
+    min-height: 74px !important;
+    display: grid !important;
+    align-content: start !important;
+  }
+
+  .daily-insight-simple-row strong {
+    word-break: keep-all !important;
+  }
+
+  .summary-card,
+  .info-card,
+  .mini-stat,
+  .offday-summary-card,
+  .daily-date-selector,
+  .daily-timeline-card,
+  .workflow-guide-card {
+    box-shadow: 0 8px 20px rgba(23, 32, 51, 0.045) !important;
+  }
+
+  .monthly-calendar-wrap,
+  .calendar,
+  .refined-calendar,
+  .improved-month-calendar,
+  .simplified-month-calendar {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .day-cell,
+  .week-day-card,
+  .daily-day-chip,
+  .sheet-tab,
+  .category-tab {
+    -webkit-tap-highlight-color: transparent !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .app-shell {
+    padding-inline: 11px !important;
+  }
+
+  .hero h1 {
+    font-size: 24px !important;
+  }
+
+  .hero-desc {
+    font-size: 12.5px !important;
+  }
+
+  .category-shell {
+    padding: 10px !important;
+  }
+
+  .category-tab {
+    min-height: 54px !important;
+    padding: 7px 5px !important;
+    border-radius: 16px !important;
+    gap: 4px !important;
+  }
+
+  .category-icon {
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 12px !important;
+  }
+
+  .category-tab strong {
+    font-size: 10.5px !important;
+    letter-spacing: -0.05em !important;
+  }
+
+  .daily-date-selector {
+    padding: 12px !important;
+  }
+
+  .daily-date-control {
+    grid-template-columns: 32px minmax(0, 1fr) 32px !important;
+  }
+
+  .daily-date-step {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .daily-date-input {
+    height: 32px !important;
+    padding-inline: 6px !important;
+    font-size: 11.5px !important;
+  }
+
+  .daily-day-chip {
+    min-width: 40px !important;
+    height: 43px !important;
+    border-radius: 14px !important;
+  }
+
+  .daily-day-chip strong {
+    font-size: 13px !important;
+  }
+
+  .daily-day-chip span {
+    font-size: 9px !important;
+  }
+
+  .daily-polished-head {
+    min-height: 0 !important;
+  }
+
+  .daily-code-chip,
+  .daily-count-chip {
+    padding: 6px 8px !important;
+    font-size: 10px !important;
+  }
+
+  .daily-my-polished-foot {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .daily-my-polished-foot small {
+    justify-self: start !important;
+  }
+
+  .daily-insight-simple-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .daily-insight-simple-row {
+    min-height: 68px !important;
+    padding: 9px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .hero-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .hero-actions button {
+    min-height: 34px !important;
+    padding: 8px 5px !important;
+    font-size: 10.5px !important;
+  }
+
+  .improved-week-grid,
+  .simplified-week-grid,
+  .week-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .week-day-card,
+  .improved-week-grid .week-day-card {
+    min-height: 108px !important;
+    padding: 10px !important;
+    border-radius: 16px !important;
+  }
+
+  .week-day-card strong {
+    font-size: 14.5px !important;
+  }
+
+  .week-day-card .badge,
+  .week-code-text {
+    font-size: 10.5px !important;
+    padding: 5px 7px !important;
+  }
+
+  .daily-insight-simple-row strong {
+    font-size: 11.5px !important;
+  }
+
+  .daily-insight-simple-row small {
+    font-size: 9px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .app-shell {
+    padding-inline: 8px !important;
+  }
+
+  .panel,
+  .view-panel,
+  .home-panel,
+  .setup-panel,
+  .upload-panel {
+    padding: 12px !important;
+  }
+
+  .category-tab strong {
+    font-size: 9.8px !important;
+  }
+
+  .sheet-tab {
+    padding: 7px 10px !important;
+    font-size: 11px !important;
+  }
+
+  .daily-insight-simple-list {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .hero-actions {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
