@@ -39,7 +39,6 @@ const state = {
   ocr: getDefaultOcrState(),
   editorFilter: 'all',
   shareTemplate: 'detailed',
-  dailyView: 'timeline',
   reviewCompareOpen: false,
   memo: getDefaultMemoState(),
   defaultNames: getInitialDefaultNames(),
@@ -2326,6 +2325,23 @@ function getMyPerson() {
   return state.people.find((p) => p.name.trim() === state.myName.trim()) || null;
 }
 
+function hasKoreanFinalConsonant(text = '') {
+  const last = String(text || '').trim().slice(-1);
+  if (!last) return false;
+  const code = last.charCodeAt(0);
+  if (code < 0xac00 || code > 0xd7a3) return false;
+  return ((code - 0xac00) % 28) !== 0;
+}
+
+function getFriendlyScheduleOwnerName(name = state.myName) {
+  const trimmed = String(name || '').trim();
+  if (!trimmed) return '';
+  const koreanOnly = /^[가-힣]{2,4}$/.test(trimmed);
+  const displayName = koreanOnly && trimmed.length >= 3 ? trimmed.slice(1) : trimmed;
+  if (displayName.endsWith('이')) return displayName;
+  return hasKoreanFinalConsonant(displayName) ? `${displayName}이` : displayName;
+}
+
 function getDateObj(day) {
   return new Date(state.year, state.month - 1, day);
 }
@@ -2415,6 +2431,7 @@ function renderSummary() {
   const offCount = rows.filter((row) => row.type === 'off').length;
   const leaveCount = rows.filter((row) => row.type === 'leave').length;
   const selectedLabel = `${state.month}/${selectedDay}(${dayNames[getDateObj(selectedDay).getDay()]})`;
+  const ownerName = getFriendlyScheduleOwnerName();
   const isToday = (() => {
     const now = new Date();
     return now.getFullYear() === state.year && now.getMonth() + 1 === state.month && now.getDate() === selectedDay;
@@ -2432,11 +2449,14 @@ function renderSummary() {
   const scheduleSubText = todayCode
     ? `${todayCode} · ${formatTime(todayInfo) || todayInfo.label || '시간 정보 없음'}`
     : '스케줄 데이터가 없어요.';
+  const mainScheduleTitle = ownerName
+    ? `${ownerName} ${isToday ? '오늘' : selectedLabel} 일정`
+    : '선택일 내 일정';
 
   const stats = getMonthlyWorkStats(person);
   const memoText = getCurrentMemoText();
   el('summaryCards').innerHTML = `
-    <div class="summary-card main-schedule-card"><p>선택일 내 일정</p><strong>${escapeHtml(scheduleHeadline)}</strong><span>${escapeHtml(scheduleSubText)}</span></div>
+    <div class="summary-card main-schedule-card"><p>${escapeHtml(mainScheduleTitle)}</p><strong>${escapeHtml(scheduleHeadline)}</strong><span>${escapeHtml(scheduleSubText)}</span></div>
     <div class="summary-card"><p>다음 휴무</p><strong>${nextOff ? nextOff.dateText : '-'}</strong><span>${nextOff ? `${nextOff.code} ${nextOff.label}` : '이번 달 남은 휴무가 없어요.'}</span></div>
     <div class="summary-card"><p>이번 달 요약</p><strong>${workCount}일 근무</strong><span>휴무 ${offCount}일 · 연차 ${leaveCount}일</span></div>
     <div class="summary-card"><p>근무 통계</p><strong>${stats.mostCode || '-'}</strong><span>${stats.summaryText}</span></div>
@@ -2629,16 +2649,6 @@ function getTimelineToneClass(code = '') {
   if (/^A[O0M]/.test(value) || value === 'AM') return 'tone-mint';
   if (/^A[QT47]/.test(value) || /^A[4-9]/.test(value)) return 'tone-orange';
   return 'tone-blue';
-}
-
-function renderDailyViewToggle() {
-  const view = state.dailyView || 'timeline';
-  return `
-    <div class="daily-view-toggle" role="group" aria-label="일간 보기 방식">
-      <button class="ghost-btn ${view === 'timeline' ? 'active' : ''}" data-daily-view="timeline" type="button">타임라인</button>
-      <button class="ghost-btn ${view === 'start' ? 'active' : ''}" data-daily-view="start" type="button">출근시간별</button>
-    </div>
-  `;
 }
 
 function renderDailyTimeline(day) {
@@ -2987,15 +2997,14 @@ function renderDaily() {
   const timeText = formatTime(info) || '시간 정보 없음';
   const roster = getDayRoster(day);
   const timeline = getTimelineItems(day);
-  const isMobileDaily = typeof window !== 'undefined' && window.matchMedia?.('(max-width: 720px)').matches;
-  const dailyMain = !isMobileDaily && (state.dailyView || 'timeline') === 'start' ? renderRosterBlocks(day) : renderDailyTimeline(day);
+  const dailyMain = renderDailyTimeline(day);
   return `
     <div class="view-title with-actions daily-mobile-head">
       <div>
         <h3>${state.month}/${day}(${dayNames[getDateObj(day).getDay()]}) 일간 보기</h3>
-        <p>오늘 근무 흐름을 확인해요.</p>
+        <p>선택한 날의 근무 흐름을 한눈에 확인해요.</p>
       </div>
-      <div class="daily-title-actions">${renderPersonPicker('기준')}${renderDailyViewToggle()}</div>
+      <div class="daily-title-actions">${renderPersonPicker('기준')}</div>
     </div>
     ${renderDailyDateSelector(day)}
     <div class="card-grid daily-summary-grid daily-summary-grid-compact daily-summary-polished-grid">
@@ -3676,13 +3685,6 @@ function bindViewEvents() {
       saveState(false);
     });
   });
-  document.querySelectorAll('[data-daily-view]').forEach((button) => {
-    button.addEventListener('click', () => {
-      state.dailyView = button.dataset.dailyView || 'timeline';
-      renderViews();
-      saveState(false);
-    });
-  });
   document.querySelectorAll('[data-daily-step]').forEach((button) => {
     button.addEventListener('click', () => {
       const selected = new Date(state.selectedDate || `${state.year}-${String(state.month).padStart(2, '0')}-01`);
@@ -4003,7 +4005,6 @@ function loadState() {
     state.defaultNames = Array.isArray(parsed.defaultNames) && parsed.defaultNames.length ? parsed.defaultNames : getInitialDefaultNames();
     state.editorFilter = parsed.editorFilter || 'all';
     state.shareTemplate = parsed.shareTemplate || 'detailed';
-    state.dailyView = parsed.dailyView || 'timeline';
     state.reviewCompareOpen = false;
     state.activePage = parsed.activePage || parsed.activeTab || 'home';
     ensureMonthStore();
