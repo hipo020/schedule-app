@@ -14288,3 +14288,340 @@ body {
     margin: 0 0 0 -2px !important;
   }
 }
+
+
+/* =========================================
+   v5.3 Cheer diary theme
+   - 오늘의 선협이 컨셉
+   - 홈 카드에 응원 다이어리 감성 추가
+========================================= */
+:root {
+  --cheer-peach: #FFE8DC;
+  --cheer-peach-line: #FFD2BC;
+  --cheer-butter: #FFF3C7;
+  --cheer-pink: #FFEAF1;
+  --cheer-cloud: #E6F5FB;
+  --cheer-ink: #14213D;
+}
+
+body {
+  background:
+    radial-gradient(circle at 16% 4%, rgba(255, 232, 220, 0.72) 0, rgba(255, 232, 220, 0) 28%),
+    radial-gradient(circle at 86% 18%, rgba(230, 245, 251, 0.9) 0, rgba(230, 245, 251, 0) 30%),
+    linear-gradient(180deg, #FFFDF8 0%, #F8FBF6 52%, #FFFFFF 100%) !important;
+}
+
+.auth-card h1,
+.hero h1 {
+  color: var(--cheer-ink) !important;
+  letter-spacing: -0.045em !important;
+}
+
+.auth-card h1::after,
+.hero h1::after {
+  content: ' ☁️';
+  font-size: 0.58em;
+  vertical-align: 0.08em;
+}
+
+.hero-desc {
+  color: #69758A !important;
+  font-weight: 650 !important;
+}
+
+.cloud-status {
+  background: #EAF7FC !important;
+  border-color: #CFEAF4 !important;
+}
+
+.cloud-status::before {
+  background: #9ED9EC !important;
+  box-shadow: 0 0 0 7px rgba(158, 217, 236, 0.2) !important;
+}
+
+.summary-card {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.home-card-sticker {
+  position: absolute;
+  right: 18px;
+  top: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 24px rgba(20, 33, 61, 0.08);
+  pointer-events: none;
+}
+
+.summary-cards .summary-card:nth-child(1),
+.summary-cards .summary-card.main-schedule-card {
+  background:
+    radial-gradient(circle at 88% 8%, rgba(255,255,255,0.86) 0, rgba(255,255,255,0) 27%),
+    linear-gradient(180deg, #E7F6FC 0%, #DFF2F8 100%) !important;
+  border-color: #BFE3EE !important;
+}
+
+.summary-cards .summary-card:nth-child(2) {
+  background: #FFFFFF !important;
+  border-color: #EAEFF5 !important;
+}
+
+.summary-cards .summary-card:nth-child(3) {
+  background: linear-gradient(180deg, #FFF8E3 0%, #FFFDF3 100%) !important;
+  border-color: #F2E5BF !important;
+}
+
+.summary-cards .summary-card:nth-child(4) {
+  background: linear-gradient(180deg, #FFF1E8 0%, #FFFFFF 100%) !important;
+  border-color: #F4D6C5 !important;
+}
+
+.summary-cards .summary-card:nth-child(5) {
+  background: linear-gradient(180deg, #FFF0F6 0%, #FFFFFF 100%) !important;
+  border-color: #F4D3E1 !important;
+}
+
+.home-cheer-line {
+  display: inline-flex !important;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 10px !important;
+  padding: 8px 12px !important;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #3E6577 !important;
+  font-size: 12.5px !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+  word-break: keep-all;
+}
+
+.chef-cheer-card {
+  border-color: #F4D6C5 !important;
+  background: linear-gradient(180deg, #FFF5EE 0%, #FFFFFF 100%) !important;
+}
+
+.chef-cheer-icon {
+  background: #EAF7FC !important;
+  border-color: #CAEAF5 !important;
+}
+
+.chef-cheer-sticker {
+  background: #FFF3C7 !important;
+  color: #6E5420 !important;
+  border-color: #F3D887 !important;
+}
+
+@media (max-width: 768px) {
+  .auth-card h1::after,
+  .hero h1::after {
+    font-size: 0.48em;
+  }
+
+  .hero h1 {
+    font-size: 25px !important;
+    line-height: 1.15 !important;
+  }
+
+  .home-card-sticker {
+    right: 14px;
+    top: 14px;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .summary-cards .summary-card.main-schedule-card strong {
+    padding-right: 38px !important;
+  }
+
+  .home-cheer-line {
+    margin-top: 8px !important;
+    padding: 7px 10px !important;
+    font-size: 11.5px !important;
+    line-height: 1.25 !important;
+  }
+}
+
+
+/* =========================================
+   v5.4 Theme switcher + simple public mode
+   - 응원 모드 / 무난 모드 전환
+========================================= */
+.theme-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 5px;
+  border: 1px solid rgba(232, 237, 243, 0.95);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 12px 28px rgba(20, 33, 61, 0.055);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.theme-chip {
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: #69758A;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.theme-chip.active {
+  background: #DFF2F8;
+  color: #15314A;
+  box-shadow: inset 0 0 0 1px rgba(158, 217, 236, 0.5);
+}
+
+html[data-theme="simple"] {
+  --sky: #E7EEF6;
+  --sky-strong: #CAD8E8;
+  --navy: #172033;
+  --muted: #667085;
+  --line: #E4E7EC;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --soft: #F3F6FA;
+  --shadow: 0 16px 42px rgba(16, 24, 40, 0.07);
+}
+
+html[data-theme="simple"] body {
+  background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%) !important;
+}
+
+html[data-theme="simple"] .auth-card h1::after,
+html[data-theme="simple"] .hero h1::after {
+  content: '' !important;
+}
+
+html[data-theme="simple"] .auth-card h1,
+html[data-theme="simple"] .hero h1 {
+  color: #111827 !important;
+  letter-spacing: -0.04em !important;
+}
+
+html[data-theme="simple"] .eyebrow {
+  color: #667085 !important;
+}
+
+html[data-theme="simple"] .hero-desc {
+  color: #667085 !important;
+  font-weight: 650 !important;
+}
+
+html[data-theme="simple"] .theme-switcher {
+  background: #FFFFFF !important;
+  border-color: #E4E7EC !important;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.05) !important;
+}
+
+html[data-theme="simple"] .theme-chip.active {
+  background: #EEF2F7 !important;
+  color: #111827 !important;
+  box-shadow: inset 0 0 0 1px #D0D5DD !important;
+}
+
+html[data-theme="simple"] .cloud-status,
+html[data-theme="simple"] .cloud-status.save-status-saved,
+html[data-theme="simple"] .cloud-status.save-status-loaded,
+html[data-theme="simple"] .cloud-status.save-status-dirty,
+html[data-theme="simple"] .cloud-status.save-status-saving,
+html[data-theme="simple"] .cloud-status.save-status-loading {
+  background: #F8FAFC !important;
+  border-color: #E4E7EC !important;
+}
+
+html[data-theme="simple"] .cloud-status::before,
+html[data-theme="simple"] .cloud-status .save-status-dot,
+html[data-theme="simple"] .cloud-status.save-status-saved .save-status-dot,
+html[data-theme="simple"] .cloud-status.save-status-loaded .save-status-dot,
+html[data-theme="simple"] .cloud-status.save-status-dirty .save-status-dot,
+html[data-theme="simple"] .cloud-status.save-status-saving .save-status-dot,
+html[data-theme="simple"] .cloud-status.save-status-loading .save-status-dot {
+  background: #98A2B3 !important;
+  box-shadow: 0 0 0 6px rgba(152, 162, 179, 0.16) !important;
+}
+
+html[data-theme="simple"] .home-card-sticker {
+  display: none !important;
+}
+
+html[data-theme="simple"] .summary-cards .summary-card,
+html[data-theme="simple"] .summary-cards .summary-card:nth-child(1),
+html[data-theme="simple"] .summary-cards .summary-card:nth-child(2),
+html[data-theme="simple"] .summary-cards .summary-card:nth-child(3),
+html[data-theme="simple"] .summary-cards .summary-card:nth-child(4),
+html[data-theme="simple"] .summary-cards .summary-card:nth-child(5),
+html[data-theme="simple"] .summary-cards .summary-card.main-schedule-card {
+  background: #FFFFFF !important;
+  border-color: #E4E7EC !important;
+}
+
+html[data-theme="simple"] .summary-cards .summary-card.main-schedule-card {
+  background: #F8FAFC !important;
+  border-color: #D0D5DD !important;
+}
+
+html[data-theme="simple"] .home-cheer-line {
+  background: #FFFFFF !important;
+  color: #475467 !important;
+  border: 1px solid #E4E7EC !important;
+}
+
+html[data-theme="simple"] .chef-cheer-card {
+  background: #FFFFFF !important;
+  border-color: #E4E7EC !important;
+}
+
+html[data-theme="simple"] .chef-cheer-icon {
+  background: #F2F4F7 !important;
+  border-color: #E4E7EC !important;
+  color: #344054 !important;
+}
+
+html[data-theme="simple"] .chef-cheer-sticker {
+  background: #F8FAFC !important;
+  color: #475467 !important;
+  border-color: #E4E7EC !important;
+}
+
+html[data-theme="simple"] .category-tab.active,
+html[data-theme="simple"] .sheet-tab.active {
+  background: #EEF2F7 !important;
+  color: #111827 !important;
+  border-color: #D0D5DD !important;
+}
+
+@media (max-width: 768px) {
+  .theme-switcher {
+    margin-top: 10px;
+    padding: 4px;
+  }
+
+  .theme-chip {
+    min-height: 28px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .hero-main-copy {
+    overflow: visible !important;
+  }
+}

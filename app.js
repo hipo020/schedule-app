@@ -42,6 +42,7 @@ const state = {
   reviewCompareOpen: false,
   memo: getDefaultMemoState(),
   defaultNames: getInitialDefaultNames(),
+  themeMode: 'cheer',
 };
 
 const el = (id) => document.getElementById(id);
@@ -53,6 +54,25 @@ const MAX_STORED_IMAGE_WIDTH = 2400;
 const MAX_STORED_IMAGE_HEIGHT = 1600;
 const THUMB_WIDTH = 360;
 const THUMB_HEIGHT = 240;
+const THEME_STORAGE_KEY = 'shift-organizer-theme-mode';
+const THEME_MODES = {
+  cheer: {
+    title: '오늘의 선협이',
+    eyebrow: 'Soft Shift Diary',
+    heroDesc: '출근도 휴무도 한눈에 보고, 오늘 하루를 작게 응원해요 ☁️',
+    authDesc: 'Google 계정으로 로그인하면 선협이 스케줄과 원본 근무표를 월별로 안전하게 챙겨둘 수 있어요.',
+    cloudReady: '오늘도 같이 체크해볼까 ☁️',
+    readyLabel: '응원 준비됨',
+  },
+  simple: {
+    title: '스케줄 정리함',
+    eyebrow: 'Shift Organizer',
+    heroDesc: '근무 일정과 휴무를 한눈에 확인해요.',
+    authDesc: 'Google 계정으로 로그인하면 스케줄과 원본 근무표를 월별로 저장할 수 있어요.',
+    cloudReady: '오늘 스케줄을 확인할 수 있어요.',
+    readyLabel: '준비됨',
+  },
+};
 
 const PAGE_CATEGORY = {
   home: 'view',
@@ -76,6 +96,61 @@ const CATEGORY_DEFAULT_PAGE = {
   export: 'archive',
 };
 
+
+function getThemeMode() {
+  return state.themeMode === 'simple' ? 'simple' : 'cheer';
+}
+
+function isSimpleTheme() {
+  return getThemeMode() === 'simple';
+}
+
+function getThemeCopy() {
+  return THEME_MODES[getThemeMode()] || THEME_MODES.cheer;
+}
+
+function loadThemePreference() {
+  const saved = localStorage.getItem(THEME_STORAGE_KEY);
+  state.themeMode = saved === 'simple' || saved === 'cheer' ? saved : (state.themeMode === 'simple' ? 'simple' : 'cheer');
+}
+
+function applyTheme(mode = state.themeMode || 'cheer') {
+  const nextMode = mode === 'simple' ? 'simple' : 'cheer';
+  state.themeMode = nextMode;
+  localStorage.setItem(THEME_STORAGE_KEY, nextMode);
+  document.documentElement.dataset.theme = nextMode;
+  document.body?.setAttribute('data-theme', nextMode);
+  const copy = getThemeCopy();
+  document.title = copy.title;
+  const textTargets = [
+    ['authEyebrow', copy.eyebrow],
+    ['appEyebrow', copy.eyebrow],
+    ['authTitle', copy.title],
+    ['appTitle', copy.title],
+    ['heroDesc', copy.heroDesc],
+    ['authDesc', copy.authDesc],
+  ];
+  textTargets.forEach(([id, value]) => {
+    const node = el(id);
+    if (node) node.textContent = value;
+  });
+  document.querySelectorAll('[data-theme-mode]').forEach((button) => {
+    const active = button.dataset.themeMode === nextMode;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+  const statusNode = el('cloudStatus');
+  if (statusNode && !statusNode.querySelector('.save-status-main')) {
+    statusNode.textContent = copy.cloudReady;
+  }
+}
+
+function setThemeMode(mode) {
+  applyTheme(mode);
+  renderAll();
+  saveState(false);
+}
+
 function getPageCategory(page) {
   return PAGE_CATEGORY[page] || 'view';
 }
@@ -87,7 +162,7 @@ function getSaveStatusLabel(kind) {
   if (kind === 'loading') return '불러오는 중...';
   if (kind === 'error') return '저장 실패';
   if (kind === 'loaded') return '불러오기 완료';
-  return '준비됨';
+  return getThemeCopy().readyLabel;
 }
 
 function inferSaveStatusKind(message = '', type = '') {
@@ -587,6 +662,8 @@ function normalizeOcrDefaultNames() {
 
 async function init() {
   loadState();
+  loadThemePreference();
+  applyTheme(state.themeMode);
   normalizeOcrDefaultNames();
   initMonthSelect();
   bindEvents();
@@ -662,6 +739,9 @@ function bindEvents() {
   document.querySelectorAll('.page-shortcut').forEach((button) => {
     button.addEventListener('click', () => switchPage(button.dataset.goPage, true));
   });
+  document.querySelectorAll('[data-theme-mode]').forEach((button) => {
+    button.addEventListener('click', () => setThemeMode(button.dataset.themeMode || 'cheer'));
+  });
 
   bindOcrEvents();
   bindImageViewerEvents();
@@ -713,7 +793,7 @@ async function initAuth() {
         window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
       }
       showAppShell();
-      showCloudStatus('로그인 완료. 데이터를 불러오는 중이에요.', 'ok');
+      showCloudStatus(isSimpleTheme() ? '로그인 완료. 스케줄을 불러오는 중이에요.' : '로그인 완료. 선협이 스케줄을 불러오는 중이에요 ☁️', 'ok');
       ensureProfile();
       loadCloudInitialData(true).then(() => {
         syncInputs();
@@ -778,7 +858,7 @@ function showAppShell() {
   el('authGate')?.classList.add('is-hidden');
   el('appShell')?.classList.remove('is-hidden');
   if (el('userEmailText')) el('userEmailText').textContent = currentUser?.email || '로그인됨';
-  showCloudStatus('로그인 완료. 오늘 스케줄을 편하게 확인해요.', 'ok');
+  showCloudStatus('로그인 완료. 오늘도 같이 체크해볼까 ☁️', 'ok');
 }
 
 function showCloudStatus(message, type = '') {
@@ -908,7 +988,7 @@ async function loadCloudInitialData(showMessage = false) {
     await loadCloudMonthData(state.year, state.month);
     await refreshArchiveMeta();
     markCloudSaved();
-    if (showMessage) showCloudStatus('불러오기 완료. 다시 이어서 확인해요.', 'ok');
+    if (showMessage) showCloudStatus(isSimpleTheme() ? '불러오기 완료. 최신 스케줄을 확인해요.' : '불러오기 완료. 다시 이어서 확인해요.', 'ok');
   } catch (error) {
     console.error('클라우드 로드 실패', error);
     showCloudStatus(`클라우드 데이터를 불러오지 못했어요: ${error.message || error}`, 'error');
@@ -1032,7 +1112,7 @@ async function saveCurrentMonthToCloud(showAlert = false) {
     }
     await refreshArchiveMeta();
     markCloudSaved();
-    showCloudStatus('저장 완료. 오늘도 정리 성공!', 'ok');
+    showCloudStatus(isSimpleTheme() ? '저장 완료. 최신 데이터로 정리했어요.' : '저장 완료. 오늘도 정리 성공!', 'ok');
     renderAll();
     if (showAlert) alert('클라우드에 저장했어요.');
   } catch (error) {
@@ -2373,35 +2453,51 @@ function getScheduleRowsForPerson(person) {
 
 function getDailyCheerMessage(info = {}, code = '', selectedDay = 1) {
   const startMinutes = timeToMinutes(info.start || '');
-  if (info.type === 'work') {
-    if (startMinutes !== null && startMinutes >= 13 * 60) return '오후 출근이에요. 페이스 천천히 맞추기!';
-    if (startMinutes !== null && startMinutes <= 8 * 60) return '이른 출근도 차근차근, 물도 꼭 챙기기!';
-    return '오늘도 안전하게 서비스 완료하기!';
+  if (isSimpleTheme()) {
+    if (info.type === 'work') return info.start ? `${info.start} 출근 일정이 있어요.` : '근무 일정이 등록되어 있어요.';
+    if (info.type === 'off') return '휴무 일정으로 표시되어 있어요.';
+    if (info.type === 'leave') return '연차 일정으로 표시되어 있어요.';
+    if (code) return '일정 코드를 한 번 확인해 주세요.';
+    return '근무표를 입력하면 일정 요약을 보여줘요.';
   }
-  if (info.type === 'off') return '오늘은 푹 쉬는 날이에요. 제대로 충전하기!';
-  if (info.type === 'leave') return '연차는 소중하니까 마음 편히 쉬기!';
-  if (code) return '애매한 일정은 한 번만 확인하면 충분해요.';
-  return '근무표를 넣으면 오늘의 응원을 보여줄게요.';
+  if (info.type === 'work') {
+    if (startMinutes !== null && startMinutes >= 13 * 60) return '오후 출근이야. 천천히 페이스 맞추기 ☁️';
+    if (startMinutes !== null && startMinutes <= 8 * 60) return '이른 출근도 차근차근, 물도 꼭 챙기기 💛';
+    return '오늘도 무리하지 말고 안전하게 다녀오기 ⭐';
+  }
+  if (info.type === 'off') return '오늘은 푹 쉬는 날. 제대로 충전하기 🍀';
+  if (info.type === 'leave') return '연차는 소중하니까 마음 편히 쉬기 🎀';
+  if (code) return '애매한 일정은 한 번만 확인하고 마음 놓기.';
+  return '근무표를 넣으면 오늘의 응원을 보여줄게 ☁️';
 }
 
 function getCheerStickerText(info = {}, code = '') {
-  if (info.type === 'work') return 'service ready';
-  if (info.type === 'off') return 'rest day';
-  if (info.type === 'leave') return 'recharge day';
-  if (code) return 'check point';
-  return 'shift note';
+  if (isSimpleTheme()) {
+    if (info.type === 'work') return '근무';
+    if (info.type === 'off') return '휴무';
+    if (info.type === 'leave') return '연차';
+    if (code) return '확인';
+    return '일정';
+  }
+  if (info.type === 'work') return '출근 응원';
+  if (info.type === 'off') return '쉬는 날';
+  if (info.type === 'leave') return '충전 day';
+  if (code) return '확인 포인트';
+  return '스케줄 노트';
 }
 
 function renderChefCheerCard(info = {}, code = '', selectedDay = 1) {
   const message = getDailyCheerMessage(info, code, selectedDay);
   const sticker = getCheerStickerText(info, code);
   const typeClass = badgeClass(info.type || 'empty');
+  const icon = isSimpleTheme() ? '✓' : '☁️';
+  const title = isSimpleTheme() ? '일정 요약' : '오늘의 응원';
   return `
-    <section class="chef-cheer-card ${typeClass}" aria-label="오늘의 응원">
+    <section class="chef-cheer-card ${typeClass}" aria-label="${escapeHtml(title)}">
       <div class="chef-cheer-main">
-        <span class="chef-cheer-icon" aria-hidden="true">🍳</span>
+        <span class="chef-cheer-icon" aria-hidden="true">${escapeHtml(icon)}</span>
         <div>
-          <p>오늘의 응원</p>
+          <p>${escapeHtml(title)}</p>
           <strong>${escapeHtml(message)}</strong>
         </div>
       </div>
@@ -2449,18 +2545,21 @@ function renderSummary() {
   const scheduleSubText = todayCode
     ? `${todayCode} · ${formatTime(todayInfo) || todayInfo.label || '시간 정보 없음'}`
     : '스케줄 데이터가 없어요.';
-  const mainScheduleTitle = ownerName
-    ? `${ownerName} ${isToday ? '오늘' : selectedLabel} 일정`
-    : '선택일 내 일정';
+  const mainScheduleTitle = isSimpleTheme()
+    ? (state.myName ? `${state.myName} ${isToday ? '오늘' : selectedLabel} 일정` : '선택일 일정')
+    : (ownerName ? `${ownerName} ${isToday ? '오늘' : selectedLabel} 일정` : '선택일 내 일정');
+  const homeCheerLine = getDailyCheerMessage(todayInfo, todayCode, selectedDay);
+  const memoLabel = isSimpleTheme() ? '메모' : '응원 메모';
+  const memoStrong = memoText ? (isSimpleTheme() ? '메모 있음' : '메모 저장됨') : '메모 없음';
+  const memoEmptyText = isSimpleTheme() ? '메모를 입력해 주세요.' : '오늘 챙겨둘 말을 적어줘.';
 
   const stats = getMonthlyWorkStats(person);
-  const memoText = getCurrentMemoText();
   el('summaryCards').innerHTML = `
-    <div class="summary-card main-schedule-card"><p>${escapeHtml(mainScheduleTitle)}</p><strong>${escapeHtml(scheduleHeadline)}</strong><span>${escapeHtml(scheduleSubText)}</span></div>
-    <div class="summary-card"><p>다음 휴무</p><strong>${nextOff ? nextOff.dateText : '-'}</strong><span>${nextOff ? `${nextOff.code} ${nextOff.label}` : '이번 달 남은 휴무가 없어요.'}</span></div>
-    <div class="summary-card"><p>이번 달 요약</p><strong>${workCount}일 근무</strong><span>휴무 ${offCount}일 · 연차 ${leaveCount}일</span></div>
-    <div class="summary-card"><p>근무 통계</p><strong>${stats.mostCode || '-'}</strong><span>${stats.summaryText}</span></div>
-    <div class="summary-card memo-summary-card"><p>메모</p><strong>${memoText ? '메모 있음' : '메모 없음'}</strong><span>${escapeHtml(memoText ? compactText(memoText, 42) : '메모를 입력해 주세요.')}</span></div>
+    <div class="summary-card main-schedule-card cheer-summary-card"><i class="home-card-sticker" aria-hidden="true">☁️</i><p>${escapeHtml(mainScheduleTitle)}</p><strong>${escapeHtml(scheduleHeadline)}</strong><span>${escapeHtml(scheduleSubText)}</span><small class="home-cheer-line">${escapeHtml(homeCheerLine)}</small></div>
+    <div class="summary-card"><i class="home-card-sticker" aria-hidden="true">🍀</i><p>다음 휴무</p><strong>${nextOff ? nextOff.dateText : '-'}</strong><span>${nextOff ? `${nextOff.code} ${nextOff.label}` : '이번 달 남은 휴무가 없어요.'}</span></div>
+    <div class="summary-card"><i class="home-card-sticker" aria-hidden="true">⭐</i><p>이번 달 요약</p><strong>${workCount}일 근무</strong><span>휴무 ${offCount}일 · 연차 ${leaveCount}일</span></div>
+    <div class="summary-card"><i class="home-card-sticker" aria-hidden="true">💛</i><p>근무 통계</p><strong>${stats.mostCode || '-'}</strong><span>${stats.summaryText}</span></div>
+    <div class="summary-card memo-summary-card"><i class="home-card-sticker" aria-hidden="true">🎀</i><p>${escapeHtml(memoLabel)}</p><strong>${escapeHtml(memoStrong)}</strong><span>${escapeHtml(memoText ? compactText(memoText, 42) : memoEmptyText)}</span></div>
   `;
   const guide = el('workflowGuide');
   if (guide) guide.innerHTML = `${renderChefCheerCard(todayInfo, todayCode, selectedDay)}${renderWorkflowGuide()}`;
@@ -4009,6 +4108,7 @@ function loadState() {
     state.shareTemplate = parsed.shareTemplate || 'detailed';
     state.reviewCompareOpen = false;
     state.activePage = parsed.activePage || parsed.activeTab || 'home';
+    state.themeMode = parsed.themeMode === 'simple' ? 'simple' : (parsed.themeMode === 'cheer' ? 'cheer' : state.themeMode);
     ensureMonthStore();
     normalizeOcrDefaultNames();
   } catch (e) {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>근무표 정리함</title>
+  <title>오늘의 선협이</title>
   <link rel="stylesheet" href="./styles.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -13,9 +13,9 @@
 <body>
   <section id="authGate" class="auth-gate">
     <div class="auth-card">
-      <p class="eyebrow">Monthly Shift Organizer</p>
-      <h1>근무표 정리함</h1>
-      <p>Google 계정으로 로그인하면 월별 근무표 이미지와 스케줄 데이터를 저장하고, 다른 기기에서도 다시 불러올 수 있어요.</p>
+      <p id="authEyebrow" class="eyebrow">Soft Shift Diary</p>
+      <h1 id="authTitle">오늘의 선협이</h1>
+      <p id="authDesc">Google 계정으로 로그인하면 선협이 스케줄과 원본 근무표를 월별로 안전하게 챙겨둘 수 있어요.</p>
       <button id="googleLoginButton" class="primary-btn auth-main-btn" type="button">
         <span class="google-mark">G</span>
         <span>Google로 로그인</span>
@@ -27,10 +27,14 @@
 
   <div id="appShell" class="app-shell is-hidden">
     <header class="hero">
-      <div>
-        <p class="eyebrow">Monthly Shift Organizer</p>
-        <h1>근무표 정리함</h1>
-        <p class="hero-desc">스케줄표 이미지와 근무 데이터를 월별로 저장하고, 내 일정과 출근 현황을 한눈에 확인해요.</p>
+      <div class="hero-main-copy">
+        <p id="appEyebrow" class="eyebrow">Soft Shift Diary</p>
+        <h1 id="appTitle">오늘의 선협이</h1>
+        <p id="heroDesc" class="hero-desc">출근도 휴무도 한눈에 보고, 오늘 하루를 작게 응원해요 ☁️</p>
+        <div class="theme-switcher" aria-label="테마 선택">
+          <button class="theme-chip active" data-theme-mode="cheer" type="button">응원 모드</button>
+          <button class="theme-chip" data-theme-mode="simple" type="button">무난 모드</button>
+        </div>
       </div>
       <div class="hero-card account-card">
         <strong>내 계정</strong>
@@ -43,7 +47,7 @@
       </div>
     </header>
 
-    <div id="cloudStatus" class="cloud-status">저장 상태를 확인하고 있어요.</div>
+    <div id="cloudStatus" class="cloud-status">오늘도 같이 체크해볼까 ☁️</div>
 
     <nav class="category-shell" aria-label="앱 페이지 이동" data-active-category="view">
       <div class="category-tabs" role="tablist" aria-label="상위 카테고리">
