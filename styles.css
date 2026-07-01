@@ -14849,3 +14849,47 @@ html[data-theme="simple"] .compact-cheer-banner .chef-cheer-copy p {
     padding-right: 0 !important;
   }
 }
+
+
+/* =========================================
+   v5.4.3 Global mobile title anti-clipping
+   - 홈 외 다른 탭의 제목 첫 글자 잘림 보정
+========================================= */
+@media (max-width: 768px) {
+  .view-title,
+  .view-title.with-actions,
+  .week-title-with-nav,
+  .month-title,
+  .offday-title,
+  .section-title,
+  .section-title.with-actions {
+    overflow: visible !important;
+    align-items: flex-start !important;
+  }
+
+  .view-title > div:first-child,
+  .view-title.with-actions > div:first-child,
+  .week-title-with-nav > div:first-child,
+  .month-title > div:first-child,
+  .offday-title > div:first-child,
+  .section-title > div:first-child,
+  .section-title.with-actions > div:first-child {
+    overflow: visible !important;
+    padding-top: 1px !important;
+  }
+
+  .view-title h3,
+  .view-title.with-actions h3,
+  .week-title-with-nav h3,
+  .month-title h3,
+  .offday-title h3,
+  .section-title h2,
+  .section-title.with-actions h2 {
+    display: inline-block !important;
+    overflow: visible !important;
+    line-height: 1.28 !important;
+    letter-spacing: -0.02em !important;
+    padding: 3px 0 1px 5px !important;
+    margin: 0 0 0 -2px !important;
+  }
+}
