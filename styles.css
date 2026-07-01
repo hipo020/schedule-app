@@ -14625,3 +14625,227 @@ html[data-theme="simple"] .sheet-tab.active {
     overflow: visible !important;
   }
 }
+
+/* =========================================
+   v5.4.2 Mobile home density polish
+   - 홈 서브 카드 2열 압축
+   - 출근 응원 배너 한 줄형 정리
+========================================= */
+.home-mini-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.home-mini-summary-grid .summary-card.home-mini-card {
+  position: relative;
+  min-width: 0;
+  padding: 17px 16px !important;
+  border-radius: 22px !important;
+  box-shadow: 0 10px 24px rgba(20, 33, 61, 0.04) !important;
+  gap: 5px !important;
+  overflow: hidden !important;
+}
+
+.home-mini-card > i {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 14px;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(255,255,255,0.92);
+  box-shadow: 0 8px 18px rgba(20, 33, 61, 0.055);
+}
+
+.home-mini-card p,
+.home-mini-card strong,
+.home-mini-card span {
+  padding-right: 26px;
+}
+
+.home-mini-card p {
+  font-size: 11.5px !important;
+  line-height: 1.2 !important;
+}
+
+.home-mini-card strong {
+  font-size: 17px !important;
+  line-height: 1.16 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.home-mini-card span {
+  display: block;
+  max-width: 100%;
+  font-size: 11.5px !important;
+  line-height: 1.32 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-mini-card.home-mini-off { background: #FFFFFF !important; border-color: #EAEFF5 !important; }
+.home-mini-card.home-mini-month { background: linear-gradient(180deg, #FFF8E3 0%, #FFFDF3 100%) !important; border-color: #F2E5BF !important; }
+.home-mini-card.home-mini-stat { background: linear-gradient(180deg, #FFF1E8 0%, #FFFFFF 100%) !important; border-color: #F4D6C5 !important; }
+.home-mini-card.home-mini-memo { background: linear-gradient(180deg, #FFF0F6 0%, #FFFFFF 100%) !important; border-color: #F4D3E1 !important; }
+
+.compact-cheer-banner.chef-cheer-card {
+  margin: 12px 0 14px !important;
+  padding: 12px 14px !important;
+  border-radius: 20px !important;
+  display: grid !important;
+  grid-template-columns: 34px minmax(0, 1fr) !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  gap: 10px !important;
+}
+
+.compact-cheer-banner .chef-cheer-icon {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 14px !important;
+  font-size: 15px !important;
+}
+
+.compact-cheer-banner .chef-cheer-copy {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.compact-cheer-banner .chef-cheer-copy p {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #FFF3C7;
+  border: 1px solid #F3D887;
+  color: #6E5420;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.compact-cheer-banner .chef-cheer-copy strong {
+  min-width: 0;
+  display: block;
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+  font-weight: 900 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html[data-theme="simple"] .home-mini-card > i {
+  display: none !important;
+}
+
+html[data-theme="simple"] .home-mini-card p,
+html[data-theme="simple"] .home-mini-card strong,
+html[data-theme="simple"] .home-mini-card span {
+  padding-right: 0 !important;
+}
+
+html[data-theme="simple"] .home-mini-card.home-mini-off,
+html[data-theme="simple"] .home-mini-card.home-mini-month,
+html[data-theme="simple"] .home-mini-card.home-mini-stat,
+html[data-theme="simple"] .home-mini-card.home-mini-memo {
+  background: #FFFFFF !important;
+  border-color: #E4E7EC !important;
+}
+
+html[data-theme="simple"] .compact-cheer-banner .chef-cheer-copy p {
+  background: #F8FAFC !important;
+  border-color: #E4E7EC !important;
+  color: #475467 !important;
+}
+
+@media (max-width: 768px) {
+  .summary-cards {
+    gap: 10px !important;
+  }
+
+  .home-mini-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .home-mini-summary-grid .summary-card.home-mini-card {
+    min-height: 106px !important;
+    padding: 13px 12px !important;
+    border-radius: 18px !important;
+  }
+
+  .home-mini-card > i {
+    right: 10px;
+    top: 10px;
+    width: 25px;
+    height: 25px;
+    font-size: 12px;
+  }
+
+  .home-mini-card p,
+  .home-mini-card strong,
+  .home-mini-card span {
+    padding-right: 20px !important;
+  }
+
+  .home-mini-card p {
+    font-size: 10.5px !important;
+  }
+
+  .home-mini-card strong {
+    font-size: 15.5px !important;
+    line-height: 1.15 !important;
+  }
+
+  .home-mini-card span {
+    font-size: 10.5px !important;
+    line-height: 1.28 !important;
+  }
+
+  .compact-cheer-banner.chef-cheer-card {
+    margin: 10px 0 12px !important;
+    padding: 10px 12px !important;
+    border-radius: 18px !important;
+    grid-template-columns: 30px minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .compact-cheer-banner .chef-cheer-icon {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 12px !important;
+    font-size: 14px !important;
+  }
+
+  .compact-cheer-banner .chef-cheer-copy {
+    gap: 6px !important;
+  }
+
+  .compact-cheer-banner .chef-cheer-copy p {
+    padding: 4px 7px !important;
+    font-size: 9.5px !important;
+  }
+
+  .compact-cheer-banner .chef-cheer-copy strong {
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+
+  html[data-theme="simple"] .home-mini-card p,
+  html[data-theme="simple"] .home-mini-card strong,
+  html[data-theme="simple"] .home-mini-card span {
+    padding-right: 0 !important;
+  }
+}

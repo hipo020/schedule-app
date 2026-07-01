@@ -2493,15 +2493,12 @@ function renderChefCheerCard(info = {}, code = '', selectedDay = 1) {
   const icon = isSimpleTheme() ? '✓' : '☁️';
   const title = isSimpleTheme() ? '일정 요약' : '오늘의 응원';
   return `
-    <section class="chef-cheer-card ${typeClass}" aria-label="${escapeHtml(title)}">
-      <div class="chef-cheer-main">
-        <span class="chef-cheer-icon" aria-hidden="true">${escapeHtml(icon)}</span>
-        <div>
-          <p>${escapeHtml(title)}</p>
-          <strong>${escapeHtml(message)}</strong>
-        </div>
+    <section class="chef-cheer-card compact-cheer-banner ${typeClass}" aria-label="${escapeHtml(title)}">
+      <span class="chef-cheer-icon" aria-hidden="true">${escapeHtml(icon)}</span>
+      <div class="chef-cheer-copy">
+        <p>${escapeHtml(sticker)}</p>
+        <strong>${escapeHtml(message)}</strong>
       </div>
-      <span class="chef-cheer-sticker">${escapeHtml(sticker)}</span>
     </section>
   `;
 }
@@ -2557,10 +2554,12 @@ function renderSummary() {
   const stats = getMonthlyWorkStats(person);
   el('summaryCards').innerHTML = `
     <div class="summary-card main-schedule-card cheer-summary-card"><i class="home-card-sticker" aria-hidden="true">☁️</i><p>${escapeHtml(mainScheduleTitle)}</p><strong>${escapeHtml(scheduleHeadline)}</strong><span>${escapeHtml(scheduleSubText)}</span><small class="home-cheer-line">${escapeHtml(homeCheerLine)}</small></div>
-    <div class="summary-card"><i class="home-card-sticker" aria-hidden="true">🍀</i><p>다음 휴무</p><strong>${nextOff ? nextOff.dateText : '-'}</strong><span>${nextOff ? `${nextOff.code} ${nextOff.label}` : '이번 달 남은 휴무가 없어요.'}</span></div>
-    <div class="summary-card"><i class="home-card-sticker" aria-hidden="true">⭐</i><p>이번 달 요약</p><strong>${workCount}일 근무</strong><span>휴무 ${offCount}일 · 연차 ${leaveCount}일</span></div>
-    <div class="summary-card"><i class="home-card-sticker" aria-hidden="true">💛</i><p>근무 통계</p><strong>${stats.mostCode || '-'}</strong><span>${stats.summaryText}</span></div>
-    <div class="summary-card memo-summary-card"><i class="home-card-sticker" aria-hidden="true">🎀</i><p>${escapeHtml(memoLabel)}</p><strong>${escapeHtml(memoStrong)}</strong><span>${escapeHtml(memoText ? compactText(memoText, 42) : memoEmptyText)}</span></div>
+    <div class="home-mini-summary-grid" aria-label="홈 요약">
+      <div class="summary-card home-mini-card home-mini-off"><i aria-hidden="true">🍀</i><p>다음 휴무</p><strong>${nextOff ? nextOff.dateText : '-'}</strong><span>${nextOff ? `${nextOff.code} ${nextOff.label}` : '남은 휴무 없음'}</span></div>
+      <div class="summary-card home-mini-card home-mini-month"><i aria-hidden="true">⭐</i><p>이번 달</p><strong>${workCount}일 근무</strong><span>휴무 ${offCount} · 연차 ${leaveCount}</span></div>
+      <div class="summary-card home-mini-card home-mini-stat"><i aria-hidden="true">💛</i><p>통계</p><strong>${stats.mostCode || '-'}</strong><span>${stats.summaryText}</span></div>
+      <div class="summary-card home-mini-card home-mini-memo memo-summary-card"><i aria-hidden="true">🎀</i><p>${escapeHtml(memoLabel)}</p><strong>${escapeHtml(memoStrong)}</strong><span>${escapeHtml(memoText ? compactText(memoText, 24) : memoEmptyText)}</span></div>
+    </div>
   `;
   const guide = el('workflowGuide');
   if (guide) guide.innerHTML = `${renderChefCheerCard(todayInfo, todayCode, selectedDay)}${renderWorkflowGuide()}`;
