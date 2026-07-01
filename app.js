@@ -2549,6 +2549,7 @@ function renderSummary() {
     ? (state.myName ? `${state.myName} ${isToday ? '오늘' : selectedLabel} 일정` : '선택일 일정')
     : (ownerName ? `${ownerName} ${isToday ? '오늘' : selectedLabel} 일정` : '선택일 내 일정');
   const homeCheerLine = getDailyCheerMessage(todayInfo, todayCode, selectedDay);
+  const memoText = getCurrentMemoText();
   const memoLabel = isSimpleTheme() ? '메모' : '응원 메모';
   const memoStrong = memoText ? (isSimpleTheme() ? '메모 있음' : '메모 저장됨') : '메모 없음';
   const memoEmptyText = isSimpleTheme() ? '메모를 입력해 주세요.' : '오늘 챙겨둘 말을 적어줘.';
