@@ -14260,3 +14260,31 @@ body {
     font-size: 10.5px !important;
   }
 }
+
+
+/* =========================================
+   v5.2.3 Home title clipping fix
+   - 모바일 홈 제목 첫 글자 잘림 보정
+========================================= */
+@media (max-width: 768px) {
+  .home-panel .section-title,
+  .home-panel .section-title.with-actions {
+    overflow: visible !important;
+    align-items: flex-start !important;
+  }
+
+  .home-panel .section-title > div,
+  .home-panel .section-title.with-actions > div {
+    overflow: visible !important;
+    padding-top: 1px !important;
+  }
+
+  .home-panel .section-title h2 {
+    display: inline-block !important;
+    overflow: visible !important;
+    line-height: 1.28 !important;
+    letter-spacing: -0.02em !important;
+    padding: 3px 0 1px 5px !important;
+    margin: 0 0 0 -2px !important;
+  }
+}
