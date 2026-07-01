@@ -11584,3 +11584,420 @@ body {
     padding-right: 7px !important;
   }
 }
+
+/* ===== Chef's Station + Calm Shift concept polish =====
+   기능/문구는 유지하고, 호텔 주방의 정돈된 스테이션 감성만 은은하게 더합니다. */
+:root {
+  --station-bg: #F8F5EC;
+  --station-card: #FFFFFF;
+  --station-paper: #FFFDF7;
+  --station-cream: #F7F1E3;
+  --station-cream-2: #FBF7EC;
+  --station-steel: #E7EDF0;
+  --station-steel-text: #5F6D75;
+  --station-navy: #172033;
+  --station-sub: #697586;
+  --station-blue: #DDEFF8;
+  --station-blue-mid: #CFE7F2;
+  --station-blue-strong: #88BFD6;
+  --station-mint: #DDF4F0;
+  --station-orange: #FFE8CE;
+  --station-coral: #FDEEEE;
+  --station-line: #E8E6DE;
+  --station-shadow: 0 18px 42px rgba(31, 37, 51, 0.07);
+  --station-shadow-soft: 0 10px 24px rgba(31, 37, 51, 0.045);
+}
+
+body {
+  background-color: var(--station-bg) !important;
+  background-image:
+    radial-gradient(circle at 14% 5%, rgba(221, 239, 248, 0.38), transparent 34%),
+    radial-gradient(circle at 86% 12%, rgba(247, 241, 227, 0.76), transparent 36%),
+    linear-gradient(90deg, rgba(255,255,255,0.24) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255,255,255,0.18) 1px, transparent 1px) !important;
+  background-size: auto, auto, 54px 54px, 54px 54px !important;
+  color: var(--station-navy) !important;
+}
+
+.hero h1,
+.section-title h2,
+.view-title h3,
+.off-card-head h4,
+.summary-card strong,
+.info-card strong,
+.mini-stat strong,
+.week-day-card strong,
+.day-cell .day-number {
+  color: var(--station-navy) !important;
+  letter-spacing: -0.035em !important;
+}
+
+.hero-desc,
+.section-title p,
+.view-title p,
+.summary-card span,
+.info-card p,
+.week-day-card small,
+.day-cell small,
+.workflow-step span {
+  color: var(--station-sub) !important;
+}
+
+.eyebrow,
+.section-title > p,
+.workflow-guide-head p,
+.off-card-head span,
+.timeline-card-head span {
+  color: #2F6E88 !important;
+  letter-spacing: 0.12em !important;
+}
+
+/* 전체 카드는 깨끗한 작업대 위에 올라간 종이 카드처럼 */
+.hero-card,
+.panel,
+.view-panel,
+.home-panel,
+.setup-panel,
+.upload-panel,
+.editor-panel,
+.workflow-guide-card,
+.data-guide-card,
+.info-card,
+.summary-card,
+.off-dashboard-card,
+.off-streak-card,
+.off-detail-card,
+.daily-timeline-card,
+.week-day-card,
+.day-cell,
+.monthly-calendar-wrap,
+.refined-calendar,
+.archive-item,
+.help-card,
+.csv-preview-wrap,
+.settings-box,
+.ocr-control-card,
+.ocr-preview-card,
+.memo-extract-card {
+  background-color: var(--station-card) !important;
+  border-color: var(--station-line) !important;
+  box-shadow: var(--station-shadow-soft) !important;
+}
+
+.page-area,
+.panel,
+.view-panel,
+.home-panel {
+  box-shadow: var(--station-shadow) !important;
+}
+
+/* 큰 페이지 카드에는 아주 얇은 스테이션 상단 라인 */
+.panel,
+.view-panel,
+.home-panel,
+.daily-timeline-card,
+.off-dashboard-card,
+.workflow-guide-card {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.panel::before,
+.view-panel::before,
+.home-panel::before,
+.daily-timeline-card::before,
+.off-dashboard-card::before,
+.workflow-guide-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 28px;
+  right: 28px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(136,191,214,0.38), transparent);
+  pointer-events: none;
+}
+
+/* 상단 네비는 호텔 주방의 정돈된 스테이션 버튼 느낌 */
+.category-tab {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFEFA 100%) !important;
+  border-color: #E9E5DA !important;
+  box-shadow: 0 12px 26px rgba(31, 37, 51, 0.055) !important;
+}
+
+.category-tab.active,
+.category-tab.active[data-category="view"],
+.category-tab.active[data-category="manage"],
+.category-tab.active[data-category="export"] {
+  background: linear-gradient(180deg, #EAF7FC 0%, #DDEFF8 100%) !important;
+  border-color: #BFE0EC !important;
+  box-shadow: 0 14px 28px rgba(136, 191, 214, 0.18) !important;
+}
+
+.category-tab .category-icon,
+.category-tab.active .category-icon {
+  background: #FFFDF7 !important;
+  border-color: #E7EDF0 !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.72), 0 5px 12px rgba(31,37,51,0.055) !important;
+}
+
+.sheet-nav {
+  background: rgba(255,255,255,0.88) !important;
+  border-color: #E9E5DA !important;
+  box-shadow: 0 10px 24px rgba(31,37,51,0.045) !important;
+  backdrop-filter: blur(10px);
+}
+
+.sheet-nav .sheet-tab.active,
+.category-shell[data-active-category="view"] .sheet-tab.active,
+.category-shell[data-active-category="manage"] .sheet-tab.active,
+.category-shell[data-active-category="export"] .sheet-tab.active {
+  background: var(--station-blue) !important;
+  border-color: var(--station-blue-strong) !important;
+  color: var(--station-navy) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.65) !important;
+}
+
+.cloud-status {
+  background: #EAF6FB !important;
+  border-color: #D5EBF4 !important;
+  color: #2F6E88 !important;
+  box-shadow: none !important;
+}
+
+/* 계정 카드는 스테인리스 트레이 느낌을 아주 살짝 */
+.account-card {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FAFCFD 100%) !important;
+  border-color: #E5EAEE !important;
+}
+
+.account-card #cloudSaveButton,
+.primary-btn {
+  background: linear-gradient(180deg, #D7EEF8 0%, #C9E5F1 100%) !important;
+  border-color: #B7DCEB !important;
+  color: var(--station-navy) !important;
+}
+
+.account-card #cloudReloadButton,
+.secondary-btn,
+.ghost-btn {
+  border-color: #DDE8EF !important;
+}
+
+.account-card #cloudReloadButton:hover,
+.secondary-btn:hover,
+.ghost-btn:hover {
+  background: #F4FAFD !important;
+  border-color: #CFE7F2 !important;
+}
+
+/* 홈 카드: 셰프 스테이션의 준비 카드처럼, 너무 노골적인 요리 요소 없이 */
+.summary-cards .summary-card:nth-child(1),
+.daily-summary-grid .info-card:nth-child(1) {
+  background: linear-gradient(180deg, #E7F5FB 0%, #DDEFF8 100%) !important;
+  border-color: #C1DFEB !important;
+  box-shadow: 0 16px 34px rgba(136,191,214,0.18) !important;
+}
+
+.summary-cards .summary-card:nth-child(3),
+.daily-summary-grid .info-card:nth-child(2),
+.weekly-stat-row .mini-stat:nth-child(3) {
+  background: linear-gradient(180deg, #FFFCF5 0%, #F7F1E3 100%) !important;
+  border-color: #EDE4D0 !important;
+}
+
+.workflow-guide-card {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF8 100%) !important;
+}
+
+.workflow-step-grid .workflow-step,
+.workflow-step {
+  background: #FFFFFF !important;
+  border-color: #EAE6DC !important;
+}
+
+.workflow-step.done,
+.workflow-step-grid .workflow-step.done {
+  background: #F3FAFD !important;
+  border-color: #D5EBF4 !important;
+}
+
+.workflow-step.warn,
+.workflow-step-grid .workflow-step.warn {
+  background: #FFF8EF !important;
+  border-color: #F0DFBF !important;
+}
+
+/* 근무/휴무/연차 색은 유지하되 셰프 스테이션 팔레트로 조정 */
+.badge.work,
+.day-code.work,
+.person-pill.work,
+.week-code-pill.work,
+.week-day-card.work .badge,
+.day-cell.work .day-code,
+.month-code-pill.work {
+  background: #F6FCFE !important;
+  border-color: #BFE0EC !important;
+  color: #2F6E88 !important;
+}
+
+.badge.off,
+.day-code.off,
+.person-pill.off,
+.week-code-pill.off,
+.week-day-card.off .badge,
+.day-cell.off .day-code,
+.month-code-pill.off {
+  background: #FFF8F8 !important;
+  border-color: #F3D2D2 !important;
+  color: #B94A4A !important;
+}
+
+.badge.leave,
+.day-code.leave,
+.person-pill.leave,
+.week-code-pill.leave,
+.week-day-card.leave .badge,
+.day-cell.leave .day-code,
+.month-code-pill.leave {
+  background: #FFFDF5 !important;
+  border-color: #E9DDBF !important;
+  color: #8A6A2A !important;
+}
+
+.boxed-week-grid .week-day-card.work,
+.week-day-card.work,
+.day-cell.work {
+  background: linear-gradient(180deg, #EAF8FC 0%, #DFF2F8 100%) !important;
+  border-color: #C6E2EC !important;
+}
+
+.boxed-week-grid .week-day-card.off,
+.week-day-card.off,
+.day-cell.off {
+  background: linear-gradient(180deg, #FFF8F8 0%, #FDEEEE 100%) !important;
+  border-color: #F4D7D7 !important;
+}
+
+.boxed-week-grid .week-day-card.leave,
+.week-day-card.leave,
+.day-cell.leave {
+  background: linear-gradient(180deg, #FFFDF5 0%, #F8F1DE 100%) !important;
+  border-color: #EDE2C9 !important;
+}
+
+.week-day-card.selected-week-day,
+.day-cell.today,
+.simplified-month-calendar .day-cell.today {
+  border-color: #88BFD6 !important;
+  box-shadow: 0 12px 26px rgba(136,191,214,0.20) !important;
+}
+
+/* 일간 타임라인: 주방 오더 흐름표처럼 더 정돈된 느낌 */
+.daily-timeline-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,253,247,0.96) 100%),
+    linear-gradient(90deg, rgba(231,237,240,0.22) 1px, transparent 1px) !important;
+  background-size: auto, 46px 46px !important;
+  border-color: #E8E3D8 !important;
+}
+
+.timeline-scale,
+.mobile-time-label {
+  color: #697586 !important;
+  font-weight: 800 !important;
+}
+
+.timeline-track,
+.mobile-timeline-chart,
+.mobile-timeline-plot {
+  background-color: rgba(255,255,255,0.42) !important;
+}
+
+.timeline-bar {
+  background: linear-gradient(90deg, #DDF4F0 0%, #CFE7F2 100%) !important;
+  border-color: #99CFD8 !important;
+}
+
+.mobile-shift-bar,
+.mobile-shift-line {
+  box-shadow: 0 9px 18px rgba(75, 123, 142, 0.10) !important;
+}
+
+.mobile-shift-card,
+.mobile-shift-label {
+  background: #FFF7DE !important;
+  border-color: #EBD9A8 !important;
+  box-shadow: 0 8px 18px rgba(117, 92, 47, 0.10) !important;
+}
+
+.mobile-shift-card b,
+.mobile-shift-label b,
+.mobile-shift-card strong,
+.mobile-shift-label strong {
+  color: var(--station-navy) !important;
+}
+
+.mobile-timeline-peak-line,
+.mobile-peak-line {
+  border-color: rgba(241, 154, 80, 0.52) !important;
+}
+
+.mobile-peak-chip,
+.mobile-peak-label {
+  background: #FFF2E5 !important;
+  border-color: #F4C397 !important;
+  color: #D7782C !important;
+}
+
+.mobile-timeline-groups span,
+.mobile-timeline-legend span {
+  background: rgba(255,255,255,0.74) !important;
+  border-color: #E9E5DA !important;
+}
+
+/* 휴무 현황도 같은 스테이션 카드 시스템으로 연결 */
+.off-streak-item,
+.offday-streak,
+.off-detail-card.leave .off-detail-item {
+  background: linear-gradient(180deg, #FFFDF7 0%, #F7F1E3 100%) !important;
+  border-color: #EDE4D0 !important;
+}
+
+.off-detail-card.off .off-detail-item,
+.off-detail-item.off {
+  background: linear-gradient(180deg, #F4FBFE 0%, #EDF7FD 100%) !important;
+  border-color: #D5EBF4 !important;
+}
+
+/* 플로팅 버튼은 따뜻한 조명처럼 */
+.floating-btn,
+#floatingImageViewerBtn {
+  background: #FFE8D4 !important;
+  border-color: #F5CCAE !important;
+  box-shadow: 0 12px 28px rgba(158, 104, 66, 0.16) !important;
+}
+
+@media (max-width: 780px) {
+  body {
+    background-size: auto, auto, 42px 42px, 42px 42px !important;
+  }
+
+  .panel::before,
+  .view-panel::before,
+  .home-panel::before,
+  .daily-timeline-card::before,
+  .off-dashboard-card::before,
+  .workflow-guide-card::before {
+    left: 18px;
+    right: 18px;
+  }
+
+  .summary-cards .summary-card,
+  .daily-summary-grid .info-card,
+  .workflow-step,
+  .week-day-card,
+  .day-cell {
+    box-shadow: 0 8px 20px rgba(31, 37, 51, 0.045) !important;
+  }
+}
