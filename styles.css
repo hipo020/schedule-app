@@ -16044,3 +16044,207 @@ html[data-theme="simple"] .week-day-card.selected-week-day {
     transform: none !important;
   }
 }
+
+/* =========================================
+   v5.8 Weekly + Monthly rest color refinement
+   - 주간 요약 카드 노란/복숭아 테두리 제거
+   - 월간 휴무 노란 면적 제거, 차분한 쉼 포인트로 정리
+========================================= */
+.weekly-stat-row .mini-stat,
+.mini-stat.week-summary-block,
+.mini-stat.week-summary-block.work,
+.mini-stat.week-summary-block.off,
+.mini-stat.week-summary-block.neutral,
+.weekly-stat-row .mini-stat:nth-child(1),
+.weekly-stat-row .mini-stat:nth-child(2),
+.weekly-stat-row .mini-stat:nth-child(3) {
+  background: #FFFFFF !important;
+  border: 1px solid #E7EDF3 !important;
+  box-shadow: 0 8px 18px rgba(20,33,61,0.032) !important;
+}
+
+.weekly-stat-row .mini-stat::before,
+.mini-stat.week-summary-block::before {
+  content: '';
+  display: block;
+  width: 22px;
+  height: 3px;
+  border-radius: 999px;
+  margin-bottom: 2px;
+  background: #D8E7ED;
+}
+
+.weekly-stat-row .mini-stat:nth-child(1)::before,
+.mini-stat.week-summary-block.work::before { background: #A7DCEB; }
+.weekly-stat-row .mini-stat:nth-child(2)::before,
+.mini-stat.week-summary-block.off::before { background: #D9E6DF; }
+.weekly-stat-row .mini-stat:nth-child(3)::before,
+.mini-stat.week-summary-block.neutral::before { background: #D9DDE8; }
+
+.weekly-stat-row .mini-stat span,
+.mini-stat.week-summary-block span {
+  color: #778294 !important;
+}
+
+.weekly-stat-row .mini-stat strong,
+.mini-stat.week-summary-block strong {
+  color: #14213D !important;
+}
+
+.boxed-week-grid .week-day-card.off::before,
+.week-day-card.off::before {
+  background: #DCE8E1 !important;
+}
+
+.boxed-week-grid .week-day-card.leave::before,
+.week-day-card.leave::before {
+  background: #DED8EA !important;
+}
+
+.boxed-week-grid .week-day-card.off .week-code-pill,
+.boxed-week-grid .week-day-card.off .badge,
+.week-day-card.off .badge,
+.week-day-card.off em,
+.week-code-pill.off,
+.badge.off {
+  background: #FAFCFA !important;
+  border-color: #DCE8E1 !important;
+  color: #526A5D !important;
+}
+
+.boxed-week-grid .week-day-card.leave .week-code-pill,
+.boxed-week-grid .week-day-card.leave .badge,
+.week-day-card.leave .badge,
+.week-day-card.leave em,
+.week-code-pill.leave,
+.badge.leave {
+  background: #FBFAFF !important;
+  border-color: #DED8EA !important;
+  color: #665A7A !important;
+}
+
+/* 월간: 휴무를 노란 카드 대신 차분한 오프화이트/세이지 톤으로 */
+.boxed-month-calendar .day-cell.off,
+.simplified-month-calendar .day-cell.off,
+.improved-month-calendar .day-cell.off,
+.day-cell.off {
+  background: #FCFDFB !important;
+  border-color: #DDE9E2 !important;
+  box-shadow: 0 8px 18px rgba(82,106,93,0.035) !important;
+}
+
+.boxed-month-calendar .day-cell.leave,
+.simplified-month-calendar .day-cell.leave,
+.improved-month-calendar .day-cell.leave,
+.day-cell.leave {
+  background: #FCFAFF !important;
+  border-color: #E1DCEB !important;
+  box-shadow: 0 8px 18px rgba(102,90,122,0.035) !important;
+}
+
+.boxed-month-calendar .day-cell.off::before,
+.simplified-month-calendar .day-cell.off::before,
+.improved-month-calendar .day-cell.off::before,
+.day-cell.off::before,
+.boxed-month-calendar .day-cell.leave::before,
+.simplified-month-calendar .day-cell.leave::before,
+.improved-month-calendar .day-cell.leave::before,
+.day-cell.leave::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 8px;
+  height: 3px;
+  border-radius: 999px;
+  opacity: 0.9;
+}
+
+.boxed-month-calendar .day-cell.off::before,
+.simplified-month-calendar .day-cell.off::before,
+.improved-month-calendar .day-cell.off::before,
+.day-cell.off::before {
+  background: #DCE8E1 !important;
+}
+
+.boxed-month-calendar .day-cell.leave::before,
+.simplified-month-calendar .day-cell.leave::before,
+.improved-month-calendar .day-cell.leave::before,
+.day-cell.leave::before {
+  background: #DED8EA !important;
+}
+
+.boxed-month-calendar .day-cell .day-code.off,
+.boxed-month-calendar .badge.day-code.off,
+.day-cell .day-code.off,
+.day-code.off {
+  background: #FAFCFA !important;
+  border-color: #DCE8E1 !important;
+  color: #526A5D !important;
+}
+
+.boxed-month-calendar .day-cell .day-code.leave,
+.boxed-month-calendar .badge.day-code.leave,
+.day-cell .day-code.leave,
+.day-code.leave {
+  background: #FBFAFF !important;
+  border-color: #DED8EA !important;
+  color: #665A7A !important;
+}
+
+.legend-dot.off {
+  background: #DCE8E1 !important;
+}
+
+.legend-dot.leave {
+  background: #DED8EA !important;
+}
+
+html[data-theme="simple"] .weekly-stat-row .mini-stat::before,
+html[data-theme="simple"] .mini-stat.week-summary-block::before,
+html[data-theme="simple"] .boxed-month-calendar .day-cell.off::before,
+html[data-theme="simple"] .simplified-month-calendar .day-cell.off::before,
+html[data-theme="simple"] .improved-month-calendar .day-cell.off::before,
+html[data-theme="simple"] .day-cell.off::before,
+html[data-theme="simple"] .boxed-month-calendar .day-cell.leave::before,
+html[data-theme="simple"] .simplified-month-calendar .day-cell.leave::before,
+html[data-theme="simple"] .improved-month-calendar .day-cell.leave::before,
+html[data-theme="simple"] .day-cell.leave::before {
+  background: #D0D5DD !important;
+}
+
+html[data-theme="simple"] .boxed-week-grid .week-day-card.off::before,
+html[data-theme="simple"] .week-day-card.off::before,
+html[data-theme="simple"] .boxed-week-grid .week-day-card.leave::before,
+html[data-theme="simple"] .week-day-card.leave::before {
+  background: #D0D5DD !important;
+}
+
+@media (max-width: 768px) {
+  .weekly-stat-row .mini-stat,
+  .mini-stat.week-summary-block {
+    min-height: 66px !important;
+    padding: 10px 10px !important;
+  }
+
+  .weekly-stat-row .mini-stat::before,
+  .mini-stat.week-summary-block::before {
+    width: 18px;
+    height: 3px;
+    margin-bottom: 1px;
+  }
+
+  .boxed-month-calendar .day-cell.off::before,
+  .simplified-month-calendar .day-cell.off::before,
+  .improved-month-calendar .day-cell.off::before,
+  .day-cell.off::before,
+  .boxed-month-calendar .day-cell.leave::before,
+  .simplified-month-calendar .day-cell.leave::before,
+  .improved-month-calendar .day-cell.leave::before,
+  .day-cell.leave::before {
+    left: 8px;
+    right: 8px;
+    top: 7px;
+    height: 2px;
+  }
+}
