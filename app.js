@@ -2852,22 +2852,29 @@ function renderDailyInsightCard(day, timeline, roster) {
   const peakText = getPeakCoverage(timeline.workItems);
   const coworkerCount = coworkers.sameStart.length + coworkers.overlap.length;
   const coworkerText = !state.myName
-    ? '내 이름 선택'
+    ? '이름 선택'
     : (!coworkers.targetCode || ['off', 'leave', 'empty'].includes(coworkers.targetInfo.type))
       ? '근무 없음'
       : coworkerCount ? `${coworkerCount}명` : '없음';
   const coworkerSub = !state.myName
-    ? '이름을 선택하면 보여줘요.'
+    ? '내 이름을 고르면 보여줄게.'
     : (!coworkers.targetCode || ['off', 'leave', 'empty'].includes(coworkers.targetInfo.type))
-      ? '선택일 일정 기준'
+      ? '선택한 날 기준이야.'
       : coworkerCount ? `같은 출근 ${coworkers.sameStart.length}명` : '겹치는 근무자 없음';
   return `
-    <div class="info-card daily-insight-card daily-insight-card-simple">
-      <div class="daily-insight-head">
-        <h4>오늘 요약</h4>
-        <span>${timeline.workItems.length}명 근무</span>
+    <div class="info-card daily-insight-card daily-insight-card-simple daily-summary-polished-card">
+      <div class="daily-polished-head">
+        <div>
+          <span class="daily-card-eyebrow">TODAY</span>
+          <h4>오늘 요약</h4>
+        </div>
+        <span class="daily-count-chip">${timeline.workItems.length}명 근무</span>
       </div>
-      <p class="daily-insight-off-note">휴무 ${timeline.offPeople.length}명</p>
+      <div class="daily-insight-total-row">
+        <span>휴무/연차</span>
+        <strong>${timeline.offPeople.length}명</strong>
+        <small>${roster.earliest ? `첫 출근 ${roster.earliest}` : '출근 정보 없음'}</small>
+      </div>
       <div class="daily-insight-simple-list">
         <div class="daily-insight-simple-row highlight">
           <span>집중 시간</span>
@@ -2938,12 +2945,46 @@ function renderTeamOffOnlySection() {
   `;
 }
 
+function renderDailyDateSelector(currentDay) {
+  const totalDays = daysInMonth(state.year, state.month);
+  const currentDateValue = `${state.year}-${String(state.month).padStart(2, '0')}-${String(currentDay).padStart(2, '0')}`;
+  const minDate = `${state.year}-${String(state.month).padStart(2, '0')}-01`;
+  const maxDate = `${state.year}-${String(state.month).padStart(2, '0')}-${String(totalDays).padStart(2, '0')}`;
+  const dayButtons = Array.from({ length: totalDays }, (_, i) => {
+    const day = i + 1;
+    const date = getDateObj(day);
+    const dayName = dayNames[date.getDay()];
+    const isSelected = day === currentDay;
+    const weekendClass = date.getDay() === 0 ? 'sun' : date.getDay() === 6 ? 'sat' : '';
+    return `<button class="daily-day-chip ${isSelected ? 'active' : ''} ${weekendClass}" data-pick-day="${day}" type="button"><strong>${day}</strong><span>${dayName}</span></button>`;
+  }).join('');
+  return `
+    <section class="daily-date-selector" aria-label="일간 날짜 선택">
+      <div class="daily-date-selector-head">
+        <div>
+          <span>날짜 선택</span>
+          <strong>보고 싶은 날을 골라봐</strong>
+        </div>
+        <div class="daily-date-control">
+          <button class="daily-date-step" data-daily-step="-1" type="button" ${currentDay <= 1 ? 'disabled' : ''}>‹</button>
+          <input class="daily-date-input" data-daily-date-input type="date" min="${minDate}" max="${maxDate}" value="${currentDateValue}" aria-label="일간 날짜 직접 선택" />
+          <button class="daily-date-step" data-daily-step="1" type="button" ${currentDay >= totalDays ? 'disabled' : ''}>›</button>
+        </div>
+      </div>
+      <div class="daily-day-strip" aria-label="이번 달 날짜 바로 선택">
+        ${dayButtons}
+      </div>
+    </section>
+  `;
+}
+
 function renderDaily() {
   const person = getMyPerson();
   const selected = new Date(state.selectedDate || Date.now());
   const day = isSameMonth(selected) ? selected.getDate() : 1;
   const code = person?.schedules[day - 1] || '';
   const info = getCodeInfo(code);
+  const timeText = formatTime(info) || '시간 정보 없음';
   const roster = getDayRoster(day);
   const timeline = getTimelineItems(day);
   const isMobileDaily = typeof window !== 'undefined' && window.matchMedia?.('(max-width: 720px)').matches;
@@ -2956,17 +2997,24 @@ function renderDaily() {
       </div>
       <div class="daily-title-actions">${renderPersonPicker('기준')}${renderDailyViewToggle()}</div>
     </div>
-    <div class="card-grid daily-summary-grid daily-summary-grid-compact">
-      <div class="info-card daily-my-schedule-card daily-my-schedule-simple">
-        <div class="daily-my-simple-head">
-          <h4>내 스케줄</h4>
-          <span class="badge ${badgeClass(info.type)}">${code || '-'}</span>
+    ${renderDailyDateSelector(day)}
+    <div class="card-grid daily-summary-grid daily-summary-grid-compact daily-summary-polished-grid">
+      <div class="info-card daily-my-schedule-card daily-my-schedule-simple daily-summary-polished-card">
+        <div class="daily-polished-head">
+          <div>
+            <span class="daily-card-eyebrow">MY SHIFT</span>
+            <h4>내 스케줄</h4>
+          </div>
+          <span class="badge daily-code-chip ${badgeClass(info.type)}">${code || '-'}</span>
         </div>
-        <div class="daily-my-simple-primary">
-          <span class="daily-my-simple-time">${formatTime(info) || '시간 정보 없음'}</span>
-          <strong class="daily-my-simple-name">${state.myName || '이름 미입력'}</strong>
+        <div class="daily-my-simple-primary daily-my-polished-body">
+          <span class="daily-my-simple-time">${escapeHtml(timeText)}</span>
+          <strong class="daily-my-simple-name">${escapeHtml(state.myName || '이름 미입력')}</strong>
         </div>
-        <span class="daily-my-simple-state">${info.label || '일정 없음'}</span>
+        <div class="daily-my-polished-foot">
+          <span class="daily-my-simple-state">${escapeHtml(info.label || '일정 없음')}</span>
+          <small>${escapeHtml(dayNames[getDateObj(day).getDay()])}요일 기준</small>
+        </div>
       </div>
       ${renderDailyInsightCard(day, timeline, roster)}
     </div>
@@ -3632,6 +3680,28 @@ function bindViewEvents() {
     button.addEventListener('click', () => {
       state.dailyView = button.dataset.dailyView || 'timeline';
       renderViews();
+      saveState(false);
+    });
+  });
+  document.querySelectorAll('[data-daily-step]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const selected = new Date(state.selectedDate || `${state.year}-${String(state.month).padStart(2, '0')}-01`);
+      const day = isSameMonth(selected) ? selected.getDate() : 1;
+      const nextDay = Math.min(Math.max(day + Number(button.dataset.dailyStep || 0), 1), daysInMonth(state.year, state.month));
+      state.selectedDate = `${state.year}-${String(state.month).padStart(2, '0')}-${String(nextDay).padStart(2, '0')}`;
+      syncInputs();
+      renderAll();
+      saveState(false);
+    });
+  });
+  document.querySelectorAll('[data-daily-date-input]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const picked = new Date(input.value || '');
+      if (Number.isNaN(picked.getTime())) return;
+      if (picked.getFullYear() !== state.year || picked.getMonth() + 1 !== state.month) return;
+      state.selectedDate = input.value;
+      syncInputs();
+      renderAll();
       saveState(false);
     });
   });

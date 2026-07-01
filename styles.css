@@ -12257,3 +12257,520 @@ body {
     font-size: 12px;
   }
 }
+
+/* ===== Daily page polish: casual date picker + cleaner summary cards ===== */
+.daily-date-selector {
+  margin: 0 0 16px !important;
+  padding: 16px !important;
+  border: 1px solid rgba(214, 224, 229, 0.86) !important;
+  border-radius: 26px !important;
+  background: rgba(255, 253, 247, 0.92) !important;
+  box-shadow: 0 12px 30px rgba(31, 44, 66, 0.045) !important;
+}
+
+.daily-date-selector-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 12px !important;
+}
+
+.daily-date-selector-head > div:first-child {
+  display: grid !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+}
+
+.daily-date-selector-head span {
+  color: #7B8794 !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.04em !important;
+}
+
+.daily-date-selector-head strong {
+  color: #172033 !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.03em !important;
+}
+
+.daily-date-control {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex: 0 0 auto !important;
+}
+
+.daily-date-step {
+  width: 34px !important;
+  height: 34px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid #D7E7EE !important;
+  border-radius: 999px !important;
+  background: #FFFFFF !important;
+  color: #2F6E88 !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  box-shadow: 0 7px 16px rgba(47, 110, 136, 0.08) !important;
+  cursor: pointer !important;
+}
+
+.daily-date-step:disabled {
+  opacity: 0.36 !important;
+  cursor: default !important;
+  box-shadow: none !important;
+}
+
+.daily-date-input {
+  height: 34px !important;
+  width: 142px !important;
+  padding: 0 10px !important;
+  border: 1px solid #DCEAF1 !important;
+  border-radius: 999px !important;
+  background: #FFFFFF !important;
+  color: #172033 !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  outline: none !important;
+}
+
+.daily-date-input:focus {
+  border-color: #8FBFD8 !important;
+  box-shadow: 0 0 0 4px rgba(212, 236, 247, 0.62) !important;
+}
+
+.daily-day-strip {
+  display: flex !important;
+  gap: 7px !important;
+  overflow-x: auto !important;
+  overscroll-behavior-inline: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding: 2px 2px 4px !important;
+  scrollbar-width: thin !important;
+}
+
+.daily-day-chip {
+  flex: 0 0 auto !important;
+  min-width: 48px !important;
+  height: 52px !important;
+  display: grid !important;
+  place-items: center !important;
+  align-content: center !important;
+  gap: 2px !important;
+  padding: 7px 8px !important;
+  border: 1px solid #E4EAF0 !important;
+  border-radius: 18px !important;
+  background: #FFFFFF !important;
+  color: #53657A !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+.daily-day-chip strong {
+  color: #172033 !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+.daily-day-chip span {
+  color: #8190A3 !important;
+  font-size: 10px !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+}
+
+.daily-day-chip.sun strong,
+.daily-day-chip.sun span { color: #B94A4A !important; }
+.daily-day-chip.sat strong,
+.daily-day-chip.sat span { color: #2F6E88 !important; }
+
+.daily-day-chip.active {
+  background: #DDF2FA !important;
+  border-color: #9FCBDD !important;
+  box-shadow: 0 10px 20px rgba(143, 191, 216, 0.22) !important;
+}
+
+.daily-summary-polished-grid {
+  align-items: stretch !important;
+  gap: 16px !important;
+  margin-bottom: 16px !important;
+}
+
+.daily-summary-polished-card {
+  min-height: 184px !important;
+  padding: 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  overflow: hidden !important;
+}
+
+.daily-my-schedule-simple.daily-summary-polished-card {
+  background: linear-gradient(180deg, #E7F6FB 0%, #DDF2FA 100%) !important;
+  border: 1px solid #BFE3F0 !important;
+}
+
+.daily-insight-card-simple.daily-summary-polished-card {
+  background: linear-gradient(180deg, #FFF8EE 0%, #FBF2E3 100%) !important;
+  border: 1px solid #EEDFC6 !important;
+}
+
+.daily-polished-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  min-height: 34px !important;
+}
+
+.daily-polished-head > div {
+  display: grid !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+}
+
+.daily-card-eyebrow {
+  color: #728195 !important;
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.08em !important;
+}
+
+.daily-polished-head h4 {
+  margin: 0 !important;
+  color: #172033 !important;
+  font-size: 16px !important;
+  font-weight: 950 !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.035em !important;
+}
+
+.daily-code-chip,
+.daily-count-chip {
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+  max-width: 94px !important;
+  padding: 7px 10px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.78) !important;
+  border: 1px solid rgba(255,255,255,0.9) !important;
+  color: #172033 !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+}
+
+.daily-my-polished-body {
+  display: grid !important;
+  gap: 7px !important;
+  padding: 2px 0 !important;
+}
+
+.daily-my-simple-time {
+  color: #0F172A !important;
+  font-size: clamp(22px, 2.4vw, 30px) !important;
+  font-weight: 950 !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.045em !important;
+}
+
+.daily-my-simple-name {
+  margin: 0 !important;
+  color: #425367 !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.daily-my-polished-foot {
+  margin-top: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding-top: 8px !important;
+  border-top: 1px solid rgba(255,255,255,0.64) !important;
+}
+
+.daily-my-simple-state {
+  display: inline-flex !important;
+  align-items: center !important;
+  max-width: 65% !important;
+  padding: 7px 10px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.68) !important;
+  color: #54697D !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.daily-my-polished-foot small {
+  color: #6F7E90 !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+.daily-insight-total-row {
+  display: grid !important;
+  grid-template-columns: auto 1fr !important;
+  gap: 3px 8px !important;
+  padding: 11px 12px !important;
+  border-radius: 16px !important;
+  background: rgba(255,255,255,0.66) !important;
+  border: 1px solid rgba(255,255,255,0.86) !important;
+}
+
+.daily-insight-total-row span {
+  color: #7B8794 !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  line-height: 1.15 !important;
+}
+
+.daily-insight-total-row strong {
+  color: #172033 !important;
+  font-size: 17px !important;
+  font-weight: 950 !important;
+  line-height: 1.1 !important;
+  text-align: right !important;
+}
+
+.daily-insight-total-row small {
+  grid-column: 1 / -1 !important;
+  color: #7C8795 !important;
+  font-size: 11px !important;
+  font-weight: 820 !important;
+  line-height: 1.2 !important;
+}
+
+.daily-insight-simple-list {
+  gap: 8px !important;
+}
+
+.daily-insight-simple-row {
+  padding: 11px 12px !important;
+  border-radius: 16px !important;
+}
+
+.daily-insight-simple-row span {
+  margin: 0 0 4px !important;
+  color: #778496 !important;
+  font-size: 10.5px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+.daily-insight-simple-row strong {
+  color: #172033 !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  line-height: 1.18 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.daily-insight-simple-row small {
+  margin-top: 4px !important;
+  color: #7C8795 !important;
+  font-size: 10.5px !important;
+  font-weight: 820 !important;
+}
+
+@media (max-width: 720px) {
+  .daily-date-selector {
+    margin-bottom: 10px !important;
+    padding: 12px !important;
+    border-radius: 22px !important;
+  }
+
+  .daily-date-selector-head {
+    align-items: flex-start !important;
+    gap: 8px !important;
+    margin-bottom: 9px !important;
+  }
+
+  .daily-date-selector-head span {
+    font-size: 9.5px !important;
+  }
+
+  .daily-date-selector-head strong {
+    font-size: 12.5px !important;
+    line-height: 1.15 !important;
+  }
+
+  .daily-date-control {
+    gap: 4px !important;
+  }
+
+  .daily-date-step {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 16px !important;
+  }
+
+  .daily-date-input {
+    width: 118px !important;
+    height: 30px !important;
+    padding: 0 8px !important;
+    font-size: 10.5px !important;
+  }
+
+  .daily-day-strip {
+    gap: 5px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .daily-day-chip {
+    min-width: 41px !important;
+    height: 46px !important;
+    border-radius: 15px !important;
+    padding: 6px !important;
+  }
+
+  .daily-day-chip strong {
+    font-size: 13.5px !important;
+  }
+
+  .daily-day-chip span {
+    font-size: 9px !important;
+  }
+
+  .daily-summary-grid.daily-summary-grid-compact.daily-summary-polished-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 9px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .daily-summary-polished-card,
+  .daily-my-schedule-simple.daily-summary-polished-card,
+  .daily-insight-card-simple.daily-summary-polished-card {
+    min-height: 0 !important;
+    padding: 14px !important;
+    border-radius: 21px !important;
+    gap: 10px !important;
+  }
+
+  .daily-polished-head {
+    min-height: 0 !important;
+    align-items: center !important;
+  }
+
+  .daily-card-eyebrow {
+    font-size: 9px !important;
+  }
+
+  .daily-polished-head h4 {
+    font-size: 14px !important;
+  }
+
+  .daily-code-chip,
+  .daily-count-chip {
+    padding: 6px 9px !important;
+    font-size: 10px !important;
+  }
+
+  .daily-my-polished-body {
+    gap: 4px !important;
+  }
+
+  .daily-my-simple-time {
+    font-size: 21px !important;
+    line-height: 1.08 !important;
+  }
+
+  .daily-my-simple-name {
+    font-size: 13px !important;
+  }
+
+  .daily-my-polished-foot {
+    padding-top: 7px !important;
+  }
+
+  .daily-my-simple-state {
+    max-width: 70% !important;
+    padding: 6px 9px !important;
+    font-size: 10.5px !important;
+  }
+
+  .daily-my-polished-foot small {
+    font-size: 10px !important;
+  }
+
+  .daily-insight-total-row {
+    padding: 9px 10px !important;
+    border-radius: 15px !important;
+  }
+
+  .daily-insight-total-row span,
+  .daily-insight-total-row small {
+    font-size: 10px !important;
+  }
+
+  .daily-insight-total-row strong {
+    font-size: 15px !important;
+  }
+
+  .daily-insight-simple-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .daily-insight-simple-row {
+    min-width: 0 !important;
+    padding: 9px 10px !important;
+    border-radius: 15px !important;
+  }
+
+  .daily-insight-simple-row span {
+    font-size: 9.5px !important;
+  }
+
+  .daily-insight-simple-row strong {
+    font-size: 12.5px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .daily-insight-simple-row small {
+    font-size: 9px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .daily-date-selector-head {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .daily-date-control {
+    width: 100% !important;
+  }
+
+  .daily-date-input {
+    flex: 1 1 auto !important;
+    width: auto !important;
+  }
+
+  .daily-my-simple-time {
+    font-size: 19px !important;
+  }
+
+  .daily-insight-simple-list {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
