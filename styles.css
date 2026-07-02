@@ -18208,3 +18208,396 @@ html[data-theme="night"] .daily-date-selector {
     box-shadow: none !important;
   }
 }
+
+
+/* =========================================
+   v5.10.17 Input / review flow polish
+   - 입력·검수 영역을 더 짧고 명확한 작업 흐름으로 정리
+========================================= */
+.app-page[data-page="dataInput"] .view-panel,
+.app-page[data-page="editor"] .editor-panel,
+.app-page[data-page="extract"] .view-panel,
+.app-page[data-page="settings"] .view-panel,
+.app-page[data-page="setup"] .setup-panel,
+.app-page[data-page="setup"] .upload-panel {
+  border-color: color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 74%, #FFFFFF) !important;
+}
+
+.app-page[data-page="dataInput"] .section-title.with-actions,
+.app-page[data-page="editor"] .section-title.with-actions,
+.app-page[data-page="extract"] .section-title.with-actions {
+  align-items: flex-start !important;
+  gap: 14px !important;
+}
+
+.app-page[data-page="dataInput"] .section-title p,
+.app-page[data-page="editor"] .section-title p,
+.app-page[data-page="extract"] .section-title p {
+  color: color-mix(in srgb, var(--theme-accent-strong, #4E92AA) 72%, #6B7280) !important;
+}
+
+.app-page[data-page="dataInput"] .notice,
+.app-page[data-page="editor"] .notice,
+.app-page[data-page="extract"] .notice {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 13px 16px !important;
+  margin-bottom: 22px !important;
+  border-radius: 20px !important;
+  background: linear-gradient(180deg, var(--theme-card-tint, #F2FBFE), #FFFFFF) !important;
+  border: 1px solid color-mix(in srgb, var(--theme-line-soft, #DCEEF6) 78%, #FFFFFF) !important;
+  box-shadow: 0 10px 26px rgba(20, 33, 61, 0.035) !important;
+}
+
+.app-page[data-page="dataInput"] .notice strong,
+.app-page[data-page="editor"] .notice strong,
+.app-page[data-page="extract"] .notice strong {
+  flex: 0 0 auto;
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 30px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--theme-nav-active, #DDF3FA) 82%, #FFFFFF) !important;
+  color: var(--theme-nav-text, #15314A) !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+.app-page[data-page="dataInput"] .notice span,
+.app-page[data-page="editor"] .notice span,
+.app-page[data-page="extract"] .notice span {
+  min-width: 0;
+  color: #667085 !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  word-break: keep-all;
+}
+
+.app-page[data-page="dataInput"] .data-input-grid {
+  grid-template-columns: 0.92fr 1.08fr !important;
+  gap: 16px !important;
+  margin-bottom: 16px !important;
+}
+
+.app-page[data-page="dataInput"] .data-guide-card {
+  position: relative !important;
+  overflow: hidden !important;
+  gap: 12px !important;
+  min-height: 0 !important;
+  padding: 18px !important;
+  border-radius: 22px !important;
+  background: #FFFFFF !important;
+  border-color: color-mix(in srgb, var(--theme-line-soft, #DCEEF6) 72%, #FFFFFF) !important;
+  box-shadow: 0 12px 28px rgba(20, 33, 61, 0.035) !important;
+}
+
+.app-page[data-page="dataInput"] .data-guide-card::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: color-mix(in srgb, var(--theme-accent, #9ED9EC) 70%, #FFFFFF);
+  border-radius: 22px 0 0 22px;
+}
+
+.app-page[data-page="dataInput"] .data-guide-card:nth-child(2)::after {
+  background: color-mix(in srgb, var(--theme-accent, #9ED9EC) 38%, #EED9B0);
+}
+
+.app-page[data-page="dataInput"] .data-guide-card h3 {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  font-size: 16px !important;
+  letter-spacing: -0.03em !important;
+}
+
+.app-page[data-page="dataInput"] .data-guide-card p {
+  margin: 0 !important;
+  color: #667085 !important;
+  font-size: 12.5px !important;
+  line-height: 1.45 !important;
+  word-break: keep-all;
+}
+
+.app-page[data-page="dataInput"] .mini-checklist {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+}
+
+.app-page[data-page="dataInput"] .mini-checklist span {
+  min-height: 28px !important;
+  padding: 7px 9px !important;
+  border-radius: 999px !important;
+  background: #F8FAFC !important;
+  border: 1px solid #E8EDF3 !important;
+  color: #526074 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.app-page[data-page="dataInput"] .data-guide-card .action-row {
+  gap: 8px !important;
+}
+
+.app-page[data-page="dataInput"] .data-guide-card button {
+  min-height: 36px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+}
+
+.app-page[data-page="dataInput"] .helper-text,
+.app-page[data-page="editor"] .helper-text {
+  color: #7A8798 !important;
+  font-size: 11.5px !important;
+}
+
+.app-page[data-page="dataInput"] .csv-input-box {
+  min-height: 280px !important;
+  max-height: 42vh !important;
+  padding: 18px !important;
+  border-radius: 24px !important;
+  background:
+    linear-gradient(#FFFFFF, #FFFFFF) padding-box,
+    linear-gradient(135deg, color-mix(in srgb, var(--theme-accent, #9ED9EC) 52%, #FFFFFF), #FFFFFF) border-box !important;
+  border: 1px solid transparent !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px rgba(20, 33, 61, 0.04) !important;
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+}
+
+.app-page[data-page="dataInput"] .button-help-text {
+  margin: 8px 0 14px !important;
+  color: #7A8798 !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+}
+
+.app-page[data-page="dataInput"] .csv-preview-wrap .notice,
+.app-page[data-page="dataInput"] .csv-preview-card {
+  margin-top: 12px !important;
+  border-radius: 20px !important;
+}
+
+.app-page[data-page="editor"] .editor-toolbar,
+.app-page[data-page="editor"] .editor-filter-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px !important;
+  margin-bottom: 12px !important;
+  border-radius: 22px !important;
+  background: #F8FBFD !important;
+  border: 1px solid color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 70%, #FFFFFF) !important;
+}
+
+.app-page[data-page="editor"] .editor-toolbar button,
+.app-page[data-page="editor"] .editor-filter-row button {
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+}
+
+.app-page[data-page="editor"] .editor-toolbar #markReviewCompleteButton,
+.app-page[data-page="editor"] .editor-toolbar #saveButton {
+  margin-left: auto !important;
+}
+
+.app-page[data-page="editor"] .editor-filter-row {
+  background: transparent !important;
+  border-color: transparent !important;
+  padding: 0 !important;
+}
+
+.app-page[data-page="editor"] .editor-filter-row button.active {
+  background: var(--theme-nav-active, #DDF3FA) !important;
+  color: var(--theme-nav-text, #15314A) !important;
+  border-color: color-mix(in srgb, var(--theme-accent, #9ED9EC) 46%, #FFFFFF) !important;
+}
+
+.app-page[data-page="editor"] .validation-summary {
+  margin: 8px 0 14px !important;
+  border-radius: 22px !important;
+  border: 1px solid color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 72%, #FFFFFF) !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, var(--theme-card-tint, #F2FBFE) 100%) !important;
+  box-shadow: 0 10px 26px rgba(20, 33, 61, 0.035) !important;
+}
+
+.app-page[data-page="editor"] .review-compare-wrap {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+}
+
+.app-page[data-page="editor"] .review-table-scroll,
+.app-page[data-page="editor"] .table-scroll.review-table-scroll {
+  border-radius: 22px !important;
+  border-color: color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 72%, #FFFFFF) !important;
+  box-shadow: 0 12px 28px rgba(20, 33, 61, 0.035) !important;
+}
+
+.app-page[data-page="editor"] .schedule-table th {
+  background: #F8FBFD !important;
+  color: #64748B !important;
+  font-size: 12px !important;
+}
+
+.app-page[data-page="editor"] .schedule-table td input {
+  border-radius: 10px !important;
+}
+
+.app-page[data-page="editor"] .schedule-table td input:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-accent, #9ED9EC) 38%, transparent) !important;
+}
+
+.app-page[data-page="extract"] .ocr-grid,
+.app-page[data-page="extract"] .memo-extract-grid {
+  gap: 16px !important;
+}
+
+.app-page[data-page="extract"] .ocr-control-card,
+.app-page[data-page="extract"] .ocr-preview-card,
+.app-page[data-page="extract"] .memo-extract-card,
+.app-page[data-page="extract"] .ocr-result-card {
+  border-radius: 24px !important;
+  border-color: color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 72%, #FFFFFF) !important;
+  box-shadow: 0 12px 28px rgba(20, 33, 61, 0.035) !important;
+}
+
+@media (max-width: 768px) {
+  .app-page[data-page="dataInput"] .section-title.with-actions,
+  .app-page[data-page="editor"] .section-title.with-actions,
+  .app-page[data-page="extract"] .section-title.with-actions {
+    gap: 10px !important;
+  }
+
+  .app-page[data-page="dataInput"] .section-title .action-row,
+  .app-page[data-page="editor"] .section-title .action-row,
+  .app-page[data-page="extract"] .section-title .action-row {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .app-page[data-page="dataInput"] .section-title .action-row button,
+  .app-page[data-page="editor"] .section-title .action-row button,
+  .app-page[data-page="extract"] .section-title .action-row button {
+    width: 100% !important;
+    min-height: 36px !important;
+    padding: 0 10px !important;
+    font-size: 11.5px !important;
+  }
+
+  .app-page[data-page="dataInput"] .notice,
+  .app-page[data-page="editor"] .notice,
+  .app-page[data-page="extract"] .notice {
+    align-items: flex-start !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+    border-radius: 18px !important;
+  }
+
+  .app-page[data-page="dataInput"] .notice strong,
+  .app-page[data-page="editor"] .notice strong,
+  .app-page[data-page="extract"] .notice strong {
+    min-height: 26px !important;
+    padding: 0 9px !important;
+    font-size: 10.5px !important;
+  }
+
+  .app-page[data-page="dataInput"] .notice span,
+  .app-page[data-page="editor"] .notice span,
+  .app-page[data-page="extract"] .notice span {
+    font-size: 11.5px !important;
+  }
+
+  .app-page[data-page="dataInput"] .data-input-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .app-page[data-page="dataInput"] .data-guide-card {
+    padding: 14px !important;
+    border-radius: 20px !important;
+  }
+
+  .app-page[data-page="dataInput"] .data-guide-card h3 {
+    font-size: 14.5px !important;
+  }
+
+  .app-page[data-page="dataInput"] .data-guide-card p {
+    font-size: 11.5px !important;
+  }
+
+  .app-page[data-page="dataInput"] .mini-checklist {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+
+  .app-page[data-page="dataInput"] .mini-checklist span {
+    min-height: 26px !important;
+    padding: 6px 8px !important;
+    font-size: 10px !important;
+  }
+
+  .app-page[data-page="dataInput"] .csv-input-box {
+    min-height: 220px !important;
+    max-height: 34vh !important;
+    padding: 14px !important;
+    border-radius: 20px !important;
+    font-size: 12px !important;
+  }
+
+  .app-page[data-page="dataInput"] #importCsvButton,
+  .app-page[data-page="dataInput"] #saveImportedCsvButton {
+    flex: 1 1 0 !important;
+    min-height: 38px !important;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+  }
+
+  .app-page[data-page="editor"] .editor-toolbar {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    padding: 8px !important;
+  }
+
+  .app-page[data-page="editor"] .editor-toolbar button {
+    width: 100% !important;
+    min-height: 34px !important;
+    font-size: 10.8px !important;
+    padding: 0 8px !important;
+  }
+
+  .app-page[data-page="editor"] .editor-toolbar #markReviewCompleteButton {
+    grid-column: 1 / -1 !important;
+    margin-left: 0 !important;
+  }
+
+  .app-page[data-page="editor"] .editor-filter-row {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    padding-bottom: 2px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .app-page[data-page="editor"] .editor-filter-row::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .app-page[data-page="editor"] .editor-filter-row button {
+    flex: 0 0 auto !important;
+    min-height: 32px !important;
+    font-size: 10.8px !important;
+  }
+}
