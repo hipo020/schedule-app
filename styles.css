@@ -17192,3 +17192,96 @@ html[data-theme="night"] .daily-date-selector {
     border-radius: 18px !important;
   }
 }
+
+
+/* =========================================
+   v5.10.7 Mobile theme button right align
+   - 테마 버튼을 제목 오른쪽으로 이동
+   - 상단 세로 길이와 아래 블록 간격 추가 압축
+========================================= */
+@media (max-width: 768px) {
+  .app-shell {
+    padding-top: 18px !important;
+  }
+
+  .hero {
+    gap: 6px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .hero > .hero-main-copy {
+    position: relative !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding-right: 104px !important;
+  }
+
+  .hero h1,
+  .auth-card h1 {
+    margin-bottom: 7px !important;
+  }
+
+  .theme-picker {
+    position: absolute !important;
+    top: 1px !important;
+    right: 0 !important;
+    margin: 0 !important;
+  }
+
+  .theme-picker-button {
+    min-height: 28px !important;
+    height: 28px !important;
+    padding: 0 10px !important;
+    gap: 5px !important;
+    border-radius: 999px !important;
+    box-shadow: 0 8px 18px rgba(20, 33, 61, 0.04) !important;
+  }
+
+  .theme-picker-button span {
+    font-size: 9.5px !important;
+  }
+
+  .theme-picker-button strong {
+    font-size: 11px !important;
+  }
+
+  .theme-picker-menu {
+    left: auto !important;
+    right: 0 !important;
+    top: calc(100% + 6px) !important;
+    min-width: 214px !important;
+    max-width: min(214px, calc(100vw - 36px)) !important;
+  }
+
+  .hero .hero-desc,
+  .hero-desc {
+    margin: 0 0 4px !important;
+    padding-left: 1px !important;
+    font-size: 10.8px !important;
+    line-height: 1.24 !important;
+    max-width: 100% !important;
+  }
+
+  .account-card {
+    margin-top: 2px !important;
+  }
+
+  .cloud-status {
+    margin: 6px 0 8px !important;
+    padding: 7px 12px !important;
+  }
+
+  .category-shell {
+    margin-bottom: 10px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero > .hero-main-copy {
+    padding-right: 96px !important;
+  }
+
+  .theme-picker-button {
+    padding: 0 9px !important;
+  }
+}
