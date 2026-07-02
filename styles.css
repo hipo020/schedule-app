@@ -17822,3 +17822,109 @@ html[data-theme="night"] .daily-date-selector {
     padding-top: 22px !important;
   }
 }
+
+
+/* =========================================
+   v5.10.13 Mobile header action alignment
+   - 응원/계정 버튼 기준선 통일
+   - 계정 버튼도 텍스트가 보이는 미니 pill로 변경
+========================================= */
+@media (max-width: 768px) {
+  .hero-mini-actions {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    top: 8px !important;
+  }
+
+  .hero-mini-actions .theme-picker,
+  .hero-mini-actions .account-mini-picker {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    height: 28px !important;
+  }
+
+  .theme-picker-button,
+  .account-mini-button {
+    box-sizing: border-box !important;
+    min-height: 28px !important;
+    height: 28px !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 0 9px !important;
+    line-height: 1 !important;
+  }
+
+  .theme-picker-button strong,
+  .account-mini-button span {
+    display: inline-block !important;
+    font-size: 10.5px !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.02em !important;
+    white-space: nowrap !important;
+  }
+
+  .theme-picker-button span {
+    display: none !important;
+  }
+
+  .account-mini-button {
+    width: auto !important;
+    min-width: 54px !important;
+  }
+
+  .account-mini-button::before,
+  .theme-picker-button::before {
+    width: 7px !important;
+    height: 7px !important;
+    flex: 0 0 7px !important;
+    margin: 0 1px 0 0 !important;
+  }
+
+  .account-mini-button::after,
+  .theme-picker-button::after {
+    display: inline-block !important;
+    content: '⌄' !important;
+    font-size: 9.5px !important;
+    line-height: 1 !important;
+    transform: translateY(-1px) !important;
+    margin-left: 1px !important;
+  }
+
+  .account-mini-button[aria-expanded="true"]::after,
+  .theme-picker-button[aria-expanded="true"]::after {
+    transform: rotate(180deg) translateY(1px) !important;
+  }
+
+  .account-mini-menu {
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero > .hero-main-copy {
+    padding-right: 142px !important;
+  }
+
+  .account-mini-button {
+    width: auto !important;
+    min-width: 54px !important;
+    padding: 0 9px !important;
+  }
+
+  .account-mini-button span {
+    display: inline-block !important;
+  }
+
+  .account-mini-button::after {
+    display: inline-block !important;
+  }
+}
