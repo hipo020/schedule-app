@@ -17928,3 +17928,283 @@ html[data-theme="night"] .daily-date-selector {
     display: inline-block !important;
   }
 }
+
+
+/* =========================================
+   v5.10.14 Desktop category wrapper cleanup
+   - 보기/입력·검수/저장·도움말 뒤 큰 배경 네모 제거
+========================================= */
+@media (min-width: 781px) {
+  html:not([data-theme="simple"]) .category-shell,
+  .category-shell {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+}
+
+
+/* =========================================
+   v5.10.15 Final polish pass
+   - 로그인 완료 문구는 유지
+   - 플로팅 원본 버튼 겹침 완화
+   - 테마 팝업 마감
+   - 일간 하단 카드 compact
+   - 월간 휴무/연차 색감 최종 정리
+   - PC 상단 폭감 보정
+========================================= */
+
+/* 테마 팝업: 메뉴가 떠 있는 느낌을 더 명확하게 */
+.theme-picker-menu,
+.account-mini-menu {
+  background: rgba(255, 255, 255, 0.985) !important;
+  border-color: color-mix(in srgb, var(--theme-line-soft, #DDEAF0) 84%, #FFFFFF) !important;
+  box-shadow: 0 22px 52px rgba(20, 33, 61, 0.16) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+.theme-picker-menu .theme-chip:hover,
+.account-mini-actions button:hover {
+  transform: translateY(-1px);
+}
+
+/* 월간/주간 휴무 라인 제거: 칩 색으로만 구분 */
+.boxed-month-calendar .day-cell.off::before,
+.simplified-month-calendar .day-cell.off::before,
+.improved-month-calendar .day-cell.off::before,
+.day-cell.off::before,
+.boxed-month-calendar .day-cell.leave::before,
+.simplified-month-calendar .day-cell.leave::before,
+.improved-month-calendar .day-cell.leave::before,
+.day-cell.leave::before,
+.boxed-week-grid .week-day-card.off::before,
+.week-day-card.off::before,
+.boxed-week-grid .week-day-card.leave::before,
+.week-day-card.leave::before,
+.weekly-stat-row .mini-stat::before,
+.mini-stat.week-summary-block::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* 월간 휴무/연차 색감: 노란 면적 제거, 조용한 쉼 톤 */
+.boxed-month-calendar .day-cell.off,
+.simplified-month-calendar .day-cell.off,
+.improved-month-calendar .day-cell.off,
+.day-cell.off {
+  background: linear-gradient(180deg, #FBFDFB 0%, #FFFFFF 100%) !important;
+  border-color: #E3ECE3 !important;
+}
+
+.boxed-month-calendar .day-cell.leave,
+.simplified-month-calendar .day-cell.leave,
+.improved-month-calendar .day-cell.leave,
+.day-cell.leave {
+  background: linear-gradient(180deg, #FBFAFE 0%, #FFFFFF 100%) !important;
+  border-color: #E7E1F1 !important;
+}
+
+.badge.off,
+.week-code-pill.off,
+.day-code.off,
+.boxed-month-calendar .day-code.off,
+.simplified-month-calendar .day-code.off,
+.improved-month-calendar .day-code.off {
+  background: #EFF6F0 !important;
+  border-color: #D9E8DC !important;
+  color: #526D56 !important;
+}
+
+.badge.leave,
+.week-code-pill.leave,
+.day-code.leave,
+.boxed-month-calendar .day-code.leave,
+.simplified-month-calendar .day-code.leave,
+.improved-month-calendar .day-code.leave {
+  background: #F3F0FA !important;
+  border-color: #E2DCEF !important;
+  color: #665A82 !important;
+}
+
+/* 원본 이미지 플로팅 버튼: 내용과 덜 겹치게 작고 낮은 존재감 */
+#floatingImageViewerBtn,
+.floating-btn {
+  width: 52px !important;
+  height: 52px !important;
+  right: max(22px, env(safe-area-inset-right)) !important;
+  bottom: max(22px, env(safe-area-inset-bottom)) !important;
+  opacity: 0.92 !important;
+  box-shadow: 0 12px 32px rgba(165, 91, 59, 0.18) !important;
+}
+
+#floatingImageViewerBtn:hover,
+.floating-btn:hover {
+  opacity: 1 !important;
+}
+
+/* PC에서는 상단이 너무 넓게 흩어지지 않도록 살짝 제한 */
+@media (min-width: 1024px) {
+  .app-shell {
+    width: min(1320px, calc(100% - 48px)) !important;
+  }
+
+  .hero {
+    gap: 28px !important;
+  }
+
+  .cloud-status {
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    padding-bottom: 92px !important;
+  }
+
+  #floatingImageViewerBtn,
+  .floating-btn {
+    width: 46px !important;
+    height: 46px !important;
+    right: 16px !important;
+    bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+    opacity: 0.88 !important;
+  }
+
+  /* 상태 배지는 로그인 완료 문구를 유지하면서 살짝 정돈 */
+  .cloud-status .save-status-message {
+    font-size: 10.6px !important;
+    color: color-mix(in srgb, var(--theme-nav-text, #15314A) 44%, #8B98AA) !important;
+  }
+
+  /* 일간 하단 카드 compact */
+  .daily-summary-grid.daily-summary-grid-compact,
+  .daily-summary-polished-grid {
+    gap: 8px !important;
+  }
+
+  .daily-summary-polished-card,
+  .daily-my-schedule-card.daily-summary-polished-card,
+  .daily-my-schedule-simple.daily-summary-polished-card,
+  .daily-insight-card.daily-summary-polished-card,
+  .daily-insight-card-simple.daily-summary-polished-card {
+    padding: 13px 14px !important;
+    border-radius: 20px !important;
+    gap: 8px !important;
+  }
+
+  .daily-polished-head,
+  .daily-insight-head {
+    gap: 7px !important;
+  }
+
+  .daily-card-eyebrow {
+    font-size: 8.5px !important;
+    line-height: 1 !important;
+  }
+
+  .daily-polished-head h4,
+  .daily-insight-card-simple h4,
+  .daily-insight-card h4 {
+    font-size: 14px !important;
+    line-height: 1.18 !important;
+  }
+
+  .daily-my-simple-time,
+  .daily-my-polished-time {
+    font-size: 21px !important;
+    line-height: 1.08 !important;
+  }
+
+  .daily-my-simple-name,
+  .daily-my-polished-name {
+    font-size: 12.5px !important;
+  }
+
+  .daily-my-simple-state,
+  .daily-code-chip,
+  .daily-count-chip {
+    min-height: 0 !important;
+    padding: 5px 8px !important;
+    font-size: 10px !important;
+  }
+
+  .daily-my-polished-foot {
+    padding-top: 6px !important;
+    gap: 6px !important;
+  }
+
+  .daily-my-polished-foot small {
+    font-size: 9.8px !important;
+  }
+
+  .daily-insight-simple-row,
+  .daily-insight-total-row {
+    padding: 8px 9px !important;
+    border-radius: 14px !important;
+  }
+
+  .daily-insight-simple-row strong,
+  .daily-insight-total-row strong {
+    font-size: 12px !important;
+  }
+
+  .daily-insight-simple-row span,
+  .daily-insight-simple-row small,
+  .daily-insight-total-row span,
+  .daily-insight-total-row small {
+    font-size: 9.5px !important;
+  }
+
+  /* 월간 모바일에서 색 면적 더 줄이기 */
+  .boxed-month-calendar .day-cell.off,
+  .simplified-month-calendar .day-cell.off,
+  .improved-month-calendar .day-cell.off,
+  .day-cell.off,
+  .boxed-month-calendar .day-cell.leave,
+  .simplified-month-calendar .day-cell.leave,
+  .improved-month-calendar .day-cell.leave,
+  .day-cell.leave {
+    background: #FFFFFF !important;
+  }
+}
+
+
+/* =========================================
+   v5.10.16 Desktop category shell visual removal
+   - PC에서 보기/입력·검수/저장·도움말 영역 뒤 각진 배경 제거
+   - category-shell 래퍼를 시각적으로 해체해서 배경 네모가 보이지 않게 정리
+========================================= */
+@media (min-width: 781px) {
+  html:not([data-theme="simple"]) .category-shell,
+  .category-shell {
+    display: contents !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  html:not([data-theme="simple"]) .category-tabs,
+  .category-tabs {
+    margin: 18px 0 14px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+
+  html:not([data-theme="simple"]) .sheet-nav {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+}
