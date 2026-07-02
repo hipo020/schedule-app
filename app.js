@@ -183,14 +183,35 @@ function applyTheme(mode = state.themeMode || 'cheer') {
     button.setAttribute('aria-pressed', active ? 'true' : 'false');
     button.setAttribute('title', `${button.textContent.trim()} 테마`);
   });
+  const themePickerLabel = el('themePickerLabel');
+  if (themePickerLabel) themePickerLabel.textContent = copy.label;
+  const themePickerButton = el('themePickerButton');
+  if (themePickerButton) themePickerButton.setAttribute('title', `${copy.label} 테마 선택 중`);
   const statusNode = el('cloudStatus');
   if (statusNode && !statusNode.querySelector('.save-status-main')) {
     statusNode.textContent = copy.cloudReady;
   }
 }
 
+function closeThemePicker() {
+  const menu = el('themePickerMenu');
+  const button = el('themePickerButton');
+  if (menu) menu.hidden = true;
+  if (button) button.setAttribute('aria-expanded', 'false');
+}
+
+function toggleThemePicker() {
+  const menu = el('themePickerMenu');
+  const button = el('themePickerButton');
+  if (!menu || !button) return;
+  const willOpen = menu.hidden;
+  menu.hidden = !willOpen;
+  button.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+}
+
 function setThemeMode(mode) {
   applyTheme(mode);
+  closeThemePicker();
   renderAll();
   saveState(false);
 }
@@ -782,6 +803,15 @@ function bindEvents() {
   });
   document.querySelectorAll('.page-shortcut').forEach((button) => {
     button.addEventListener('click', () => switchPage(button.dataset.goPage, true));
+  });
+  el('themePickerButton')?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    toggleThemePicker();
+  });
+  el('themePickerMenu')?.addEventListener('click', (event) => event.stopPropagation());
+  document.addEventListener('click', (event) => {
+    const picker = el('themePicker');
+    if (picker && !picker.contains(event.target)) closeThemePicker();
   });
   document.querySelectorAll('[data-theme-mode]').forEach((button) => {
     button.addEventListener('click', () => setThemeMode(button.dataset.themeMode || 'cheer'));
