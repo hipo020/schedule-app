@@ -19621,3 +19621,149 @@ html[data-theme="night"] .daily-date-selector {
     grid-template-columns: 72px minmax(0, 1fr) auto !important;
   }
 }
+
+
+/* =========================================
+   v5.10.22 Mobile original-image modal polish
+   - 모바일 원본 이미지 뷰어의 큰 빈 공간 제거
+   - 이미지를 카드 폭에 맞춰 더 크게 표시
+========================================= */
+@media (max-width: 780px) {
+  .image-modal {
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding: 12px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .image-modal-content {
+    width: calc(100vw - 24px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 24px) !important;
+    border-radius: 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .image-modal-header,
+  .image-modal-header-enhanced {
+    flex: 0 0 auto !important;
+    padding: 15px 16px 12px !important;
+    gap: 10px !important;
+    border-bottom: 1px solid color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 72%, #FFFFFF) !important;
+  }
+
+  .image-modal-title-group {
+    display: grid !important;
+    grid-template-columns: minmax(0, auto) 1fr !important;
+    align-items: baseline !important;
+    column-gap: 5px !important;
+    row-gap: 2px !important;
+  }
+
+  .image-modal-title-group h3 {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .image-modal-title-group p,
+  #modalImageInfo {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+  }
+
+  .image-modal-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 8px !important;
+    align-items: center !important;
+  }
+
+  .image-month-picker {
+    min-height: 36px !important;
+    height: 36px !important;
+    border-radius: 999px !important;
+    padding: 0 10px !important;
+  }
+
+  .image-month-picker span {
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+
+  #modalImageMonthSelect {
+    min-width: 0 !important;
+    font-size: 12px !important;
+  }
+
+  #closeImageModalBtn {
+    min-height: 36px !important;
+    height: 36px !important;
+    padding: 0 12px !important;
+    border-radius: 14px !important;
+    font-size: 12px !important;
+  }
+
+  .image-modal-body {
+    flex: 0 1 auto !important;
+    display: block !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 138px) !important;
+    overflow: auto !important;
+    padding: 14px !important;
+    background: color-mix(in srgb, var(--theme-page-bg, #FBFAF7) 82%, #FFFFFF) !important;
+  }
+
+  .image-modal-body img,
+  #modalImagePreview {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    object-fit: contain !important;
+    border-radius: 18px !important;
+    margin: 0 auto !important;
+    box-shadow: 0 14px 32px rgba(20, 33, 61, 0.12) !important;
+  }
+
+  .image-modal-body .empty-preview {
+    min-height: 220px !important;
+    border-radius: 18px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .image-modal {
+    padding: 8px !important;
+  }
+
+  .image-modal-content {
+    width: calc(100vw - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    border-radius: 22px !important;
+  }
+
+  .image-modal-header,
+  .image-modal-header-enhanced {
+    padding: 14px 14px 11px !important;
+  }
+
+  .image-modal-title-group h3 {
+    font-size: 15.5px !important;
+  }
+
+  .image-modal-body {
+    max-height: calc(100dvh - 132px) !important;
+    padding: 12px !important;
+  }
+}
