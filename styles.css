@@ -16852,3 +16852,41 @@ html[data-theme="night"] .daily-date-selector {
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--theme-accent) 42%, transparent) !important;
   }
 }
+
+
+/* =========================================
+   v5.10.3 Mobile hero scale polish
+   - 상단 타이틀을 조금 더 눈에 띄게 조정
+========================================= */
+@media (max-width: 768px) {
+  .hero {
+    gap: 12px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .hero h1,
+  .auth-card h1 {
+    font-size: 31px !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.052em !important;
+    margin-bottom: 14px !important;
+  }
+
+  .hero h1::after,
+  .auth-card h1::after {
+    font-size: 0.54em !important;
+    vertical-align: 0.06em !important;
+  }
+
+  .hero .theme-switcher-multi,
+  .theme-switcher.theme-switcher-multi {
+    margin-top: 2px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero h1,
+  .auth-card h1 {
+    font-size: 29px !important;
+  }
+}
