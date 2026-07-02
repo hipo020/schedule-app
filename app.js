@@ -269,9 +269,9 @@ function setSaveStatus(kind, message = '', type = '') {
       <div class="save-status-main">
         <span class="save-status-dot" aria-hidden="true"></span>
         <strong>${escapeHtml(label)}</strong>
-        <em>${escapeHtml(time)}</em>
+        <span class="save-status-message">${escapeHtml(message || label)}</span>
       </div>
-      <p>${escapeHtml(message || label)}</p>
+      <em class="save-status-time">${escapeHtml(time)}</em>
     `;
   }
   updateSaveActionButtons();

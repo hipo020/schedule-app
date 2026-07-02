@@ -17285,3 +17285,144 @@ html[data-theme="night"] .daily-date-selector {
     padding: 0 9px !important;
   }
 }
+
+
+/* =========================================
+   v5.10.8 Mobile hero breathing + compact status
+   - 제목 블록에 여백 추가
+   - 테마 버튼을 더 작고 예쁘게 보정
+   - 상태 카드를 한 줄 배지처럼 슬림화
+========================================= */
+@media (max-width: 768px) {
+  .hero > .hero-main-copy {
+    padding-top: 4px !important;
+    padding-right: 108px !important;
+  }
+
+  .hero h1,
+  .auth-card h1 {
+    margin-bottom: 11px !important;
+  }
+
+  .hero .hero-desc,
+  .hero-desc {
+    margin: 0 0 8px !important;
+    padding-left: 2px !important;
+    font-size: 10.8px !important;
+    line-height: 1.28 !important;
+    opacity: 0.94;
+  }
+
+  .theme-picker {
+    top: 4px !important;
+    right: 0 !important;
+  }
+
+  .theme-picker-button {
+    min-height: 26px !important;
+    height: 26px !important;
+    padding: 0 9px 0 8px !important;
+    gap: 4px !important;
+    border-radius: 999px !important;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--theme-panel-bg, #FFF) 94%, var(--theme-soft-panel, #EEF8FD)), color-mix(in srgb, var(--theme-panel-bg, #FFF) 86%, var(--theme-soft-panel, #EEF8FD))) !important;
+    box-shadow: 0 7px 16px rgba(20, 33, 61, 0.045) !important;
+  }
+
+  .theme-picker-button::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--theme-accent, #9ED9EC) 88%, #FFFFFF);
+    box-shadow: 8px 0 0 color-mix(in srgb, var(--theme-soft-panel, #EEF8FD) 70%, var(--theme-accent, #9ED9EC));
+    flex: 0 0 auto;
+    margin-right: 2px;
+  }
+
+  .theme-picker-button span {
+    font-size: 9px !important;
+    letter-spacing: -0.01em !important;
+  }
+
+  .theme-picker-button strong {
+    font-size: 10.5px !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  .theme-picker-button::after {
+    font-size: 10px !important;
+  }
+
+  .theme-picker-menu {
+    top: calc(100% + 5px) !important;
+    min-width: 210px !important;
+  }
+
+  .cloud-status {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    margin: 5px 0 8px !important;
+    padding: 8px 12px !important;
+    border-radius: 999px !important;
+    min-height: 0 !important;
+  }
+
+  .cloud-status .save-status-main {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+  }
+
+  .cloud-status .save-status-dot {
+    width: 8px !important;
+    height: 8px !important;
+    margin: 0 !important;
+    flex: 0 0 auto !important;
+  }
+
+  .cloud-status .save-status-main strong {
+    margin: 0 !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    flex: 0 0 auto !important;
+  }
+
+  .cloud-status .save-status-message {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 10.8px !important;
+    line-height: 1.2 !important;
+    color: color-mix(in srgb, var(--theme-nav-text, #15314A) 42%, #95A2B3) !important;
+  }
+
+  .cloud-status .save-status-time {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    font-style: normal !important;
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    color: color-mix(in srgb, var(--theme-nav-text, #15314A) 30%, #9AA4B2) !important;
+  }
+
+  .category-shell {
+    margin-top: 0 !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero > .hero-main-copy {
+    padding-right: 102px !important;
+  }
+
+  .theme-picker-button {
+    padding-right: 8px !important;
+  }
+}
