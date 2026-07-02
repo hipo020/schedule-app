@@ -16497,3 +16497,238 @@ html[data-theme="butter"] .auth-card h1::after {
     font-size: 11px !important;
   }
 }
+
+
+/* =========================================
+   v5.10 Multi theme visibility + mobile switcher fix
+   - 복숭아/하늘/버터/밤근무 테마가 확실히 보이도록 전체 색 변수 연결
+   - 모바일 테마 버튼을 억지 한 줄 배치 대신 가로 스크롤 칩으로 정리
+========================================= */
+html[data-theme="cheer"],
+html:not([data-theme]) {
+  --theme-page-bg: #FBFEFF;
+  --theme-panel-bg: #FFFFFF;
+  --theme-soft-panel: #EAF8FD;
+  --theme-card-tint: #F2FBFE;
+  --theme-card-tint-2: #FFF7EF;
+  --theme-line-soft: #CFEAF4;
+  --theme-nav-active: #DDF3FA;
+  --theme-nav-text: #15314A;
+}
+
+html[data-theme="peach"] {
+  --theme-page-bg: #FFF9F5;
+  --theme-panel-bg: #FFFFFF;
+  --theme-soft-panel: #FFF1EA;
+  --theme-card-tint: #FFF4EE;
+  --theme-card-tint-2: #FFF7F3;
+  --theme-line-soft: #F1CEC3;
+  --theme-nav-active: #FFE5DB;
+  --theme-nav-text: #7A3D2F;
+}
+
+html[data-theme="sky"] {
+  --theme-page-bg: #F7FCFF;
+  --theme-panel-bg: #FFFFFF;
+  --theme-soft-panel: #EEF8FD;
+  --theme-card-tint: #F1FAFE;
+  --theme-card-tint-2: #F7FCFF;
+  --theme-line-soft: #CDEAF6;
+  --theme-nav-active: #DDF3FC;
+  --theme-nav-text: #1D5D78;
+}
+
+html[data-theme="butter"] {
+  --theme-page-bg: #FFFDF4;
+  --theme-panel-bg: #FFFFFF;
+  --theme-soft-panel: #FFF8DD;
+  --theme-card-tint: #FFF9E7;
+  --theme-card-tint-2: #FFFFFF;
+  --theme-line-soft: #EAD994;
+  --theme-nav-active: #FFF0B8;
+  --theme-nav-text: #6B5314;
+}
+
+html[data-theme="night"] {
+  --theme-page-bg: #F7F6FE;
+  --theme-panel-bg: #FFFFFF;
+  --theme-soft-panel: #F0F0FB;
+  --theme-card-tint: #F4F3FE;
+  --theme-card-tint-2: #FFFFFF;
+  --theme-line-soft: #D5D3F2;
+  --theme-nav-active: #ECEBFF;
+  --theme-nav-text: #393880;
+}
+
+html[data-theme="simple"] {
+  --theme-page-bg: #F8FAFC;
+  --theme-panel-bg: #FFFFFF;
+  --theme-soft-panel: #F8FAFC;
+  --theme-card-tint: #FFFFFF;
+  --theme-card-tint-2: #FFFFFF;
+  --theme-line-soft: #E4E7EC;
+  --theme-nav-active: #EEF2F6;
+  --theme-nav-text: #344054;
+}
+
+html:not([data-theme="simple"]) body {
+  background-color: var(--theme-page-bg) !important;
+}
+
+html:not([data-theme="simple"]) .page-area,
+html:not([data-theme="simple"]) .account-card,
+html:not([data-theme="simple"]) .category-shell,
+html:not([data-theme="simple"]) .sheet-nav,
+html:not([data-theme="simple"]) .person-view-picker,
+html:not([data-theme="simple"]) .date-input-wrap,
+html:not([data-theme="simple"]) .daily-date-input,
+html:not([data-theme="simple"]) .month-legend,
+html:not([data-theme="simple"]) .boxed-month-calendar,
+html:not([data-theme="simple"]) .simplified-month-calendar,
+html:not([data-theme="simple"]) .improved-month-calendar {
+  background-color: var(--theme-panel-bg) !important;
+  border-color: color-mix(in srgb, var(--theme-line-soft) 72%, #FFFFFF) !important;
+}
+
+html:not([data-theme="simple"]) .theme-switcher,
+html:not([data-theme="simple"]) .theme-switcher-multi {
+  background: color-mix(in srgb, var(--theme-panel-bg) 88%, var(--theme-soft-panel)) !important;
+  border-color: color-mix(in srgb, var(--theme-line-soft) 75%, #FFFFFF) !important;
+}
+
+html:not([data-theme="simple"]) .theme-chip {
+  color: color-mix(in srgb, var(--theme-nav-text) 72%, #0B1220) !important;
+}
+
+html:not([data-theme="simple"]) .theme-chip.active,
+html:not([data-theme="simple"]) .category-tab.active,
+html:not([data-theme="simple"]) .sheet-tab.active {
+  background: var(--theme-nav-active) !important;
+  border-color: color-mix(in srgb, var(--theme-accent) 45%, #FFFFFF) !important;
+  color: var(--theme-nav-text) !important;
+}
+
+html:not([data-theme="simple"]) .cloud-status,
+html:not([data-theme="simple"]) .daily-date-selector,
+html:not([data-theme="simple"]) .main-schedule-card,
+html:not([data-theme="simple"]) .daily-my-schedule-card,
+html:not([data-theme="simple"]) .daily-insight-card-simple.daily-summary-polished-card,
+html:not([data-theme="simple"]) .off-next-hero-card,
+html:not([data-theme="simple"]) .offday-wait-hero,
+html:not([data-theme="simple"]) .restday-hero-card {
+  background: linear-gradient(180deg, var(--theme-card-tint) 0%, var(--theme-panel-bg) 100%) !important;
+  border-color: color-mix(in srgb, var(--theme-line-soft) 78%, #FFFFFF) !important;
+}
+
+html:not([data-theme="simple"]) .summary-card,
+html:not([data-theme="simple"]) .home-mini-card,
+html:not([data-theme="simple"]) .mini-stat,
+html:not([data-theme="simple"]) .week-summary-block,
+html:not([data-theme="simple"]) .week-day-card,
+html:not([data-theme="simple"]) .day-cell,
+html:not([data-theme="simple"]) .off-quick-card,
+html:not([data-theme="simple"]) .next-off-team-card,
+html:not([data-theme="simple"]) .compact-week-off-card,
+html:not([data-theme="simple"]) .off-all-list-card,
+html:not([data-theme="simple"]) .off-team-analysis-card {
+  background-color: var(--theme-panel-bg) !important;
+  border-color: color-mix(in srgb, var(--theme-line-soft) 62%, #FFFFFF) !important;
+}
+
+html:not([data-theme="simple"]) .home-mini-card.home-mini-month,
+html:not([data-theme="simple"]) .home-mini-card.home-mini-stat,
+html:not([data-theme="simple"]) .compact-cheer-banner.chef-cheer-card {
+  background: linear-gradient(180deg, var(--theme-soft-panel) 0%, var(--theme-panel-bg) 100%) !important;
+  border-color: color-mix(in srgb, var(--theme-line-soft) 78%, #FFFFFF) !important;
+}
+
+html:not([data-theme="simple"]) .daily-code-chip,
+html:not([data-theme="simple"]) .daily-count-chip,
+html:not([data-theme="simple"]) .badge.work,
+html:not([data-theme="simple"]) .week-code-pill.work,
+html:not([data-theme="simple"]) .day-code.work {
+  background: var(--theme-nav-active) !important;
+  border-color: color-mix(in srgb, var(--theme-accent) 42%, #FFFFFF) !important;
+  color: var(--theme-accent-strong) !important;
+}
+
+html:not([data-theme="simple"]) .daily-day-chip.active,
+html:not([data-theme="simple"]) .daily-date-step,
+html:not([data-theme="simple"]) .secondary-btn,
+html:not([data-theme="simple"]) .page-shortcut {
+  background: var(--theme-nav-active) !important;
+  border-color: color-mix(in srgb, var(--theme-accent) 42%, #FFFFFF) !important;
+  color: var(--theme-nav-text) !important;
+}
+
+html[data-theme="peach"] .cloud-status,
+html[data-theme="peach"] .main-schedule-card,
+html[data-theme="peach"] .daily-my-schedule-card,
+html[data-theme="peach"] .daily-date-selector {
+  background: linear-gradient(180deg, #FFF1EA 0%, #FFFFFF 100%) !important;
+}
+
+html[data-theme="sky"] .cloud-status,
+html[data-theme="sky"] .main-schedule-card,
+html[data-theme="sky"] .daily-my-schedule-card,
+html[data-theme="sky"] .daily-date-selector {
+  background: linear-gradient(180deg, #EEF8FD 0%, #FFFFFF 100%) !important;
+}
+
+html[data-theme="butter"] .cloud-status,
+html[data-theme="butter"] .main-schedule-card,
+html[data-theme="butter"] .daily-my-schedule-card,
+html[data-theme="butter"] .daily-date-selector {
+  background: linear-gradient(180deg, #FFF8DD 0%, #FFFFFF 100%) !important;
+}
+
+html[data-theme="night"] .cloud-status,
+html[data-theme="night"] .main-schedule-card,
+html[data-theme="night"] .daily-my-schedule-card,
+html[data-theme="night"] .daily-date-selector {
+  background: linear-gradient(180deg, #F0F0FB 0%, #FFFFFF 100%) !important;
+}
+
+@media (max-width: 768px) {
+  .hero .theme-switcher-multi,
+  .theme-switcher.theme-switcher-multi {
+    width: calc(100vw - 48px) !important;
+    max-width: calc(100vw - 48px) !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 5px !important;
+    border-radius: 18px !important;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .theme-switcher.theme-switcher-multi::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .theme-switcher.theme-switcher-multi .theme-chip {
+    flex: 0 0 auto !important;
+    min-width: 58px !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 0 13px !important;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+    letter-spacing: -0.02em !important;
+    scroll-snap-align: start;
+  }
+
+  .theme-switcher.theme-switcher-multi .theme-chip[data-theme-mode="peach"],
+  .theme-switcher.theme-switcher-multi .theme-chip[data-theme-mode="night"] {
+    min-width: 72px !important;
+  }
+
+  .hero h1,
+  .auth-card h1 {
+    margin-bottom: 10px !important;
+  }
+}
