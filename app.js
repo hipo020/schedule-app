@@ -209,9 +209,26 @@ function toggleThemePicker() {
   button.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
 }
 
+function closeAccountMiniMenu() {
+  const menu = el('accountMiniMenu');
+  const button = el('accountMiniButton');
+  if (menu) menu.hidden = true;
+  if (button) button.setAttribute('aria-expanded', 'false');
+}
+
+function toggleAccountMiniMenu() {
+  const menu = el('accountMiniMenu');
+  const button = el('accountMiniButton');
+  if (!menu || !button) return;
+  const willOpen = menu.hidden;
+  menu.hidden = !willOpen;
+  button.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+}
+
 function setThemeMode(mode) {
   applyTheme(mode);
   closeThemePicker();
+  closeAccountMiniMenu();
   renderAll();
   saveState(false);
 }
@@ -250,12 +267,15 @@ function getStatusTimeText(value = new Date().toISOString()) {
 }
 
 function updateSaveActionButtons() {
-  const buttons = [el('cloudSaveButton'), el('saveButton'), el('saveCodesButton')].filter(Boolean);
+  const buttons = [el('cloudSaveButton'), el('mobileCloudSaveButton'), el('saveButton'), el('saveCodesButton')].filter(Boolean);
   buttons.forEach((button) => {
     button.disabled = Boolean(isCloudBusy);
   });
   const cloudSave = el('cloudSaveButton');
-  if (cloudSave) cloudSave.textContent = isCloudBusy ? '저장 중' : (hasUnsavedCloudChanges ? '저장 필요' : '저장');
+  const mobileCloudSave = el('mobileCloudSaveButton');
+  const saveText = isCloudBusy ? '저장 중' : (hasUnsavedCloudChanges ? '저장 필요' : '저장');
+  if (cloudSave) cloudSave.textContent = saveText;
+  if (mobileCloudSave) mobileCloudSave.textContent = saveText;
 }
 
 function setSaveStatus(kind, message = '', type = '') {
@@ -809,9 +829,33 @@ function bindEvents() {
     toggleThemePicker();
   });
   el('themePickerMenu')?.addEventListener('click', (event) => event.stopPropagation());
+  el('accountMiniButton')?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    closeThemePicker();
+    toggleAccountMiniMenu();
+  });
+  el('accountMiniMenu')?.addEventListener('click', (event) => event.stopPropagation());
+  el('mobileCloudSaveButton')?.addEventListener('click', async () => {
+    closeAccountMiniMenu();
+    saveState(false);
+    await saveCurrentMonthToCloud(true);
+  });
+  el('mobileCloudReloadButton')?.addEventListener('click', async () => {
+    closeAccountMiniMenu();
+    await loadCloudInitialData(true);
+    renderScheduleTable();
+    renderUploadedImage();
+    renderAll();
+  });
+  el('mobileLogoutButton')?.addEventListener('click', () => {
+    closeAccountMiniMenu();
+    el('logoutButton')?.click();
+  });
   document.addEventListener('click', (event) => {
     const picker = el('themePicker');
+    const accountPicker = el('accountMiniPicker');
     if (picker && !picker.contains(event.target)) closeThemePicker();
+    if (accountPicker && !accountPicker.contains(event.target)) closeAccountMiniMenu();
   });
   document.querySelectorAll('[data-theme-mode]').forEach((button) => {
     button.addEventListener('click', () => setThemeMode(button.dataset.themeMode || 'cheer'));
@@ -932,6 +976,7 @@ function showAppShell() {
   el('authGate')?.classList.add('is-hidden');
   el('appShell')?.classList.remove('is-hidden');
   if (el('userEmailText')) el('userEmailText').textContent = currentUser?.email || '로그인됨';
+  if (el('mobileUserEmailText')) el('mobileUserEmailText').textContent = currentUser?.email || '로그인됨';
   showCloudStatus('로그인 완료. 오늘도 같이 체크해볼까 ☁️', 'ok');
 }
 

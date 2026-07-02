@@ -31,17 +31,33 @@
         <p id="appEyebrow" class="eyebrow">Soft Shift Diary</p>
         <h1 id="appTitle">오늘의 선협이</h1>
         <p id="heroDesc" class="hero-desc">출근도 휴무도 한눈에 보고, 오늘 하루를 작게 응원해요 ☁️</p>
-        <div class="theme-picker" id="themePicker" aria-label="테마 선택">
-          <button id="themePickerButton" class="theme-picker-button" type="button" aria-expanded="false">
-            <span>테마</span><strong id="themePickerLabel">응원</strong>
-          </button>
-          <div id="themePickerMenu" class="theme-picker-menu" hidden>
-            <button class="theme-chip active" data-theme-mode="cheer" type="button">응원</button>
-            <button class="theme-chip" data-theme-mode="peach" type="button">복숭아</button>
-            <button class="theme-chip" data-theme-mode="sky" type="button">하늘</button>
-            <button class="theme-chip" data-theme-mode="butter" type="button">버터</button>
-            <button class="theme-chip" data-theme-mode="night" type="button">밤근무</button>
-            <button class="theme-chip" data-theme-mode="simple" type="button">무난</button>
+        <div class="hero-mini-actions">
+          <div class="theme-picker" id="themePicker" aria-label="테마 선택">
+            <button id="themePickerButton" class="theme-picker-button" type="button" aria-expanded="false">
+              <span>테마</span><strong id="themePickerLabel">응원</strong>
+            </button>
+            <div id="themePickerMenu" class="theme-picker-menu" hidden>
+              <button class="theme-chip active" data-theme-mode="cheer" type="button">응원</button>
+              <button class="theme-chip" data-theme-mode="peach" type="button">복숭아</button>
+              <button class="theme-chip" data-theme-mode="sky" type="button">하늘</button>
+              <button class="theme-chip" data-theme-mode="butter" type="button">버터</button>
+              <button class="theme-chip" data-theme-mode="night" type="button">밤근무</button>
+              <button class="theme-chip" data-theme-mode="simple" type="button">무난</button>
+            </div>
+          </div>
+          <div class="account-mini-picker" id="accountMiniPicker" aria-label="계정 메뉴">
+            <button id="accountMiniButton" class="account-mini-button" type="button" aria-expanded="false">
+              <span>계정</span>
+            </button>
+            <div id="accountMiniMenu" class="account-mini-menu" hidden>
+              <strong>내 계정</strong>
+              <small id="mobileUserEmailText">로그인 확인 중</small>
+              <div class="account-mini-actions">
+                <button id="mobileCloudSaveButton" class="secondary-btn" type="button">저장</button>
+                <button id="mobileCloudReloadButton" class="ghost-btn" type="button">불러오기</button>
+                <button id="mobileLogoutButton" class="ghost-btn" type="button">로그아웃</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

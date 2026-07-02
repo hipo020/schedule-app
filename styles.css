@@ -17426,3 +17426,208 @@ html[data-theme="night"] .daily-date-selector {
     padding-right: 8px !important;
   }
 }
+
+
+/* =========================================
+   v5.10.9 Mobile mini header controls
+   - 테마 버튼을 아이콘형으로 더 축소
+   - 제목 오른쪽에 계정 버튼 추가
+   - 모바일 큰 계정 카드를 접이식 메뉴로 대체
+========================================= */
+.hero-mini-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.account-mini-picker {
+  display: none;
+  position: relative;
+  z-index: 34;
+}
+
+.account-mini-button {
+  min-height: 26px;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--theme-line-soft, #DDEAF0) 74%, #FFFFFF);
+  background: color-mix(in srgb, var(--theme-panel-bg, #FFFFFF) 90%, var(--theme-soft-panel, #EEF8FD));
+  color: var(--theme-nav-text, #15314A);
+  box-shadow: 0 7px 16px rgba(20, 33, 61, 0.045);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 950;
+  letter-spacing: -0.03em;
+}
+
+.account-mini-button::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--theme-accent, #9ED9EC) 74%, #FFFFFF);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent, #9ED9EC) 13%, transparent);
+}
+
+.account-mini-button::after {
+  content: '⌄';
+  font-size: 10px;
+  color: #7B8798;
+  transform: translateY(-1px);
+}
+
+.account-mini-button[aria-expanded="true"]::after {
+  transform: rotate(180deg) translateY(1px);
+}
+
+.account-mini-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 88;
+  width: 226px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--theme-line-soft, #DDEAF0) 74%, #FFFFFF);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 18px 42px rgba(20, 33, 61, 0.13);
+  backdrop-filter: blur(16px);
+}
+
+.account-mini-menu[hidden] {
+  display: none !important;
+}
+
+.account-mini-menu strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: var(--navy);
+}
+
+.account-mini-menu small {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #7B8798;
+  font-size: 11px;
+  margin-bottom: 10px;
+}
+
+.account-mini-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.account-mini-actions button {
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  font-size: 10.5px !important;
+}
+
+.account-mini-actions #mobileLogoutButton {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .hero > .hero-main-copy {
+    padding-top: 8px !important;
+    padding-right: 150px !important;
+  }
+
+  .hero-mini-actions {
+    position: absolute !important;
+    top: 8px !important;
+    right: 0 !important;
+    margin: 0 !important;
+    gap: 6px !important;
+  }
+
+  .account-mini-picker {
+    display: inline-flex !important;
+  }
+
+  .hero > .account-card {
+    display: none !important;
+  }
+
+  .theme-picker {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    margin: 0 !important;
+  }
+
+  .theme-picker-button {
+    min-height: 26px !important;
+    height: 26px !important;
+    padding: 0 8px !important;
+    gap: 4px !important;
+    box-shadow: 0 7px 16px rgba(20, 33, 61, 0.045) !important;
+  }
+
+  .theme-picker-button span {
+    display: none !important;
+  }
+
+  .theme-picker-button strong {
+    font-size: 10.5px !important;
+  }
+
+  .theme-picker-button::before {
+    width: 7px !important;
+    height: 7px !important;
+    margin-right: 1px !important;
+  }
+
+  .theme-picker-menu {
+    right: auto !important;
+    left: auto !important;
+    transform: translateX(-48%);
+    min-width: 208px !important;
+  }
+
+  .hero h1,
+  .auth-card h1 {
+    margin-bottom: 12px !important;
+  }
+
+  .hero .hero-desc,
+  .hero-desc {
+    margin: 0 0 6px !important;
+  }
+
+  .cloud-status {
+    margin-top: 3px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero > .hero-main-copy {
+    padding-right: 132px !important;
+  }
+
+  .account-mini-button span {
+    display: none;
+  }
+
+  .account-mini-button {
+    width: 30px;
+    justify-content: center;
+    padding: 0 !important;
+  }
+
+  .account-mini-button::after {
+    display: none;
+  }
+}
