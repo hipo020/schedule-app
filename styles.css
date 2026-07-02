@@ -17778,3 +17778,47 @@ html[data-theme="night"] .daily-date-selector {
     max-width: calc(100vw - 20px) !important;
   }
 }
+
+
+/* =========================================
+   v5.10.12 Mobile hero breathing space
+   - 오늘의 선협이 타이틀 블록 여백 보강
+========================================= */
+@media (max-width: 768px) {
+  .app-shell {
+    padding-top: 24px !important;
+  }
+
+  .hero {
+    margin-bottom: 8px !important;
+  }
+
+  .hero > .hero-main-copy {
+    padding-top: 8px !important;
+  }
+
+  .hero h1,
+  .auth-card h1 {
+    margin-bottom: 14px !important;
+  }
+
+  .hero .hero-desc,
+  .hero-desc {
+    margin: 0 0 10px !important;
+    line-height: 1.32 !important;
+  }
+
+  .theme-picker {
+    top: 8px !important;
+  }
+
+  .cloud-status {
+    margin-top: 9px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .app-shell {
+    padding-top: 22px !important;
+  }
+}
