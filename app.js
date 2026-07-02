@@ -3754,11 +3754,17 @@ function renderSettings() {
     .split(/\s+/)
     .map((name) => name.trim())
     .filter(Boolean).length;
+  const codeCount = Object.keys(state.codes || {}).length;
   const rows = Object.entries(state.codes).map(([code, info]) => {
     const codeType = deriveCodeType(code, info);
     const typeLabel = typeOptions.find(([value]) => value === codeType)?.[1] || '기타/미정';
     return `
     <div class="code-editor-row compact-code-card code-type-${codeType}">
+      <div class="code-card-summary" aria-hidden="true">
+        <strong>${escapeHtml(code)}</strong>
+        <span>${escapeHtml(typeLabel)}</span>
+        <em>${escapeHtml(info.start || '--:--')}~${escapeHtml(info.end || '--:--')}</em>
+      </div>
       <div class="code-card-top">
         <label class="code-key-field code-chip-stack">
           <span>코드</span>
@@ -3826,7 +3832,14 @@ function renderSettings() {
           <p class="helper-text">현재 코드 확인은 지금 앱에서 사용 중인 코드표, 저장된 코드 확인은 Supabase에 저장된 코드표를 비교합니다.</p>
         </details>
       </section>
-      <div class="notice"><strong>유형 규칙</strong><span>근무/휴무/연차를 직접 지정할 수 있어요. 출근·퇴근 시간이 있는 코드는 기본적으로 근무로 인식됩니다. OC는 사내행사, MH는 병가로 기본 등록됩니다.</span></div>
+      <div class="notice compact-rule-note"><strong>유형 규칙</strong><span>근무/휴무/연차를 직접 지정할 수 있어요. 출근·퇴근 시간이 있는 코드는 기본적으로 근무로 인식됩니다. OC는 사내행사, MH는 병가로 기본 등록됩니다.</span></div>
+    </div>
+    <div class="code-list-header">
+      <div>
+        <small>코드 목록</small>
+        <h4>등록된 근무 코드</h4>
+      </div>
+      <span>${codeCount}개 코드</span>
     </div>
     <div id="codeEditor" class="code-editor-grid">${rows}</div>
   `;
