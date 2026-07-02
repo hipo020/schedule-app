@@ -3749,16 +3749,18 @@ function renderSettings() {
     ['leave', '연차'],
     ['unknown', '기타/미정'],
   ];
-  const rows = Object.entries(state.codes).map(([code, info]) => `
-    <div class="code-editor-row compact-code-card">
-      <label><span>코드</span><input data-code-key="${code}" value="${escapeHtml(code)}" /></label>
+  const rows = Object.entries(state.codes).map(([code, info]) => {
+    const codeType = deriveCodeType(code, info);
+    return `
+    <div class="code-editor-row compact-code-card code-type-${codeType}">
+      <label class="code-key-field"><span>코드</span><input data-code-key="${code}" value="${escapeHtml(code)}" /></label>
       <label><span>의미</span><input data-code-prop="label" data-code="${code}" value="${escapeHtml(info.label)}" placeholder="의미" /></label>
-      <label><span>유형</span><select data-code-prop="type" data-code="${code}">${typeOptions.map(([value, label]) => `<option value="${value}" ${deriveCodeType(code, info) === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
-      <label><span>출근</span><input data-code-prop="start" data-code="${code}" value="${escapeHtml(info.start)}" placeholder="출근" /></label>
-      <label><span>퇴근</span><input data-code-prop="end" data-code="${code}" value="${escapeHtml(info.end)}" placeholder="퇴근" /></label>
+      <label><span>유형</span><select data-code-prop="type" data-code="${code}">${typeOptions.map(([value, label]) => `<option value="${value}" ${codeType === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
+      <label class="code-time-field"><span>출근</span><input data-code-prop="start" data-code="${code}" value="${escapeHtml(info.start)}" placeholder="출근" /></label>
+      <label class="code-time-field"><span>퇴근</span><input data-code-prop="end" data-code="${code}" value="${escapeHtml(info.end)}" placeholder="퇴근" /></label>
       <button class="ghost-btn delete-code" data-code="${code}" type="button">삭제</button>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
   return `
     <div class="view-title settings-title">
       <div>
