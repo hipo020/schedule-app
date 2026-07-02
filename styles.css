@@ -16890,3 +16890,36 @@ html[data-theme="night"] .daily-date-selector {
     font-size: 29px !important;
   }
 }
+
+
+/* =========================================
+   v5.10.4 Theme subtitle polish
+   - 타이틀 아래 테마별 서브문구 표시
+========================================= */
+.hero-desc {
+  max-width: 520px !important;
+  margin-top: 6px !important;
+  margin-bottom: 0 !important;
+  color: color-mix(in srgb, var(--theme-nav-text, #15314A) 52%, #7A8494) !important;
+  font-weight: 760 !important;
+  letter-spacing: -0.025em !important;
+}
+
+@media (max-width: 768px) {
+  .hero .hero-desc,
+  .hero-desc {
+    display: block !important;
+    margin: -6px 0 13px !important;
+    padding-left: 2px !important;
+    max-width: 100% !important;
+    font-size: 13px !important;
+    line-height: 1.34 !important;
+    color: color-mix(in srgb, var(--theme-nav-text, #15314A) 48%, #8390A3) !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
+  }
+
+  html[data-theme="simple"] .hero-desc {
+    color: #667085 !important;
+  }
+}
