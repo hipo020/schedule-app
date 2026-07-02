@@ -3749,16 +3749,32 @@ function renderSettings() {
     ['leave', '연차'],
     ['unknown', '기타/미정'],
   ];
+  const defaultNamesText = getDefaultNamesText();
+  const defaultNameCount = defaultNamesText
+    .split(/\s+/)
+    .map((name) => name.trim())
+    .filter(Boolean).length;
   const rows = Object.entries(state.codes).map(([code, info]) => {
     const codeType = deriveCodeType(code, info);
+    const typeLabel = typeOptions.find(([value]) => value === codeType)?.[1] || '기타/미정';
     return `
     <div class="code-editor-row compact-code-card code-type-${codeType}">
-      <label class="code-key-field"><span>코드</span><input data-code-key="${code}" value="${escapeHtml(code)}" /></label>
-      <label><span>의미</span><input data-code-prop="label" data-code="${code}" value="${escapeHtml(info.label)}" placeholder="의미" /></label>
-      <label><span>유형</span><select data-code-prop="type" data-code="${code}">${typeOptions.map(([value, label]) => `<option value="${value}" ${codeType === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
-      <label class="code-time-field"><span>출근</span><input data-code-prop="start" data-code="${code}" value="${escapeHtml(info.start)}" placeholder="출근" /></label>
-      <label class="code-time-field"><span>퇴근</span><input data-code-prop="end" data-code="${code}" value="${escapeHtml(info.end)}" placeholder="퇴근" /></label>
-      <button class="ghost-btn delete-code" data-code="${code}" type="button">삭제</button>
+      <div class="code-card-top">
+        <label class="code-key-field code-chip-stack">
+          <span>코드</span>
+          <input data-code-key="${code}" value="${escapeHtml(code)}" />
+        </label>
+        <label class="code-type-field code-chip-stack">
+          <span>유형</span>
+          <select data-code-prop="type" data-code="${code}" aria-label="${escapeHtml(code)} 유형 선택">${typeOptions.map(([value, label]) => `<option value="${value}" ${codeType === value ? 'selected' : ''}>${label}</option>`).join('')}</select>
+        </label>
+        <button class="ghost-btn delete-code" data-code="${code}" type="button" aria-label="${escapeHtml(code)} 코드 삭제">삭제</button>
+      </div>
+      <label class="code-meaning-field"><span>의미</span><input data-code-prop="label" data-code="${code}" value="${escapeHtml(info.label)}" placeholder="의미" /></label>
+      <div class="code-time-row">
+        <label class="code-time-field"><span>출근</span><input data-code-prop="start" data-code="${code}" value="${escapeHtml(info.start)}" placeholder="05:30" /></label>
+        <label class="code-time-field"><span>퇴근</span><input data-code-prop="end" data-code="${code}" value="${escapeHtml(info.end)}" placeholder="14:30" /></label>
+      </div>
     </div>`;
   }).join('');
   return `
@@ -3773,20 +3789,35 @@ function renderSettings() {
       </div>
     </div>
     <div class="settings-helper-grid">
-      <section class="data-guide-card default-names-card">
-        <h3>기본 직원 목록</h3>
-        <p>OCR 보조와 사람 추가 시 기본으로 사용할 이름 목록입니다. 한 줄 또는 공백으로 구분해 입력해 주세요.</p>
-        <textarea id="defaultNamesInput" class="share-box" rows="4">${escapeHtml(getDefaultNamesText())}</textarea>
-        <button id="saveDefaultNamesButton" class="secondary-btn" type="button">기본 이름 저장</button>
+      <section class="data-guide-card default-names-card refined-setting-card">
+        <div class="settings-card-head">
+          <div>
+            <small class="settings-card-eyebrow">기본 설정</small>
+            <h3>기본 직원 목록</h3>
+          </div>
+          <span class="soft-count-chip">${defaultNameCount}명 등록</span>
+        </div>
+        <p class="settings-card-copy">OCR 보조와 사람 추가에 사용할 이름 목록이에요. 한 줄 또는 공백으로 나눠 입력해 주세요.</p>
+        <textarea id="defaultNamesInput" class="share-box" rows="4">${escapeHtml(defaultNamesText)}</textarea>
+        <div class="settings-card-footer">
+          <small>필요한 이름만 간단히 적어두면 돼요.</small>
+          <button id="saveDefaultNamesButton" class="secondary-btn" type="button">기본 이름 저장</button>
+        </div>
       </section>
-      <section class="data-guide-card code-table-card">
-        <h3>코드표 상태</h3>
-        <p>미등록 코드가 생기면 앱이 먼저 기본 코드 누락을 자동으로 보정합니다. 자세한 확인은 필요할 때만 고급 설정을 열어 주세요.</p>
-        <div id="codeCheckStatus" class="code-check-status">
+      <section class="data-guide-card code-table-card refined-setting-card">
+        <div class="settings-card-head">
+          <div>
+            <small class="settings-card-eyebrow">코드 상태</small>
+            <h3>코드표 상태</h3>
+          </div>
+          <span class="soft-state-chip">자동 보정 켜짐</span>
+        </div>
+        <p class="settings-card-copy">미등록 코드가 생기면 기본 코드 누락을 먼저 보정해요. 세부 확인이 필요할 때만 고급 설정을 열어 주세요.</p>
+        <div id="codeCheckStatus" class="code-check-status compact-status-box">
           <span>기본 코드는 자동 보정됩니다. 코드 수정 후에는 저장 버튼을 눌러 반영해 주세요.</span>
         </div>
-        <details class="advanced-code-details">
-          <summary>고급 설정 열기</summary>
+        <details class="advanced-code-details compact-advanced-card">
+          <summary>고급 설정 보기</summary>
           <div class="action-row code-table-actions advanced-code-actions">
             <button id="checkLocalCodesButton" class="secondary-btn" type="button">현재 코드 확인</button>
             <button id="checkCloudCodesButton" class="secondary-btn" type="button">저장된 코드 확인</button>

@@ -18964,3 +18964,400 @@ html[data-theme="night"] .daily-date-selector {
     font-size: 11.5px !important;
   }
 }
+
+
+/* =========================================
+   v5.10.19 Settings code section refinement
+   - 기본 직원 목록 / 코드표 상태 카드 리디자인
+   - 모바일 코드 카드 배치 개선
+========================================= */
+.app-page[data-page="settings"] .settings-helper-grid {
+  align-items: stretch !important;
+}
+
+.app-page[data-page="settings"] .refined-setting-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,252,254,0.98)) !important;
+  border: 1px solid color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 74%, #FFFFFF) !important;
+  box-shadow: 0 14px 32px rgba(20, 33, 61, 0.045) !important;
+}
+
+.app-page[data-page="settings"] .default-names-card.refined-setting-card {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--theme-nav-active, #DDF3FA) 50%, #FFFFFF), #FFFFFF 82%) !important;
+}
+
+.app-page[data-page="settings"] .code-table-card.refined-setting-card {
+  background: linear-gradient(180deg, #FFFFFF, color-mix(in srgb, var(--theme-soft-panel, #EEF8FD) 35%, #FFFFFF)) !important;
+}
+
+.app-page[data-page="settings"] .settings-card-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 10px !important;
+}
+
+.app-page[data-page="settings"] .settings-card-head h3 {
+  margin: 2px 0 0 !important;
+}
+
+.app-page[data-page="settings"] .settings-card-eyebrow {
+  display: inline-block !important;
+  color: #6A7E93 !important;
+  font-size: 10.5px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+.app-page[data-page="settings"] .soft-count-chip,
+.app-page[data-page="settings"] .soft-state-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 28px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+  border: 1px solid color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 60%, #FFFFFF) !important;
+}
+
+.app-page[data-page="settings"] .soft-count-chip {
+  background: color-mix(in srgb, var(--theme-nav-active, #DDF3FA) 62%, #FFFFFF) !important;
+  color: var(--theme-nav-text, #15314A) !important;
+}
+
+.app-page[data-page="settings"] .soft-state-chip {
+  background: color-mix(in srgb, #DDEAD8 72%, #FFFFFF) !important;
+  color: #4D6655 !important;
+}
+
+.app-page[data-page="settings"] .settings-card-copy {
+  margin: 0 0 12px !important;
+  color: #6D7F92 !important;
+  line-height: 1.58 !important;
+}
+
+.app-page[data-page="settings"] .settings-card-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-top: 12px !important;
+}
+
+.app-page[data-page="settings"] .settings-card-footer small {
+  color: #8090A2 !important;
+  font-size: 11px !important;
+  line-height: 1.45 !important;
+}
+
+.app-page[data-page="settings"] .compact-status-box {
+  margin-top: 2px !important;
+  padding: 14px 16px !important;
+  border-radius: 18px !important;
+  background: #FFFFFF !important;
+  border: 1px solid color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 72%, #FFFFFF) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.7) !important;
+}
+
+.app-page[data-page="settings"] .compact-status-box span {
+  color: #64788D !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+.app-page[data-page="settings"] .compact-advanced-card {
+  margin-top: 12px !important;
+  padding: 0 14px !important;
+  border-radius: 18px !important;
+  background: color-mix(in srgb, var(--theme-soft-panel, #EEF8FD) 34%, #FFFFFF) !important;
+  border: 1px solid color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 58%, #FFFFFF) !important;
+}
+
+.app-page[data-page="settings"] .compact-advanced-card summary {
+  min-height: 46px !important;
+}
+
+.app-page[data-page="settings"] #defaultNamesInput.share-box {
+  min-height: 126px !important;
+  border-radius: 20px !important;
+  background: rgba(255,255,255,0.92) !important;
+  border: 1px solid color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 74%, #FFFFFF) !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card,
+.app-page[data-page="settings"] #codeEditor .code-editor-row {
+  gap: 10px !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-card-top {
+  display: grid !important;
+  grid-template-columns: minmax(0, 88px) minmax(0, 1fr) auto !important;
+  align-items: end !important;
+  gap: 8px !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-chip-stack,
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-type-field {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 6px !important;
+  align-items: start !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-chip-stack span,
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-type-field span,
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-meaning-field span,
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-time-field span {
+  width: auto !important;
+  color: #7A8798 !important;
+  font-size: 10.5px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-key-field input {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-type-field select {
+  width: 100% !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-meaning-field {
+  display: grid !important;
+  grid-template-columns: 44px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-time-row {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-time-field {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 6px !important;
+  align-items: start !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .delete-code {
+  margin: 0 !important;
+  align-self: end !important;
+}
+
+@media (max-width: 768px) {
+  .app-page[data-page="settings"] .settings-card-head {
+    align-items: center !important;
+  }
+
+  .app-page[data-page="settings"] .settings-card-copy {
+    margin-bottom: 10px !important;
+    font-size: 11.2px !important;
+  }
+
+  .app-page[data-page="settings"] .settings-card-footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .app-page[data-page="settings"] .settings-card-footer .secondary-btn {
+    width: 100% !important;
+    min-height: 34px !important;
+  }
+
+  .app-page[data-page="settings"] #defaultNamesInput.share-box {
+    min-height: 110px !important;
+  }
+
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .code-card-top {
+    grid-template-columns: minmax(0, 86px) minmax(0, 1fr) auto !important;
+    gap: 7px !important;
+  }
+
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .code-meaning-field {
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+  }
+
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .code-time-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .delete-code {
+    min-height: 32px !important;
+    padding: 0 10px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .app-page[data-page="settings"] .soft-count-chip,
+  .app-page[data-page="settings"] .soft-state-chip {
+    min-height: 26px !important;
+    padding: 0 10px !important;
+    font-size: 10.5px !important;
+  }
+
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .code-card-top {
+    grid-template-columns: 82px minmax(0, 1fr) auto !important;
+  }
+
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .code-key-field input,
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .code-type-field select,
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .code-time-field input,
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .code-meaning-field input {
+    font-size: 11px !important;
+  }
+}
+
+
+/* =========================================
+   v5.10.20 Settings redesign enforcement + cache-bust support
+   - 기존 설정 카드 아이콘/컬러 스타일 제거
+   - 기본 직원 목록/코드표 상태를 새 카드 디자인으로 강제 적용
+   - 코드 카드의 상단 코드/유형/삭제 배치를 더 명확하게 적용
+========================================= */
+.app-page[data-page="settings"] .refined-setting-card::after,
+.app-page[data-page="settings"] .default-names-card.refined-setting-card::after,
+.app-page[data-page="settings"] .code-table-card.refined-setting-card::after {
+  content: none !important;
+  display: none !important;
+}
+
+.app-page[data-page="settings"] .default-names-card.refined-setting-card,
+.app-page[data-page="settings"] .code-table-card.refined-setting-card {
+  overflow: visible !important;
+  padding: 18px !important;
+  border-radius: 24px !important;
+  background: #FFFFFF !important;
+  border: 1px solid color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 72%, #FFFFFF) !important;
+  box-shadow: 0 12px 28px rgba(20, 33, 61, 0.04) !important;
+}
+
+.app-page[data-page="settings"] .default-names-card.refined-setting-card {
+  background: linear-gradient(180deg, #FFFFFF 0%, color-mix(in srgb, var(--theme-card-tint, #F2FBFE) 42%, #FFFFFF) 100%) !important;
+}
+
+.app-page[data-page="settings"] .code-table-card.refined-setting-card {
+  background: linear-gradient(180deg, #FFFFFF 0%, color-mix(in srgb, #F8FAFC 70%, var(--theme-soft-panel, #EEF8FD)) 100%) !important;
+}
+
+.app-page[data-page="settings"] .refined-setting-card .settings-card-head h3 {
+  padding-right: 0 !important;
+}
+
+.app-page[data-page="settings"] .refined-setting-card .settings-card-copy {
+  padding-right: 0 !important;
+}
+
+.app-page[data-page="settings"] .refined-setting-card textarea.share-box {
+  margin-top: 0 !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card,
+.app-page[data-page="settings"] #codeEditor .code-editor-row {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  align-items: stretch !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-card-top {
+  display: grid !important;
+  grid-template-columns: 92px minmax(0, 1fr) auto !important;
+  align-items: end !important;
+  gap: 8px !important;
+  margin-bottom: 0 !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-card-top label {
+  margin: 0 !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-key-field,
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-type-field {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 5px !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-key-field input,
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-type-field select {
+  height: 36px !important;
+  min-height: 36px !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-meaning-field {
+  display: grid !important;
+  grid-template-columns: 38px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-time-row {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .code-time-row label {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 5px !important;
+}
+
+.app-page[data-page="settings"] #codeEditor .compact-code-card .delete-code {
+  height: 34px !important;
+  min-height: 34px !important;
+  align-self: end !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+}
+
+@media (max-width: 768px) {
+  .app-page[data-page="settings"] .default-names-card.refined-setting-card,
+  .app-page[data-page="settings"] .code-table-card.refined-setting-card {
+    padding: 16px !important;
+    border-radius: 22px !important;
+  }
+
+  .app-page[data-page="settings"] .settings-card-head {
+    margin-bottom: 8px !important;
+  }
+
+  .app-page[data-page="settings"] .settings-card-head h3 {
+    font-size: 15.5px !important;
+  }
+
+  .app-page[data-page="settings"] .settings-card-eyebrow {
+    font-size: 10px !important;
+  }
+
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .code-card-top {
+    grid-template-columns: 88px minmax(0, 1fr) auto !important;
+    gap: 7px !important;
+  }
+
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .code-time-row {
+    gap: 7px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .code-card-top {
+    grid-template-columns: 78px minmax(0, 1fr) auto !important;
+  }
+
+  .app-page[data-page="settings"] #codeEditor .compact-code-card .delete-code {
+    padding: 0 10px !important;
+    font-size: 10.5px !important;
+  }
+}
