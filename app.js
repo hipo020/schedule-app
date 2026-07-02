@@ -57,6 +57,7 @@ const THUMB_HEIGHT = 240;
 const THEME_STORAGE_KEY = 'shift-organizer-theme-mode';
 const THEME_MODES = {
   cheer: {
+    label: '응원',
     title: '오늘의 선협이',
     eyebrow: 'Soft Shift Diary',
     heroDesc: '출근도 휴무도 한눈에 보고, 오늘 하루를 작게 응원해요 ☁️',
@@ -64,7 +65,44 @@ const THEME_MODES = {
     cloudReady: '오늘도 같이 체크해볼까 ☁️',
     readyLabel: '응원 준비됨',
   },
+  peach: {
+    label: '복숭아',
+    title: '말랑 복숭아',
+    eyebrow: 'Peach Shift Diary',
+    heroDesc: '달달한 복숭아빛으로 오늘 일정을 말랑하게 챙겨요 🍑',
+    authDesc: 'Google 계정으로 로그인하면 스케줄과 원본 근무표를 월별로 포근하게 저장할 수 있어요.',
+    cloudReady: '달달하게 응원 준비 완료 🍑',
+    readyLabel: '복숭아 준비됨',
+  },
+  sky: {
+    label: '하늘',
+    title: '몽글 하늘',
+    eyebrow: 'Cloudy Shift Diary',
+    heroDesc: '몽글몽글한 하늘빛으로 출근과 휴무를 가볍게 확인해요 🫧',
+    authDesc: 'Google 계정으로 로그인하면 스케줄과 원본 근무표를 월별로 산뜻하게 저장할 수 있어요.',
+    cloudReady: '몽글몽글 스케줄 확인 준비 🫧',
+    readyLabel: '하늘 준비됨',
+  },
+  butter: {
+    label: '버터',
+    title: '버터 응원',
+    eyebrow: 'Butter Shift Diary',
+    heroDesc: '부드러운 버터빛으로 오늘도 반짝 응원하며 확인해요 ⭐',
+    authDesc: 'Google 계정으로 로그인하면 스케줄과 원본 근무표를 월별로 따뜻하게 저장할 수 있어요.',
+    cloudReady: '오늘도 반짝 응원 중 ⭐',
+    readyLabel: '버터 준비됨',
+  },
+  night: {
+    label: '밤근무',
+    title: '밤근무 모드',
+    eyebrow: 'Night Shift Diary',
+    heroDesc: '차분한 밤빛으로 야간 근무도 편하게 확인해요 🌙',
+    authDesc: 'Google 계정으로 로그인하면 스케줄과 원본 근무표를 월별로 차분하게 저장할 수 있어요.',
+    cloudReady: '밤근무도 조심히 다녀오기 🌙',
+    readyLabel: '밤근무 준비됨',
+  },
   simple: {
+    label: '무난',
     title: '스케줄 정리함',
     eyebrow: 'Shift Organizer',
     heroDesc: '근무 일정과 휴무를 한눈에 확인해요.',
@@ -73,6 +111,7 @@ const THEME_MODES = {
     readyLabel: '준비됨',
   },
 };
+const THEME_MODE_KEYS = Object.keys(THEME_MODES);
 
 const PAGE_CATEGORY = {
   home: 'view',
@@ -97,8 +136,12 @@ const CATEGORY_DEFAULT_PAGE = {
 };
 
 
+function normalizeThemeMode(mode = '') {
+  return THEME_MODES[mode] ? mode : 'cheer';
+}
+
 function getThemeMode() {
-  return state.themeMode === 'simple' ? 'simple' : 'cheer';
+  return normalizeThemeMode(state.themeMode);
 }
 
 function isSimpleTheme() {
@@ -111,11 +154,11 @@ function getThemeCopy() {
 
 function loadThemePreference() {
   const saved = localStorage.getItem(THEME_STORAGE_KEY);
-  state.themeMode = saved === 'simple' || saved === 'cheer' ? saved : (state.themeMode === 'simple' ? 'simple' : 'cheer');
+  state.themeMode = normalizeThemeMode(saved || state.themeMode);
 }
 
 function applyTheme(mode = state.themeMode || 'cheer') {
-  const nextMode = mode === 'simple' ? 'simple' : 'cheer';
+  const nextMode = normalizeThemeMode(mode);
   state.themeMode = nextMode;
   localStorage.setItem(THEME_STORAGE_KEY, nextMode);
   document.documentElement.dataset.theme = nextMode;
@@ -138,6 +181,7 @@ function applyTheme(mode = state.themeMode || 'cheer') {
     const active = button.dataset.themeMode === nextMode;
     button.classList.toggle('active', active);
     button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    button.setAttribute('title', `${button.textContent.trim()} 테마`);
   });
   const statusNode = el('cloudStatus');
   if (statusNode && !statusNode.querySelector('.save-status-main')) {
@@ -4146,7 +4190,7 @@ function loadState() {
     state.shareTemplate = parsed.shareTemplate || 'detailed';
     state.reviewCompareOpen = false;
     state.activePage = parsed.activePage || parsed.activeTab || 'home';
-    state.themeMode = parsed.themeMode === 'simple' ? 'simple' : (parsed.themeMode === 'cheer' ? 'cheer' : state.themeMode);
+    state.themeMode = normalizeThemeMode(parsed.themeMode || state.themeMode);
     ensureMonthStore();
     normalizeOcrDefaultNames();
   } catch (e) {

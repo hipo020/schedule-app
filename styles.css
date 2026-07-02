@@ -16248,3 +16248,252 @@ html[data-theme="simple"] .week-day-card.leave::before {
     height: 2px;
   }
 }
+
+
+/* =========================================
+   v5.9 Multi theme set
+   - 응원 / 복숭아 / 하늘 / 버터 / 밤근무 / 무난
+========================================= */
+:root {
+  --theme-accent: #9ED9EC;
+  --theme-accent-soft: #EAF8FD;
+  --theme-accent-strong: #4E92AA;
+  --theme-warm: #FFE9DA;
+  --theme-rest: #EEF5EE;
+  --theme-leave: #F3F0FA;
+  --theme-chip-bg: #DFF2F8;
+  --theme-chip-text: #15314A;
+}
+
+html[data-theme="peach"] {
+  --sky: #FAD7CD;
+  --sky-strong: #F3A990;
+  --navy: #241A20;
+  --muted: #837179;
+  --line: #F0DFD8;
+  --bg: #FFF9F5;
+  --card: #FFFFFF;
+  --soft: #FFF1EA;
+  --theme-accent: #F3A990;
+  --theme-accent-soft: #FFF1EA;
+  --theme-accent-strong: #C66E58;
+  --theme-warm: #FFE4D9;
+  --theme-rest: #F5F1E7;
+  --theme-leave: #F8EEF3;
+  --theme-chip-bg: #FFE6DD;
+  --theme-chip-text: #7A3D2F;
+  --shadow: 0 18px 48px rgba(116, 64, 46, 0.075);
+}
+
+html[data-theme="sky"] {
+  --sky: #D9F0FA;
+  --sky-strong: #97D2EB;
+  --navy: #10263A;
+  --muted: #6E7E8C;
+  --line: #DCECF4;
+  --bg: #F7FCFF;
+  --card: #FFFFFF;
+  --soft: #EEF8FD;
+  --theme-accent: #97D2EB;
+  --theme-accent-soft: #EEF8FD;
+  --theme-accent-strong: #377D9D;
+  --theme-warm: #EAF8FD;
+  --theme-rest: #EEF5F4;
+  --theme-leave: #F1F4FB;
+  --theme-chip-bg: #DDF3FC;
+  --theme-chip-text: #1D5D78;
+  --shadow: 0 18px 48px rgba(51, 125, 157, 0.07);
+}
+
+html[data-theme="butter"] {
+  --sky: #F8E7A8;
+  --sky-strong: #E7C86B;
+  --navy: #2C2515;
+  --muted: #81785F;
+  --line: #EEE4C9;
+  --bg: #FFFDF4;
+  --card: #FFFFFF;
+  --soft: #FFF8DD;
+  --theme-accent: #E7C86B;
+  --theme-accent-soft: #FFF8DD;
+  --theme-accent-strong: #9A7A21;
+  --theme-warm: #FFF3C4;
+  --theme-rest: #F2F5EA;
+  --theme-leave: #F6F1EA;
+  --theme-chip-bg: #FFF0B8;
+  --theme-chip-text: #6B5314;
+  --shadow: 0 18px 48px rgba(118, 95, 28, 0.075);
+}
+
+html[data-theme="night"] {
+  --sky: #D9D8F6;
+  --sky-strong: #A9A7E8;
+  --navy: #161B35;
+  --muted: #707795;
+  --line: #E0E1F0;
+  --bg: #F7F6FE;
+  --card: #FFFFFF;
+  --soft: #F0F0FB;
+  --theme-accent: #A9A7E8;
+  --theme-accent-soft: #F0F0FB;
+  --theme-accent-strong: #5756A5;
+  --theme-warm: #F2F0FF;
+  --theme-rest: #EEF1F8;
+  --theme-leave: #F0ECFA;
+  --theme-chip-bg: #ECEBFF;
+  --theme-chip-text: #393880;
+  --shadow: 0 18px 48px rgba(42, 45, 104, 0.08);
+}
+
+html[data-theme="peach"] body {
+  background: radial-gradient(circle at top left, #FFF1EA 0, #FFF9F5 38%, #FFFFFF 100%) !important;
+}
+html[data-theme="sky"] body {
+  background: radial-gradient(circle at top left, #EEF8FD 0, #F7FCFF 40%, #FFFFFF 100%) !important;
+}
+html[data-theme="butter"] body {
+  background: radial-gradient(circle at top left, #FFF6D6 0, #FFFDF4 42%, #FFFFFF 100%) !important;
+}
+html[data-theme="night"] body {
+  background: radial-gradient(circle at top left, #ECEBFF 0, #F7F6FE 42%, #FFFFFF 100%) !important;
+}
+
+.theme-switcher-multi {
+  display: flex !important;
+  flex-wrap: wrap;
+  width: min(100%, 560px);
+  border-color: color-mix(in srgb, var(--theme-accent) 24%, #FFFFFF) !important;
+}
+
+.theme-chip.active {
+  background: var(--theme-chip-bg) !important;
+  color: var(--theme-chip-text) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--theme-accent) 48%, transparent) !important;
+}
+
+html:not([data-theme="simple"]) .cloud-status,
+html:not([data-theme="simple"]) .category-tab.active,
+html:not([data-theme="simple"]) .sheet-tab.active,
+html:not([data-theme="simple"]) .daily-date-selector,
+html:not([data-theme="simple"]) .daily-my-schedule-card,
+html:not([data-theme="simple"]) .main-schedule-card {
+  background: var(--theme-accent-soft) !important;
+  border-color: color-mix(in srgb, var(--theme-accent) 42%, #FFFFFF) !important;
+}
+
+html:not([data-theme="simple"]) .secondary-btn,
+html:not([data-theme="simple"]) .page-shortcut,
+html:not([data-theme="simple"]) .daily-date-step,
+html:not([data-theme="simple"]) .daily-day-chip.active {
+  background: var(--theme-chip-bg) !important;
+  border-color: color-mix(in srgb, var(--theme-accent) 44%, #FFFFFF) !important;
+  color: var(--theme-chip-text) !important;
+}
+
+html:not([data-theme="simple"]) .badge.work,
+html:not([data-theme="simple"]) .week-code-pill.work,
+html:not([data-theme="simple"]) .day-code.work {
+  background: var(--theme-accent-soft) !important;
+  border-color: color-mix(in srgb, var(--theme-accent) 45%, #FFFFFF) !important;
+  color: var(--theme-accent-strong) !important;
+}
+
+html:not([data-theme="simple"]) .badge.off,
+html:not([data-theme="simple"]) .week-code-pill.off,
+html:not([data-theme="simple"]) .day-code.off {
+  background: var(--theme-rest) !important;
+  border-color: color-mix(in srgb, var(--theme-accent) 18%, #D9E3D9) !important;
+  color: #657A66 !important;
+}
+
+html:not([data-theme="simple"]) .badge.leave,
+html:not([data-theme="simple"]) .week-code-pill.leave,
+html:not([data-theme="simple"]) .day-code.leave {
+  background: var(--theme-leave) !important;
+  border-color: color-mix(in srgb, var(--theme-accent) 18%, #DED6EA) !important;
+  color: #736790 !important;
+}
+
+html:not([data-theme="simple"]) .mini-stat,
+html:not([data-theme="simple"]) .week-summary-block,
+html:not([data-theme="simple"]) .offday-wait-hero,
+html:not([data-theme="simple"]) .restday-hero-card {
+  background: #FFFFFF !important;
+  border-color: color-mix(in srgb, var(--theme-accent) 22%, #E8EDF3) !important;
+}
+
+html:not([data-theme="simple"]) .week-day-card.selected-week-day,
+html:not([data-theme="simple"]) .day-cell.selected {
+  border-color: color-mix(in srgb, var(--theme-accent) 70%, #FFFFFF) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent) 22%, transparent), var(--shadow-soft, 0 12px 30px rgba(16, 42, 67, 0.06)) !important;
+}
+
+html[data-theme="peach"] .home-mini-card.home-mini-month,
+html[data-theme="peach"] .home-mini-card.home-mini-stat,
+html[data-theme="peach"] .compact-cheer-banner.chef-cheer-card {
+  background: linear-gradient(180deg, #FFF1EA 0%, #FFFFFF 100%) !important;
+  border-color: #F0D9D0 !important;
+}
+
+html[data-theme="sky"] .home-mini-card.home-mini-month,
+html[data-theme="sky"] .home-mini-card.home-mini-stat,
+html[data-theme="sky"] .compact-cheer-banner.chef-cheer-card {
+  background: linear-gradient(180deg, #EEF8FD 0%, #FFFFFF 100%) !important;
+  border-color: #D5EAF4 !important;
+}
+
+html[data-theme="butter"] .home-mini-card.home-mini-month,
+html[data-theme="butter"] .home-mini-card.home-mini-stat,
+html[data-theme="butter"] .compact-cheer-banner.chef-cheer-card {
+  background: linear-gradient(180deg, #FFF8DD 0%, #FFFFFF 100%) !important;
+  border-color: #EEE1B6 !important;
+}
+
+html[data-theme="night"] .home-mini-card.home-mini-month,
+html[data-theme="night"] .home-mini-card.home-mini-stat,
+html[data-theme="night"] .compact-cheer-banner.chef-cheer-card {
+  background: linear-gradient(180deg, #F0F0FB 0%, #FFFFFF 100%) !important;
+  border-color: #DEDEF2 !important;
+}
+
+html[data-theme="night"] .hero h1::after,
+html[data-theme="night"] .auth-card h1::after {
+  content: ' 🌙' !important;
+}
+
+html[data-theme="peach"] .hero h1::after,
+html[data-theme="peach"] .auth-card h1::after {
+  content: ' 🍑' !important;
+}
+
+html[data-theme="sky"] .hero h1::after,
+html[data-theme="sky"] .auth-card h1::after {
+  content: ' 🫧' !important;
+}
+
+html[data-theme="butter"] .hero h1::after,
+html[data-theme="butter"] .auth-card h1::after {
+  content: ' ⭐' !important;
+}
+
+@media (max-width: 768px) {
+  .theme-switcher-multi {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    width: 100%;
+    padding: 5px !important;
+  }
+
+  .theme-switcher-multi::-webkit-scrollbar {
+    display: none;
+  }
+
+  .theme-switcher-multi .theme-chip {
+    flex: 0 0 auto;
+    min-height: 28px !important;
+    padding: 0 10px !important;
+    font-size: 11px !important;
+  }
+}
