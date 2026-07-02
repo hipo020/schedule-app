@@ -4345,10 +4345,89 @@ function getImageViewerRecords() {
     .sort((a, b) => String(b.key).localeCompare(String(a.key)));
 }
 
+const modalImageZoomState = {
+  scale: 1,
+  x: 0,
+  y: 0,
+  startScale: 1,
+  startX: 0,
+  startY: 0,
+  startDistance: 0,
+  lastTapAt: 0,
+  isPanning: false,
+  panStartX: 0,
+  panStartY: 0,
+  activePointerId: null,
+};
+
+function clampZoom(value, min = 1, max = 4) {
+  return Math.min(max, Math.max(min, Number(value) || min));
+}
+
+function applyModalImageZoom() {
+  const modal = el('imageViewerModal');
+  const modalImg = el('modalImagePreview');
+  if (!modalImg || !modal) return;
+  const scale = clampZoom(modalImageZoomState.scale);
+  modalImageZoomState.scale = scale;
+
+  if (scale <= 1.01) {
+    modalImageZoomState.scale = 1;
+    modalImageZoomState.x = 0;
+    modalImageZoomState.y = 0;
+    modal.classList.remove('is-zoomed');
+    modalImg.style.transform = '';
+    modalImg.style.transformOrigin = '';
+    return;
+  }
+
+  modal.classList.add('is-zoomed');
+  modalImg.style.transformOrigin = 'center center';
+  modalImg.style.transform = `translate(${modalImageZoomState.x}px, ${modalImageZoomState.y}px) scale(${scale})`;
+}
+
+function resetModalImageZoom() {
+  const modal = el('imageViewerModal');
+  const modalImg = el('modalImagePreview');
+  modalImageZoomState.scale = 1;
+  modalImageZoomState.x = 0;
+  modalImageZoomState.y = 0;
+  modalImageZoomState.startScale = 1;
+  modalImageZoomState.startX = 0;
+  modalImageZoomState.startY = 0;
+  modalImageZoomState.startDistance = 0;
+  modalImageZoomState.isPanning = false;
+  modalImageZoomState.activePointerId = null;
+  if (modal) modal.classList.remove('is-zoomed');
+  if (modalImg) {
+    modalImg.style.transform = '';
+    modalImg.style.transformOrigin = '';
+  }
+}
+
+function getTouchDistance(touches) {
+  if (!touches || touches.length < 2) return 0;
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.hypot(dx, dy);
+}
+
+function toggleModalImageZoom(clientX, clientY) {
+  if (modalImageZoomState.scale > 1.01) {
+    resetModalImageZoom();
+    return;
+  }
+  modalImageZoomState.scale = 2.35;
+  modalImageZoomState.x = 0;
+  modalImageZoomState.y = 0;
+  applyModalImageZoom();
+}
+
 function setModalImageState(message, imageSrc = '') {
   const modalImg = el('modalImagePreview');
   const modalEmpty = el('modalImageEmpty');
   if (!modalImg || !modalEmpty) return;
+  resetModalImageZoom();
 
   if (imageSrc) {
     modalImg.src = imageSrc;
@@ -4375,7 +4454,7 @@ async function showModalImageForMonth(key) {
   }
 
   const label = `${record.year || parseMonthKey(record.key).year}년 ${record.month || parseMonthKey(record.key).month}월`;
-  if (info) info.textContent = `${label} 원본 근무표를 보고 있어요.`;
+  if (info) info.textContent = `${label} 원본 근무표를 보고 있어요. 두 번 탭하거나 두 손가락으로 확대할 수 있어요.`;
 
   if (record.key === currentKey && state.imageData) {
     setModalImageState('', state.imageData);
@@ -4438,6 +4517,7 @@ function bindImageViewerEvents() {
   const closeBtn = el('closeImageModalBtn');
   const backdrop = document.querySelector('.image-modal-backdrop');
   const select = el('modalImageMonthSelect');
+  const modalImg = el('modalImagePreview');
 
   if (!btn || !modal) return;
 
@@ -4458,11 +4538,107 @@ function bindImageViewerEvents() {
 
   const closeModal = () => {
     modal.classList.add('is-hidden');
+    resetModalImageZoom();
   };
 
   btn.addEventListener('click', openModal);
   select?.addEventListener('change', async () => {
     if (select.value) await showModalImageForMonth(select.value);
+  });
+  modalImg?.addEventListener('dblclick', (event) => {
+    if (!modalImg.getAttribute('src')) return;
+    event.preventDefault();
+    event.stopPropagation();
+    toggleModalImageZoom(event.clientX, event.clientY);
+  });
+
+  modalImg?.addEventListener('touchstart', (event) => {
+    if (!modalImg.getAttribute('src')) return;
+
+    if (event.touches.length === 2) {
+      event.preventDefault();
+      modalImageZoomState.startDistance = getTouchDistance(event.touches);
+      modalImageZoomState.startScale = modalImageZoomState.scale;
+      modalImageZoomState.isPanning = false;
+      return;
+    }
+
+    if (event.touches.length === 1) {
+      const now = Date.now();
+      const touch = event.touches[0];
+
+      if (now - modalImageZoomState.lastTapAt < 280) {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleModalImageZoom(touch.clientX, touch.clientY);
+        modalImageZoomState.lastTapAt = 0;
+        return;
+      }
+
+      modalImageZoomState.lastTapAt = now;
+
+      if (modalImageZoomState.scale > 1.01) {
+        event.preventDefault();
+        modalImageZoomState.isPanning = true;
+        modalImageZoomState.panStartX = touch.clientX;
+        modalImageZoomState.panStartY = touch.clientY;
+        modalImageZoomState.startX = modalImageZoomState.x;
+        modalImageZoomState.startY = modalImageZoomState.y;
+      }
+    }
+  }, { passive: false });
+
+  modalImg?.addEventListener('touchmove', (event) => {
+    if (!modalImg.getAttribute('src')) return;
+
+    if (event.touches.length === 2 && modalImageZoomState.startDistance) {
+      event.preventDefault();
+      const distance = getTouchDistance(event.touches);
+      modalImageZoomState.scale = clampZoom(modalImageZoomState.startScale * (distance / modalImageZoomState.startDistance));
+      applyModalImageZoom();
+      return;
+    }
+
+    if (event.touches.length === 1 && modalImageZoomState.isPanning && modalImageZoomState.scale > 1.01) {
+      event.preventDefault();
+      const touch = event.touches[0];
+      modalImageZoomState.x = modalImageZoomState.startX + (touch.clientX - modalImageZoomState.panStartX);
+      modalImageZoomState.y = modalImageZoomState.startY + (touch.clientY - modalImageZoomState.panStartY);
+      applyModalImageZoom();
+    }
+  }, { passive: false });
+
+  modalImg?.addEventListener('touchend', () => {
+    if (modalImageZoomState.scale <= 1.03) resetModalImageZoom();
+    modalImageZoomState.isPanning = false;
+    modalImageZoomState.startDistance = 0;
+  });
+
+  modalImg?.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'touch' || !modalImg.getAttribute('src') || modalImageZoomState.scale <= 1.01) return;
+    event.preventDefault();
+    modalImageZoomState.isPanning = true;
+    modalImageZoomState.activePointerId = event.pointerId;
+    modalImageZoomState.panStartX = event.clientX;
+    modalImageZoomState.panStartY = event.clientY;
+    modalImageZoomState.startX = modalImageZoomState.x;
+    modalImageZoomState.startY = modalImageZoomState.y;
+    modalImg.setPointerCapture?.(event.pointerId);
+  });
+
+  modalImg?.addEventListener('pointermove', (event) => {
+    if (event.pointerType === 'touch' || !modalImageZoomState.isPanning || modalImageZoomState.activePointerId !== event.pointerId) return;
+    event.preventDefault();
+    modalImageZoomState.x = modalImageZoomState.startX + (event.clientX - modalImageZoomState.panStartX);
+    modalImageZoomState.y = modalImageZoomState.startY + (event.clientY - modalImageZoomState.panStartY);
+    applyModalImageZoom();
+  });
+
+  modalImg?.addEventListener('pointerup', (event) => {
+    if (modalImageZoomState.activePointerId === event.pointerId) {
+      modalImageZoomState.isPanning = false;
+      modalImageZoomState.activePointerId = null;
+    }
   });
   closeBtn?.addEventListener('click', closeModal);
   backdrop?.addEventListener('click', closeModal);

@@ -19767,3 +19767,144 @@ html[data-theme="night"] .daily-date-selector {
     padding: 12px !important;
   }
 }
+
+
+/* =========================================
+   v5.10.23 Original image tap-to-zoom
+   - 원본 근무표 이미지를 누르면 확대/축소
+========================================= */
+.image-modal-body img,
+#modalImagePreview {
+  cursor: zoom-in !important;
+}
+
+.image-modal.is-zoomed .image-modal-body {
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+}
+
+.image-modal.is-zoomed #modalImagePreview,
+.image-modal.is-zoomed .image-modal-body img {
+  cursor: zoom-out !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  margin: 0 !important;
+  box-shadow: 0 18px 46px rgba(20, 33, 61, 0.18) !important;
+}
+
+.image-modal.is-zoomed .image-modal-title-group p::after,
+.image-modal.is-zoomed #modalImageInfo::after {
+  content: ' · 다시 누르면 축소';
+}
+
+@media (min-width: 781px) {
+  .image-modal.is-zoomed #modalImagePreview,
+  .image-modal.is-zoomed .image-modal-body img {
+    width: auto !important;
+    min-width: min(1280px, 92vw) !important;
+  }
+}
+
+@media (max-width: 780px) {
+  .image-modal-body {
+    position: relative !important;
+  }
+
+  .image-modal-body::before {
+    content: '이미지를 눌러 확대';
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 0 10px;
+    margin: 0 0 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid color-mix(in srgb, var(--theme-line-soft, #E8EDF3) 72%, #FFFFFF);
+    color: #5F6D7E;
+    font-size: 10.5px;
+    font-weight: 850;
+    box-shadow: 0 8px 18px rgba(20, 33, 61, 0.07);
+    backdrop-filter: blur(10px);
+  }
+
+  .image-modal.is-zoomed .image-modal-body::before {
+    content: '확대 중 · 다시 누르면 축소';
+  }
+
+  .image-modal.is-zoomed #modalImagePreview,
+  .image-modal.is-zoomed .image-modal-body img {
+    width: 220vw !important;
+    min-width: 220vw !important;
+    border-radius: 14px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .image-modal.is-zoomed #modalImagePreview,
+  .image-modal.is-zoomed .image-modal-body img {
+    width: 240vw !important;
+    min-width: 240vw !important;
+  }
+}
+
+
+/* =========================================
+   v5.10.24 Gallery-style image zoom
+   - 두 손가락 확대/축소, 드래그 이동, 더블탭 확대/축소
+========================================= */
+#modalImagePreview,
+.image-modal-body img {
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -webkit-user-drag: none !important;
+  transition: transform 0.12s ease-out !important;
+}
+
+.image-modal.is-zoomed .image-modal-body {
+  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+  touch-action: none !important;
+  cursor: grab !important;
+}
+
+.image-modal.is-zoomed #modalImagePreview,
+.image-modal.is-zoomed .image-modal-body img {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  cursor: grab !important;
+  will-change: transform !important;
+}
+
+.image-modal.is-zoomed #modalImagePreview:active,
+.image-modal.is-zoomed .image-modal-body img:active {
+  cursor: grabbing !important;
+}
+
+.image-modal.is-zoomed .image-modal-title-group p::after,
+.image-modal.is-zoomed #modalImageInfo::after {
+  content: ' · 두 번 탭하면 원래 크기';
+}
+
+@media (max-width: 780px) {
+  .image-modal-body::before {
+    content: '두 번 탭 또는 두 손가락으로 확대' !important;
+  }
+
+  .image-modal.is-zoomed .image-modal-body::before {
+    content: '확대 중 · 드래그로 이동' !important;
+  }
+
+  .image-modal.is-zoomed #modalImagePreview,
+  .image-modal.is-zoomed .image-modal-body img {
+    border-radius: 14px !important;
+  }
+}
