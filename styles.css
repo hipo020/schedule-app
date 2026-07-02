@@ -17699,3 +17699,82 @@ html[data-theme="night"] .daily-date-selector {
     padding: 0 8px !important;
   }
 }
+
+
+/* =========================================
+   v5.10.11 mobile popover anchor fix + true left status
+========================================= */
+@media (max-width: 768px) {
+  .hero-mini-actions {
+    overflow: visible !important;
+  }
+
+  .theme-picker,
+  .account-mini-picker {
+    position: relative !important;
+    overflow: visible !important;
+  }
+
+  .theme-picker-menu {
+    left: auto !important;
+    right: 0 !important;
+    top: calc(100% + 8px) !important;
+    transform: none !important;
+    margin: 0 !important;
+    width: 196px !important;
+    min-width: 196px !important;
+    max-width: min(196px, calc(100vw - 24px)) !important;
+  }
+
+  .cloud-status {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    justify-content: initial !important;
+    text-align: left !important;
+    column-gap: 8px !important;
+    row-gap: 0 !important;
+    padding: 8px 12px !important;
+  }
+
+  .cloud-status .save-status-main {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+  }
+
+  .cloud-status .save-status-main strong,
+  .cloud-status .save-status-message {
+    text-align: left !important;
+  }
+
+  .cloud-status .save-status-message {
+    display: inline-block !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .cloud-status .save-status-time {
+    display: inline-block !important;
+    margin: 0 !important;
+    text-align: right !important;
+    justify-self: end !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .theme-picker-menu {
+    width: 188px !important;
+    min-width: 188px !important;
+    max-width: calc(100vw - 20px) !important;
+  }
+}
