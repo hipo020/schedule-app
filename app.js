@@ -2692,7 +2692,7 @@ function renderSummary() {
     <div class="home-mini-summary-grid" aria-label="홈 요약">
       <div class="summary-card home-mini-card home-mini-off"><i aria-hidden="true">🍀</i><p>다음 휴무</p><strong>${nextOff ? nextOff.dateText : '-'}</strong><span>${nextOff ? `${nextOff.code} ${nextOff.label}` : '남은 휴무 없음'}</span></div>
       <div class="summary-card home-mini-card home-mini-month"><i aria-hidden="true">⭐</i><p>이번 달</p><strong>${workCount}일 근무</strong><span>휴무 ${offCount} · 연차 ${leaveCount}</span></div>
-      <div class="summary-card home-mini-card home-mini-stat"><i aria-hidden="true">💛</i><p>통계</p><strong>${stats.mostCode || '-'}</strong><span>${stats.summaryText}</span></div>
+      <div class="summary-card home-mini-card home-mini-stat"><i aria-hidden="true">💛</i><p>통계</p><strong>${stats.mostCode || '-'}</strong><span title="${escapeHtml(stats.summaryText)}">${escapeHtml(stats.compactSummaryText || stats.summaryText)}</span></div>
       <div class="summary-card home-mini-card home-mini-memo memo-summary-card"><i aria-hidden="true">🎀</i><p>${escapeHtml(memoLabel)}</p><strong>${escapeHtml(memoStrong)}</strong><span>${escapeHtml(memoText ? compactText(memoText, 24) : memoEmptyText)}</span></div>
     </div>
   `;
@@ -2720,23 +2720,32 @@ function renderWorkflowGuide() {
     { title: '3. 데이터 확인', page: 'editor', desc: status.issueCount ? `확인할 항목 ${status.issueCount}개가 있어요.` : '검수할 항목이 없거나 아직 데이터가 없어요.', state: status.reviewStatus === 'done' ? 'done' : (status.issueCount ? 'warn' : 'todo') },
     { title: '4. 저장·공유', page: 'share', desc: status.isSaved ? '현재 변경사항은 저장된 상태예요.' : '저장 버튼을 눌러 반영해 주세요.', state: status.isSaved ? 'done' : 'warn' },
   ];
+  const doneCount = steps.filter((step) => step.state === 'done').length;
+  const warnCount = steps.filter((step) => step.state === 'warn').length;
+  const flowStatus = warnCount ? `확인 ${warnCount}개` : `${doneCount}/4 완료`;
   return `
-    <section class="workflow-guide-card" aria-label="사용 흐름 안내">
-      <div class="workflow-guide-head">
-        <div>
-          <p>QUICK FLOW</p>
-          <h3>입력부터 저장까지</h3>
+    <section class="workflow-guide-card compact-workflow-guide" aria-label="사용 흐름 안내">
+      <details class="workflow-details">
+        <summary>
+          <span>
+            <p>QUICK FLOW</p>
+            <strong>입력부터 저장까지</strong>
+          </span>
+          <em>${escapeHtml(flowStatus)}</em>
+        </summary>
+        <div class="workflow-guide-head compact-flow-head">
+          <span>필요할 때만 열어서 진행 상태를 확인해요.</span>
+          <button class="ghost-btn workflow-help-btn" data-help-page="help" type="button">사용법 보기</button>
         </div>
-        <button class="ghost-btn workflow-help-btn" data-help-page="help" type="button">사용법 보기</button>
-      </div>
-      <div class="workflow-step-grid">
-        ${steps.map((step) => `
-          <button class="workflow-step ${step.state}" data-help-page="${step.page}" type="button">
-            <strong>${escapeHtml(step.title)}</strong>
-            <span>${escapeHtml(step.desc)}</span>
-          </button>
-        `).join('')}
-      </div>
+        <div class="workflow-step-grid compact-flow-grid">
+          ${steps.map((step) => `
+            <button class="workflow-step ${step.state}" data-help-page="${step.page}" type="button">
+              <strong>${escapeHtml(step.title)}</strong>
+              <span>${escapeHtml(step.desc)}</span>
+            </button>
+          `).join('')}
+        </div>
+      </details>
     </section>
   `;
 }
@@ -3009,6 +3018,7 @@ function getMonthlyWorkStats(person = getMyPerson()) {
     earliest: startTimes[0] || '-',
     nightCount,
     summaryText: `근무 ${workRows.length}일 · 휴무 ${offRows.length}일 · 연차 ${leaveRows.length}일 · 야간 ${nightCount}일`,
+    compactSummaryText: `근무 ${workRows.length} · 휴무 ${offRows.length} · 연차 ${leaveRows.length}`,
   };
 }
 
