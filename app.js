@@ -2631,6 +2631,22 @@ function getRestCheerText(nextOff, focusDay, rows = []) {
   return `다음 휴무까지 ${diff}일 남았어요. 무리하지 말고 페이스 유지!`;
 }
 
+
+function getHomeScheduleNote(info = {}, code = '', selectedDay = 1) {
+  if (isSimpleTheme()) {
+    if (info.type === 'work') return '근무 시간과 코드를 확인해요.';
+    if (info.type === 'off') return '휴무 일정으로 표시되어 있어요.';
+    if (info.type === 'leave') return '연차 일정으로 표시되어 있어요.';
+    if (code) return '일정 코드를 한 번 확인해 주세요.';
+    return '선택한 날짜의 일정 요약이에요.';
+  }
+  if (info.type === 'work') return '근무 시간 확인하고 천천히 준비하기';
+  if (info.type === 'off') return '쉬는 날로 표시되어 있어요 ☁️';
+  if (info.type === 'leave') return '연차 일정으로 표시되어 있어요 🎀';
+  if (code) return '애매한 코드는 한 번만 확인해두기';
+  return '스케줄을 넣으면 오늘 일정이 보여요';
+}
+
 function renderSummary() {
   const person = getMyPerson();
   const selected = new Date(state.selectedDate || Date.now());
@@ -2664,7 +2680,7 @@ function renderSummary() {
   const mainScheduleTitle = isSimpleTheme()
     ? (state.myName ? `${state.myName} ${isToday ? '오늘' : selectedLabel} 일정` : '선택일 일정')
     : (ownerName ? `${ownerName} ${isToday ? '오늘' : selectedLabel} 일정` : '선택일 내 일정');
-  const homeCheerLine = getDailyCheerMessage(todayInfo, todayCode, selectedDay);
+  const homeCheerLine = getHomeScheduleNote(todayInfo, todayCode, selectedDay);
   const memoText = getCurrentMemoText();
   const memoLabel = isSimpleTheme() ? '메모' : '응원 메모';
   const memoStrong = memoText ? (isSimpleTheme() ? '메모 있음' : '메모 저장됨') : '메모 없음';
