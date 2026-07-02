@@ -16807,3 +16807,48 @@ html[data-theme="night"] .daily-date-selector {
     width: calc(100% - 32px) !important;
   }
 }
+
+
+/* =========================================
+   v5.10.2 Mobile theme switcher spacing fix
+   - 활성 테마 칩이 왼쪽 라운드와 겹쳐 보이는 현상 보정
+========================================= */
+@media (max-width: 768px) {
+  .theme-switcher.theme-switcher-multi {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    padding: 8px 10px 8px 8px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-padding-left: 8px !important;
+  }
+
+  .theme-switcher.theme-switcher-multi::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .theme-switcher.theme-switcher-multi {
+    scrollbar-width: none !important;
+  }
+
+  .theme-switcher.theme-switcher-multi .theme-chip {
+    flex: 0 0 auto !important;
+    min-height: 36px !important;
+    padding: 0 16px !important;
+    margin: 0 !important;
+  }
+
+  .theme-switcher.theme-switcher-multi .theme-chip:first-child {
+    margin-left: 0 !important;
+  }
+
+  .theme-switcher.theme-switcher-multi .theme-chip.active {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--theme-accent) 42%, transparent) !important;
+  }
+}
